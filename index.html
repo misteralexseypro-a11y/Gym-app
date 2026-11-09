@@ -7,7 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>TACTICAL FIT // Дневник Рекомпозиции v5.0</title>
+    <title>TACTICAL FIT // Дневник Рекомпозиции v5.2</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23090d16'/%3E%3Cpath d='M136 176v160M96 208v96M376 176v160M416 208v96M136 256h240' stroke='%2310b981' stroke-width='36' stroke-linecap='round'/%3E%3C/svg%3E">
     <script>
@@ -57,6 +57,7 @@
             font-size: 16px;
             overscroll-behavior-y: none;
             user-select: none;
+            overflow-x: hidden;
         }
         input, textarea {
             user-select: text;
@@ -111,25 +112,24 @@
 <body class="min-h-screen pb-36 antialiased selection:bg-accentGreen selection:text-black">
 
     <!-- ВЕРХНЯЯ ТАКТИЧЕСКАЯ ПАНЕЛЬ (ШАПКА С КЛИКАБЕЛЬНЫМ БЭКАПОМ И ТЕКУЩИМ ВЕСОМ СПРАВА) -->
-    <header class="sticky top-0 z-30 bg-bgMain/95 backdrop-blur-md border-b border-borderSubtle px-4 py-3">
-        <div class="max-w-lg mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-2.5">
-                <div class="w-2.5 h-7 bg-accentGreen rounded-sm"></div>
-                <div>
-                    <div class="flex items-center space-x-2">
-                        <span class="font-mono font-extrabold text-sm tracking-wider uppercase text-white">TACTICAL RECOMP</span>
-                        <span class="text-[11px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30">v5.0</span>
+    <header class="sticky top-0 z-30 bg-bgMain/95 backdrop-blur-md border-b border-borderSubtle px-3.5 py-3">
+        <div class="max-w-lg mx-auto flex items-center justify-between gap-2">
+            <div class="flex items-center space-x-2 min-w-0">
+                <div class="w-2 h-7 bg-accentGreen rounded-sm shrink-0"></div>
+                <div class="min-w-0">
+                    <div class="flex items-center space-x-1.5">
+                        <span class="font-mono font-extrabold text-sm tracking-wider uppercase text-white truncate">TACTICAL RECOMP</span>
+                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v5.2</span>
                     </div>
-                    <div class="flex items-center space-x-2 mt-0.5">
-                        <button onclick="openBackupModal()" id="autoSaveBadge" class="tactical-btn text-[10px] font-mono text-accentGreen bg-accentGreen/10 border border-accentGreen/30 px-2 py-0.5 rounded-full flex items-center">
-                            <span id="savePulseDot" class="inline-block w-1.5 h-1.5 rounded-full bg-accentGreen mr-1.5"></span>АВТОСОХРАНЕНИЕ / БЭКАП
+                    <div class="flex items-center space-x-1.5 mt-0.5">
+                        <button onclick="openBackupModal()" id="autoSaveBadge" class="tactical-btn text-[10px] font-mono text-accentGreen bg-accentGreen/10 border border-accentGreen/30 px-2 py-0.5 rounded-full flex items-center shrink-0">
+                            <span id="savePulseDot" class="inline-block w-1.5 h-1.5 rounded-full bg-accentGreen mr-1"></span>● АВТОСОХРАНЕНИЕ / БЭКАП
                         </button>
-                        <span class="text-[10px] text-textMuted font-mono">•</span>
-                        <span id="headerDateDisplay" class="text-[11px] text-textMuted font-mono">...</span>
+                        <span id="headerDateDisplay" class="text-[10px] text-textMuted font-mono truncate">...</span>
                     </div>
                 </div>
             </div>
-            <div class="text-right">
+            <div class="text-right shrink-0">
                 <span class="text-[10px] font-mono uppercase text-textMuted block">Текущий вес</span>
                 <button onclick="switchTab('progress')" class="font-mono font-bold text-base text-white hover:text-accentGreen flex items-center justify-end space-x-1">
                     <span id="headerWeightVal">79.6</span>
@@ -140,16 +140,16 @@
     </header>
 
     <!-- ОСНОВНОЙ КОНТЕЙНЕР -->
-    <main class="max-w-lg mx-auto px-4 pt-4 space-y-5">
+    <main class="max-w-lg mx-auto px-3.5 pt-4 space-y-5">
 
-        <!-- УМНЫЙ БАННЕР ЗАЩИТЫ ДАННЫХ (ТОЛЬКО КОД В БУФЕР ОБМЕНА) -->
+        <!-- УМНЫЙ БАННЕР ЗАЩИТЫ ДАННЫХ (НАПОМИНАНИЕ О КОД-БЭКАПЕ) -->
         <div id="backupReminderBanner" class="hidden tactical-card p-3.5 border-accentAmber/60 bg-accentAmber/10 space-y-2.5">
             <div class="flex items-start justify-between">
                 <div class="flex items-center space-x-2">
                     <span class="text-accentAmber text-base">🛡️</span>
                     <div>
                         <h3 class="text-xs font-mono font-bold uppercase text-accentAmber">Защита локальной базы</h3>
-                        <p id="backupReminderText" class="text-xs text-textMain">У тебя новые тренировки без резервной копии. Скопируй код в «Избранное» Telegram за 2 секунды.</p>
+                        <p class="text-xs text-textMain">У тебя новые тренировки без резервной копии. Скопируй код в «Избранное» Telegram за 2 секунды.</p>
                     </div>
                 </div>
                 <button onclick="dismissBackupBanner()" class="text-xs text-textMuted hover:text-white px-1">✕</button>
@@ -160,41 +160,41 @@
         </div>
 
         <!-- ========================================================= -->
-        <!-- ВКЛАДКА 1: ТРЕНИРОВКА (ВЫБОР РЕЖИМА, ЦНС + ТВОИ КАРТОЧКИ) -->
+        <!-- ВКЛАДКА 1: ТРЕНИРОВКА                                     -->
         <!-- ========================================================= -->
         <section id="tab-workout" class="space-y-4">
 
             <!-- Свободный выбор блока + Ручной сдвиг очереди -->
             <div class="tactical-card p-4">
                 <div class="flex items-center justify-between mb-3 gap-2">
-                    <div>
-                        <span class="text-xs font-mono uppercase tracking-wider text-white font-bold block">Очередь и режим на сегодня</span>
-                        <span id="smartQueueBadge" class="text-xs font-mono text-accentGreen font-bold">По очереди: Блок 1: Грудь + Триц</span>
+                    <div class="min-w-0">
+                        <span class="text-xs font-mono uppercase tracking-wider text-white font-bold block">Очередь и режим дня</span>
+                        <span id="smartQueueBadge" class="text-xs font-mono text-accentGreen font-bold block truncate">По очереди: Блок 1: Грудь + Триц</span>
                     </div>
-                    <button onclick="shiftQueueManually()" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-white border border-borderSubtle px-3 py-1.5 rounded-lg shrink-0 font-bold">
-                        ⏭ Сдвинуть очередь
+                    <button onclick="shiftQueueManually()" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-white border border-borderSubtle px-2.5 py-1.5 rounded-lg shrink-0 font-bold">
+                        ⏭ Сдвинуть
                     </button>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="setDayMode('d1')" id="modeBtn-d1" class="tactical-btn py-3 px-3 rounded-xl font-mono text-xs font-bold border text-left flex flex-col justify-between relative">
                         <div class="flex items-center justify-between w-full">
-                            <span class="text-[10px] opacity-80">СИЛОВАЯ • +300 ККАЛ</span>
-                            <span id="nextDot-d1" class="hidden text-[10px] bg-accentGreen text-black px-1.5 py-0.2 rounded font-extrabold">ОЧЕРЕДЬ</span>
+                            <span class="text-[10px] opacity-80">СИЛОВАЯ • +300</span>
+                            <span id="nextDot-d1" class="hidden text-[9px] bg-accentGreen text-black px-1.5 py-0.2 rounded font-extrabold">ОЧЕРЕДЬ</span>
                         </div>
                         <span class="text-sm mt-1">Блок 1: Грудь + Триц</span>
                     </button>
                     <button onclick="setDayMode('d2')" id="modeBtn-d2" class="tactical-btn py-3 px-3 rounded-xl font-mono text-xs font-bold border text-left flex flex-col justify-between relative">
                         <div class="flex items-center justify-between w-full">
-                            <span class="text-[10px] opacity-80">СИЛОВАЯ • +300 ККАЛ</span>
-                            <span id="nextDot-d2" class="hidden text-[10px] bg-accentGreen text-black px-1.5 py-0.2 rounded font-extrabold">ОЧЕРЕДЬ</span>
+                            <span class="text-[10px] opacity-80">СИЛОВАЯ • +300</span>
+                            <span id="nextDot-d2" class="hidden text-[9px] bg-accentGreen text-black px-1.5 py-0.2 rounded font-extrabold">ОЧЕРЕДЬ</span>
                         </div>
                         <span class="text-sm mt-1">Блок 2: Спина + Биц</span>
                     </button>
                     <button onclick="setDayMode('d3')" id="modeBtn-d3" class="tactical-btn py-3 px-3 rounded-xl font-mono text-xs font-bold border text-left flex flex-col justify-between relative">
                         <div class="flex items-center justify-between w-full">
-                            <span class="text-[10px] opacity-80">СИЛОВАЯ • +300 ККАЛ</span>
-                            <span id="nextDot-d3" class="hidden text-[10px] bg-accentGreen text-black px-1.5 py-0.2 rounded font-extrabold">ОЧЕРЕДЬ</span>
+                            <span class="text-[10px] opacity-80">СИЛОВАЯ • +300</span>
+                            <span id="nextDot-d3" class="hidden text-[9px] bg-accentGreen text-black px-1.5 py-0.2 rounded font-extrabold">ОЧЕРЕДЬ</span>
                         </div>
                         <span class="text-sm mt-1">Блок 3: Ноги + Плечи</span>
                     </button>
@@ -227,15 +227,15 @@
             </div>
 
             <!-- Баннер если редактируем прошлую тренировку из журнала -->
-            <div id="editingWorkoutBanner" class="hidden p-3.5 rounded-xl bg-accentAmber/15 border border-accentAmber text-accentAmber text-xs font-mono flex items-center justify-between">
+            <div id="editingWorkoutBanner" class="hidden p-3.5 rounded-xl bg-accentAmber/15 border border-accentAmber text-accentAmber text-xs font-mono flex items-center justify-between gap-2">
                 <div>
-                    <strong class="block uppercase font-bold">✏️ Режим редактирования записи</strong>
+                    <strong class="block uppercase font-bold">✏️ Редактирование архивной записи</strong>
                     <span id="editingWorkoutLabel">Исправь веса/повторы и нажми «Сохранить изменения» внизу</span>
                 </div>
-                <button onclick="cancelEditingWorkout()" class="bg-bgElevated text-white px-2.5 py-1.5 rounded-lg font-bold shrink-0 ml-2">Отмена</button>
+                <button onclick="cancelEditingWorkout()" class="bg-bgElevated text-white px-2.5 py-1.5 rounded-lg font-bold shrink-0">Отмена</button>
             </div>
             
-            <!-- Переключатель Блока 1 / 2 / 3 и фазы (Старт vs Целевой) — ТОЧЬ-В-ТОЧЬ ИЗ v3.0 -->
+            <!-- Переключатель Блока 1 / 2 / 3 и фазы (Старт vs Целевой) -->
             <div class="tactical-card p-3.5 space-y-3">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-mono uppercase text-textMuted">Активный тренировочный блок</span>
@@ -293,11 +293,11 @@
             <!-- Список упражнений выбранного блока -->
             <div id="exercisesContainer" class="space-y-4"></div>
 
-            <!-- Завершение и сохранение тренировки -->
+            <!-- Завершение и сохранение тренировки (без мусорного тоннажа) -->
             <div class="tactical-card p-4 space-y-3 border-accentGreen/40">
                 <div class="flex items-center justify-between text-xs font-mono text-textMuted">
-                    <span>Выполнено подходов: <strong id="summaryCompletedSets" class="text-white">0</strong></span>
-                    <span>Тоннаж сессии: <strong id="summaryVolume" class="text-accentGreen">0 кг</strong></span>
+                    <span>Закрыто рабочих подходов:</span>
+                    <strong id="summaryCompletedSets" class="text-accentGreen text-sm">0</strong>
                 </div>
                 <button onclick="finishAndSaveWorkout()" id="finishWorkoutMainBtn" class="tactical-btn w-full py-4 rounded-xl bg-accentGreen text-black font-mono font-extrabold text-base uppercase tracking-wider shadow-lg shadow-accentGreen/10">
                     ✓ Завершить и сохранить тренировку
@@ -315,17 +315,20 @@
         <section id="tab-food" class="space-y-5 hidden">
 
             <div class="tactical-card p-4 space-y-4">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between gap-2">
                     <div>
-                        <h2 class="text-sm font-bold uppercase tracking-wide text-white">Калькулятор питания (КБЖУ)</h2>
+                        <h2 class="text-sm font-bold uppercase tracking-wide text-white">Калькулятор питания</h2>
                         <p id="macroFormulaCaption" class="text-xs text-textMuted font-mono">Формула под 79.6 кг</p>
                     </div>
-                    <div class="flex items-center space-x-1.5">
-                        <button onclick="undoLastFood()" id="undoFoodBtn" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-textMuted px-2.5 py-1.5 rounded-lg border border-borderSubtle hidden">
-                            ↶ Отмена
+                    <div class="flex items-center space-x-1.5 shrink-0">
+                        <button onclick="copyYesterdayFood()" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-accentGreen px-2.5 py-1.5 rounded-lg border border-accentGreen/30">
+                            ⇄ Вчерашний
                         </button>
-                        <button onclick="resetTodayMacros()" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-accentRed/20 hover:text-accentRed text-textMuted px-2.5 py-1.5 rounded-lg border border-borderSubtle">
-                            Очистить день
+                        <button onclick="undoLastFood()" id="undoFoodBtn" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-textMuted px-2 py-1.5 rounded-lg border border-borderSubtle hidden">
+                            ↶
+                        </button>
+                        <button onclick="resetTodayMacros()" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-accentRed/20 hover:text-accentRed text-textMuted px-2 py-1.5 rounded-lg border border-borderSubtle">
+                            Сброс
                         </button>
                     </div>
                 </div>
@@ -351,7 +354,7 @@
                 <!-- Статус зачета белка от 100 г и остаток БЖУ -->
                 <div class="bg-bgMain px-3.5 py-2.5 rounded-xl border border-borderSubtle flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs font-mono">
                     <span id="proteinPassBadge" class="text-accentAmber font-bold">До зачета дня по белку (100г): ещё 100г</span>
-                    <span id="macroRemainHint" class="text-textMuted">Осталось: Б:125г • Ж:70г • У:265г</span>
+                    <span id="macroRemainHint" class="text-textMuted">До ориентира: Б:125г • Ж:70г • У:305г</span>
                 </div>
 
                 <!-- Белки / Жиры / Углеводы -->
@@ -359,7 +362,7 @@
                     <div class="bg-bgMain p-3 rounded-xl border border-borderSubtle">
                         <div class="flex justify-between items-center text-xs text-textMuted font-mono mb-1">
                             <span>БЕЛКИ</span>
-                            <span class="text-[10px] text-accentGreen">Зачет 100г+</span>
+                            <span class="text-[10px] text-accentGreen">100г+</span>
                         </div>
                         <div class="font-mono font-bold text-base text-white mb-1.5">
                             <span id="protCurrent">0</span><span class="text-xs text-textMuted font-normal"> / <span id="protTarget">125</span>г</span>
@@ -371,7 +374,7 @@
                     <div class="bg-bgMain p-3 rounded-xl border border-borderSubtle">
                         <div class="flex justify-between items-center text-xs text-textMuted font-mono mb-1">
                             <span>ЖИРЫ</span>
-                            <span class="text-[10px]">Гормоны</span>
+                            <span class="text-[10px]">Норма</span>
                         </div>
                         <div class="font-mono font-bold text-base text-white mb-1.5">
                             <span id="fatCurrent">0</span><span class="text-xs text-textMuted font-normal"> / <span id="fatTarget">70</span>г</span>
@@ -394,7 +397,7 @@
                     </div>
                 </div>
 
-                <!-- КОМПАКТНАЯ ПАНЕЛЬ БЫСТРОГО ДОСТУПА (ЧИПСЫ + БАЗА ПРОДУКТОВ ИЗ v3.0) -->
+                <!-- КОМПАКТНАЯ ПАНЕЛЬ БЫСТРОГО ДОСТУПА -->
                 <div class="space-y-2.5 pt-1">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-mono uppercase tracking-wider text-textMuted">Закрепленные продукты (1 клик)</span>
@@ -405,13 +408,13 @@
 
                     <button onclick="openFoodDrawer()" class="tactical-btn w-full py-3 px-4 rounded-xl bg-bgElevated hover:bg-borderSubtle border border-accentGreen/40 flex items-center justify-between text-left">
                         <div class="flex items-center space-x-2.5">
-                            <span class="w-6 h-6 rounded-lg bg-accentGreen/20 text-accentGreen font-mono font-bold text-sm flex items-center justify-center">+</span>
+                            <span class="w-6 h-6 rounded-lg bg-accentGreen/20 text-accentGreen font-mono font-bold text-sm flex items-center justify-center shrink-0">+</span>
                             <div>
                                 <div class="text-sm font-bold text-white">База продуктов и Своя еда</div>
-                                <div class="text-xs text-textMuted font-mono">Выбор порции (0.5x–2x) • Добавление шаблонов</div>
+                                <div class="text-xs text-textMuted font-mono">Выбор порции (0.5x–2x) • Свои шаблоны</div>
                             </div>
                         </div>
-                        <span class="font-mono text-xs text-accentGreen font-bold">Открыть ▾</span>
+                        <span class="font-mono text-xs text-accentGreen font-bold shrink-0">Открыть ▾</span>
                     </button>
                 </div>
 
@@ -468,11 +471,11 @@
 
                 <div class="flex space-x-2">
                     <input type="date" id="weightDateInput" class="bg-bgMain border border-borderSubtle rounded-xl px-2.5 py-3 text-xs font-mono text-white focus:outline-none focus:border-accentGreen w-36 shrink-0">
-                    <div class="relative flex-1">
+                    <div class="relative flex-1 min-w-0">
                         <input type="number" step="0.1" id="weightInput" placeholder="79.6" class="w-full bg-bgMain border border-borderSubtle rounded-xl px-3 py-3 text-base font-mono font-bold text-white focus:outline-none focus:border-accentGreen">
-                        <span class="absolute right-3 top-3.5 text-xs font-mono text-textMuted">кг</span>
+                        <span class="absolute right-2.5 top-3.5 text-xs font-mono text-textMuted">кг</span>
                     </div>
-                    <button onclick="logNewWeight()" class="tactical-btn bg-accentGreen text-black font-mono font-bold px-4 rounded-xl text-xs uppercase shrink-0">
+                    <button onclick="logNewWeight()" class="tactical-btn bg-accentGreen text-black font-mono font-bold px-3.5 rounded-xl text-xs uppercase shrink-0">
                         Записать
                     </button>
                 </div>
@@ -512,7 +515,7 @@
                 </div>
             </div>
 
-            <!-- Архив завершенных тренировок (С РЕДАКТИРОВАНИЕМ, УДАЛЕНИЕМ И СПОЙЛЕРОМ ОТ БЕСКОНЕЧНОЙ ПРОКРУТКИ) -->
+            <!-- Архив завершенных тренировок (БЕЗ ТОННАЖА И БЕЗ БЕСКОНЕЧНОЙ ПРОКРУТКИ) -->
             <div class="tactical-card p-4 space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
@@ -532,48 +535,24 @@
                 </button>
             </div>
 
-            <!-- БЛОК БЭКАПА И ЗАЩИТЫ КЭША (ТОЛЬКО РАБОЧИЙ КОД В БУФЕР ОБМЕНА) -->
-            <div class="tactical-card p-4 space-y-3.5 border-accentGreen/30">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold uppercase tracking-wide text-white">Защита данных и Резервная копия</h2>
-                        <p id="persistentStorageStatus" class="text-xs text-textMuted font-mono">Проверка защиты хранилища...</p>
-                    </div>
-                    <span class="text-xs font-mono bg-accentGreen/15 text-accentGreen px-2 py-0.5 rounded border border-accentGreen/30">Local DB</span>
-                </div>
-
-                <p class="text-xs text-textMuted leading-relaxed">
-                    Чтобы никогда не потерять дневник при очистке браузера или смене телефона, нажми <strong class="text-white">«Скопировать код-бэкап»</strong> и отправь его себе в «Избранное» в Telegram.
-                </p>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <button onclick="copyBackupCodeToClipboard()" class="tactical-btn bg-accentGreen text-black py-3 px-3 rounded-xl text-xs font-mono font-extrabold uppercase">
-                        📋 Скопировать код-бэкап
-                    </button>
-                    <button onclick="openBackupModal()" class="tactical-btn bg-bgElevated hover:bg-borderSubtle border border-borderSubtle py-3 px-3 rounded-xl text-xs font-mono font-bold text-white">
-                        📥 Восстановить из кода
-                    </button>
-                </div>
-            </div>
-
         </section>
 
     </main>
 
     <!-- ========================================================================= -->
-    <!-- МОДАЛЬНОЕ ОКНО БЭКАПА (ОТКРЫВАЕТСЯ ПО КЛИКУ НА ПЛАШКУ АВТОСОХРАНЕНИЯ)     -->
+    <!-- МОДАЛЬНОЕ ОКНО БЭКАПА (ПО КЛИКУ НА ВЕРХНЮЮ ПЛАШКУ АВТОСОХРАНЕНИЯ)         -->
     <!-- ========================================================================= -->
     <div id="backupModal" onclick="if(event.target===this)closeBackupModal()" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-bgCard border border-borderSubtle w-full max-w-md rounded-2xl p-4 space-y-4 shadow-2xl">
             <div class="flex items-center justify-between border-b border-borderSubtle pb-3">
                 <div>
                     <h3 class="text-sm font-bold text-white uppercase tracking-wide">Резервная копия базы (Код)</h3>
-                    <p class="text-xs text-textMuted font-mono">Мгновенный перенос и восстановление</p>
+                    <p id="persistentStorageStatus" class="text-xs text-textMuted font-mono">Мгновенный перенос и восстановление</p>
                 </div>
                 <button onclick="closeBackupModal()" class="w-8 h-8 rounded-lg bg-bgElevated text-textMuted hover:text-white font-mono font-bold">✕</button>
             </div>
             <p class="text-xs text-textMuted leading-relaxed">
-                Скопируй текстовый код и сохрани в «Избранное» Telegram. Для восстановления базы просто вставь сохраненный код в поле ниже:
+                Нажми <strong class="text-white">«Скопировать код-бэкап»</strong> и сохрани строку в «Избранное» Telegram. Для восстановления базы вставь сохраненный код ниже:
             </p>
             <button onclick="copyBackupCodeToClipboard()" class="tactical-btn w-full bg-accentGreen text-black py-3 px-3 rounded-xl text-xs font-mono font-extrabold uppercase">
                 📋 Скопировать код-бэкап в буфер
@@ -589,7 +568,7 @@
     </div>
 
     <!-- ========================================================================= -->
-    <!-- МОДАЛЬНОЕ МЕНЮ (DRAWER): БАЗА ПРОДУКТОВ И КОНСТРУКТОР СВОЕЙ ЕДЫ ИЗ v3.0   -->
+    <!-- МОДАЛЬНОЕ МЕНЮ (DRAWER): БАЗА ПРОДУКТОВ И КОНСТРУКТОР СВОЕЙ ЕДЫ           -->
     <!-- ========================================================================= -->
     <div id="foodDrawerModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-bgCard border-t sm:border border-borderSubtle w-full max-w-lg rounded-t-2xl sm:rounded-2xl p-4 space-y-4 max-h-[88vh] flex flex-col shadow-2xl">
@@ -602,43 +581,43 @@
                 <button onclick="closeFoodDrawer()" class="w-8 h-8 rounded-lg bg-bgElevated text-textMuted hover:text-white font-mono font-bold">✕</button>
             </div>
 
-            <div class="bg-bgMain p-2 rounded-xl border border-borderSubtle flex items-center justify-between">
-                <span class="text-xs font-mono text-textMuted pl-2">Размер порции:</span>
+            <div class="bg-bgMain p-2 rounded-xl border border-borderSubtle flex items-center justify-between gap-2">
+                <span class="text-xs font-mono text-textMuted pl-1 shrink-0">Порция:</span>
                 <div class="flex space-x-1" id="portionMultButtons">
-                    <button onclick="setFoodMultiplier(0.5)" id="multBtn-0.5" class="px-3 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted">0.5x</button>
-                    <button onclick="setFoodMultiplier(1)" id="multBtn-1" class="px-3 py-1.5 rounded-lg font-mono text-xs font-bold bg-accentGreen text-black">1x (Стандарт)</button>
-                    <button onclick="setFoodMultiplier(1.5)" id="multBtn-1.5" class="px-3 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted">1.5x</button>
-                    <button onclick="setFoodMultiplier(2)" id="multBtn-2" class="px-3 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted">2x</button>
+                    <button onclick="setFoodMultiplier(0.5)" id="multBtn-0.5" class="px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted">0.5x</button>
+                    <button onclick="setFoodMultiplier(1)" id="multBtn-1" class="px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-accentGreen text-black">1x</button>
+                    <button onclick="setFoodMultiplier(1.5)" id="multBtn-1.5" class="px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted">1.5x</button>
+                    <button onclick="setFoodMultiplier(2)" id="multBtn-2" class="px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted">2x</button>
                 </div>
             </div>
 
-            <div id="foodDatabaseList" class="space-y-1.5 overflow-y-auto flex-1 pr-1 min-h-[180px]"></div>
+            <div id="foodDatabaseList" class="space-y-1.5 overflow-y-auto flex-1 pr-1 min-h-[160px]"></div>
 
             <div class="bg-bgMain p-3.5 rounded-xl border border-borderSubtle space-y-2.5">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-mono uppercase text-accentGreen font-bold">+ Добавить новое блюдо в базу</span>
                     <label class="flex items-center space-x-1.5 text-xs font-mono text-textMuted cursor-pointer">
                         <input type="checkbox" id="newFoodPinCheck" checked class="accent-emerald-500 rounded">
-                        <span>Закрепить на главном</span>
+                        <span>Закрепить</span>
                     </label>
                 </div>
                 <input type="text" id="newFoodName" placeholder="Название и вес (напр. Овсянка 60г / Шаурма)" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentGreen">
                 <div class="grid grid-cols-4 gap-2">
                     <div>
                         <label class="text-[10px] font-mono text-textMuted uppercase block mb-0.5">Ккал</label>
-                        <input type="number" id="newFoodCal" placeholder="Авто" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2.5 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
+                        <input type="number" id="newFoodCal" placeholder="Авто" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
                     </div>
                     <div>
-                        <label class="text-[10px] font-mono text-textMuted uppercase block mb-0.5">Белки (г)</label>
-                        <input type="number" id="newFoodP" placeholder="0" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2.5 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
+                        <label class="text-[10px] font-mono text-textMuted uppercase block mb-0.5">Белки</label>
+                        <input type="number" id="newFoodP" placeholder="0" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
                     </div>
                     <div>
-                        <label class="text-[10px] font-mono text-textMuted uppercase block mb-0.5">Жиры (г)</label>
-                        <input type="number" id="newFoodF" placeholder="0" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2.5 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
+                        <label class="text-[10px] font-mono text-textMuted uppercase block mb-0.5">Жиры</label>
+                        <input type="number" id="newFoodF" placeholder="0" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
                     </div>
                     <div>
-                        <label class="text-[10px] font-mono text-textMuted uppercase block mb-0.5">Углев (г)</label>
-                        <input type="number" id="newFoodC" placeholder="0" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2.5 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
+                        <label class="text-[10px] font-mono text-textMuted uppercase block mb-0.5">Углев</label>
+                        <input type="number" id="newFoodC" placeholder="0" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2 pt-1">
@@ -646,7 +625,7 @@
                         Сохранить в базу
                     </button>
                     <button onclick="saveNewFoodTemplate(true)" class="tactical-btn bg-accentGreen text-black font-mono font-bold text-xs py-2.5 rounded-lg">
-                        Сохранить и съесть сейчас
+                        Сохранить и съесть
                     </button>
                 </div>
             </div>
@@ -654,28 +633,28 @@
         </div>
     </div>
 
-    <!-- ПЛАВАЮЩИЙ ВИДЖЕТ ТАЙМЕРА ОТДЫХА -->
-    <div id="restTimerBar" class="fixed bottom-16 left-0 right-0 z-40 px-3 pb-2 hidden">
-        <div class="max-w-lg mx-auto bg-bgCard/95 backdrop-blur-md border-2 border-accentAmber timer-active-border rounded-2xl p-3 shadow-2xl">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-accentAmber/20 text-accentAmber px-2.5 py-1.5 rounded-xl font-mono font-extrabold text-2xl tracking-tight min-w-[82px] text-center" id="restTimerClock">
+    <!-- ИСПРАВЛЕННЫЙ ПЛАВАЮЩИЙ ТАЙМЕР ОТДЫХА (НЕ ВЫЛЕЗАЕТ ЗА ЭКРАН НА УЗКИХ ЭКРАНАХ) -->
+    <div id="restTimerBar" class="fixed bottom-16 left-0 right-0 z-40 px-2.5 pb-2 hidden">
+        <div class="max-w-lg mx-auto bg-bgCard/95 backdrop-blur-md border-2 border-accentAmber timer-active-border rounded-2xl p-2.5 shadow-2xl overflow-hidden">
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0 flex-1">
+                    <div class="bg-accentAmber/20 text-accentAmber px-2 py-1.5 rounded-xl font-mono font-extrabold text-xl tracking-tight min-w-[68px] text-center shrink-0" id="restTimerClock">
                         02:00
                     </div>
-                    <div>
-                        <div class="text-xs font-mono uppercase text-accentAmber font-bold" id="restTimerLabel">Таймер отдыха</div>
-                        <div class="text-xs text-textMuted truncate max-w-[140px]" id="restTimerExName">Восстановление АТФ</div>
+                    <div class="min-w-0 flex-1">
+                        <div class="text-[10px] font-mono uppercase text-accentAmber font-bold leading-tight truncate">Таймер отдыха</div>
+                        <div class="text-xs text-textMuted truncate" id="restTimerExName">Восстановление</div>
                     </div>
                 </div>
-                <div class="flex items-center space-x-1.5">
-                    <button onclick="adjustRestTimer(-15)" class="tactical-btn bg-bgElevated border border-borderSubtle text-white font-mono text-xs font-bold px-2.5 py-2 rounded-lg">
+                <div class="flex items-center gap-1 shrink-0">
+                    <button onclick="adjustRestTimer(-15)" class="tactical-btn bg-bgElevated border border-borderSubtle text-white font-mono text-xs font-bold px-2 py-2 rounded-lg">
                         -15с
                     </button>
-                    <button onclick="adjustRestTimer(30)" class="tactical-btn bg-bgElevated border border-borderSubtle text-white font-mono text-xs font-bold px-2.5 py-2 rounded-lg">
+                    <button onclick="adjustRestTimer(30)" class="tactical-btn bg-bgElevated border border-borderSubtle text-white font-mono text-xs font-bold px-2 py-2 rounded-lg">
                         +30с
                     </button>
-                    <button onclick="stopRestTimer()" class="tactical-btn bg-accentRed/20 border border-accentRed/40 text-accentRed font-mono text-xs font-bold px-3 py-2 rounded-lg">
-                        Скип
+                    <button onclick="stopRestTimer()" class="tactical-btn bg-accentRed/20 border border-accentRed/40 text-accentRed font-mono text-xs font-bold px-2.5 py-2 rounded-lg">
+                        Сброс
                     </button>
                 </div>
             </div>
@@ -707,7 +686,7 @@
 
     <script>
         // =========================================================================
-        // 1. БАЗА ДАННЫХ ПРОГРАММЫ ТРЕНИРОВОК (ТОЧНАЯ СТРУКТУРА v3.0 + ТУМБЛЕР ТЯГИ)
+        // 1. БАЗА ДАННЫХ ПРОГРАММЫ ТРЕНИРОВОК (С ОТДЕЛЬНЫМИ ВЕСАМИ И ID ДЛЯ ЗАМЕН)
         // =========================================================================
         const WORKOUT_PROGRAM = {
             d1: {
@@ -771,8 +750,8 @@
                         rest: 60,
                         isPlank: true,
                         progressionStep: '+5–10 сек выдержки',
-                        start: { sets: 3, repsText: '45 сек', minReps: 30, maxReps: 45, weightHint: 'Свой вес', defaultWeight: 0 },
-                        target: { sets: 3, repsText: '60 сек', minReps: 60, maxReps: 60, weightHint: 'Свой вес', defaultWeight: 0 },
+                        start: { sets: 3, repsText: '45 сек', minReps: 30, maxReps: 45, weightHint: 'Статика', defaultWeight: 0 },
+                        target: { sets: 3, repsText: '60 сек', minReps: 60, maxReps: 60, weightHint: 'Статика', defaultWeight: 0 },
                         tip: 'Таз подкручен под себя, пресс и ягодицы жестко зажаты, поясница не провисает.'
                     }
                 ]
@@ -789,18 +768,28 @@
                         toggleStateKey: 'd2Ex1Variant',
                         variants: {
                             pullups: {
+                                id: 'd2_ex1',
+                                shortLabel: 'Подтягивания',
                                 name: 'Подтягивания на турнике (или гравитрон)',
-                                tip: 'Тянись грудью к перекладине, без раскачки. В нижней точке полностью растягивай широчайшие.'
+                                tip: 'Тянись грудью к перекладине, без раскачки. В нижней точке полностью растягивай широчайшие.',
+                                progressionStep: '+1–2 повтора / меньше противовес',
+                                start: { sets: 3, repsText: '6–8', minReps: 6, maxReps: 8, weightHint: 'Свой вес / гравитрон', defaultWeight: 0 },
+                                target: { sets: 3, repsText: '8–12', minReps: 8, maxReps: 12, weightHint: 'Чистая техника', defaultWeight: 0 }
                             },
                             latpulldown: {
+                                id: 'd2_ex1_lat',
+                                shortLabel: 'Верхняя тяга блока',
                                 name: 'Верхняя тяга блока к груди',
-                                tip: 'Плечи опущены вниз, тяни рукоять к верху груди локтями вниз, не раскачивай корпус.'
+                                tip: 'Плечи опущены вниз, тяни рукоять к верху груди локтями вниз, не раскачивай корпус.',
+                                progressionStep: '+2.5–5 кг в блоке',
+                                start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '35–45 кг', defaultWeight: 40 },
+                                target: { sets: 3, repsText: '8–10', minReps: 8, maxReps: 10, weightHint: '50–65 кг', defaultWeight: 55 }
                             }
                         },
                         rest: 120,
                         isPlank: false,
-                        progressionStep: '+1–2 повтора / +2.5 кг в блоке',
-                        start: { sets: 3, repsText: '6–10', minReps: 6, maxReps: 10, weightHint: 'Свой вес / Блок', defaultWeight: 0 },
+                        progressionStep: '+1–2 повтора / +2.5 кг',
+                        start: { sets: 3, repsText: '6–8', minReps: 6, maxReps: 8, weightHint: 'Свой вес / гравитрон', defaultWeight: 0 },
                         target: { sets: 3, repsText: '8–12', minReps: 8, maxReps: 12, weightHint: 'Чистая техника', defaultWeight: 0 },
                         tip: 'Тянись грудью к перекладине, без раскачки.'
                     },
@@ -888,12 +877,22 @@
                         toggleStateKey: 'd3Ex2Variant',
                         variants: {
                             legpress: {
+                                id: 'd3_ex2',
+                                shortLabel: 'Жим ногами (высоко)',
                                 name: 'Жим ногами (высокая постановка на ягодицы)',
-                                tip: 'Высокая и широкая постановка стоп на верху платформы, таз от спинки не отрывай.'
+                                tip: 'Высокая и широкая постановка стоп на верху платформы, таз от спинки не отрывай.',
+                                progressionStep: '+5 кг суммарно',
+                                start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+30–40 кг', defaultWeight: 35 },
+                                target: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+60–80 кг', defaultWeight: 65 }
                             },
                             hipthrust: {
+                                id: 'd3_ex2_hip',
+                                shortLabel: 'Ягодичный мостик',
                                 name: 'Ягодичный мостик (Hip Thrust)',
-                                tip: 'Толкай пятками, в верхней точке мощно зажимай ягодицы с паузой 1 сек.'
+                                tip: 'Толкай пятками, в верхней точке мощно зажимай ягодицы с паузой 1 сек.',
+                                progressionStep: '+5 кг на штангу/тренажер',
+                                start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '30–40 кг', defaultWeight: 35 },
+                                target: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '50–70 кг', defaultWeight: 55 }
                             }
                         },
                         rest: 120,
@@ -969,12 +968,13 @@
         ];
 
         // =========================================================================
-        // 2. СОСТОЯНИЕ ПРИЛОЖЕНИЯ И АВТОСОХРАНЕНИЕ (СОВМЕСТИМО С БАЗОЙ v3.0)
+        // 2. СОСТОЯНИЕ ПРИЛОЖЕНИЯ И БЕЗОПАСНОЕ ХРАНИЛИЩЕ
         // =========================================================================
         const STORAGE_KEY = 'tactical_recomp_state_v2';
         let currentFoodMultiplier = 1;
         let pendingDeleteWorkoutId = null;
         let editingWorkoutId = null;
+        let savedActiveSessionBackup = null;
         let showWeightHistory = false;
         let showAllWorkoutsHistory = false;
 
@@ -1001,6 +1001,25 @@
             workoutsSinceLastBackup: 0,
             lastBackupDate: null
         };
+
+        // Помощник разрешения активного варианта упражнения (с собственным ID, весами и целью)
+        function resolveActiveExerciseConfig(ex) {
+            if (ex.hasVariantToggle && ex.toggleStateKey) {
+                const activeVarKey = appState[ex.toggleStateKey] || Object.keys(ex.variants)[0];
+                const v = ex.variants[activeVarKey] || Object.values(ex.variants)[0];
+                return {
+                    ...ex,
+                    id: v.id || ex.id,
+                    name: v.name,
+                    tip: v.tip,
+                    progressionStep: v.progressionStep || ex.progressionStep,
+                    start: v.start || ex.start,
+                    target: v.target || ex.target,
+                    activeVarKey
+                };
+            }
+            return ex;
+        }
 
         function getNextRecommendedBlock() {
             if (appState.manualQueueNext && ['d1', 'd2', 'd3'].includes(appState.manualQueueNext)) {
@@ -1084,13 +1103,9 @@
                     if (statusEl) {
                         statusEl.textContent = isPersisted
                             ? '✓ Постоянное хранилище браузера защищено'
-                            : 'Активно локальное хранилище (рекомендуется бэкап-код)';
+                            : 'Активно локальное хранилище';
                     }
-                } catch (e) {
-                    if (statusEl) statusEl.textContent = 'Активно локальное хранилище (LocalStorage)';
-                }
-            } else {
-                if (statusEl) statusEl.textContent = 'Активно локальное хранилище (LocalStorage)';
+                } catch (e) {}
             }
         }
 
@@ -1163,6 +1178,7 @@
             saveState();
             renderWorkoutTab();
             renderFoodTab();
+            renderProgressTab();
         }
 
         function setCnsScore(score) {
@@ -1175,6 +1191,7 @@
         function addQuickFood(name, cal, p, f, c) {
             const today = getTodayKey();
             appState.dailyRecords[today].foods.push({
+                uid: Date.now() + Math.random(),
                 name,
                 cal: +(Number(cal).toFixed(1)),
                 p: +(Number(p).toFixed(1)),
@@ -1186,6 +1203,30 @@
             renderFoodTab();
             renderProgressTab();
             showToast(`+ ${name} (${Math.round(cal)} ккал)`);
+        }
+
+        function copyYesterdayFood() {
+            const d = new Date();
+            d.setDate(d.getDate() - 1);
+            const yKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            const yRec = appState.dailyRecords[yKey];
+            if (!yRec || !yRec.foods || yRec.foods.length === 0) {
+                showToast('За вчерашний день нет записей питания');
+                return;
+            }
+            const today = getTodayKey();
+            const nowTime = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            yRec.foods.forEach(item => {
+                appState.dailyRecords[today].foods.push({
+                    ...item,
+                    uid: Date.now() + Math.random(),
+                    time: nowTime
+                });
+            });
+            saveState();
+            renderFoodTab();
+            renderProgressTab();
+            showToast('Вчерашний рацион скопирован на сегодня!');
         }
 
         function undoLastFood() {
@@ -1240,9 +1281,9 @@
                 const btn = document.getElementById(`multBtn-${m}`);
                 if (!btn) return;
                 if (m === currentFoodMultiplier) {
-                    btn.className = 'px-3 py-1.5 rounded-lg font-mono text-xs font-bold bg-accentGreen text-black';
+                    btn.className = 'px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-accentGreen text-black';
                 } else {
-                    btn.className = 'px-3 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted hover:text-white';
+                    btn.className = 'px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted hover:text-white';
                 }
             });
         }
@@ -1341,7 +1382,7 @@
                     <div class="flex items-center justify-between bg-bgMain p-2.5 rounded-xl border border-borderSubtle gap-2">
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center space-x-1.5">
-                                <button onclick="togglePinFood('${item.id}')" title="Закрепить на главном экране" class="text-xs font-mono ${item.pinned ? 'text-accentAmber' : 'text-textMuted opacity-40'}">★</button>
+                                <button onclick="togglePinFood('${item.id}')" title="Закрепить" class="text-xs font-mono ${item.pinned ? 'text-accentAmber' : 'text-textMuted opacity-40'}">★</button>
                                 <span class="font-bold text-sm text-white truncate">${item.name}</span>
                             </div>
                             <div class="text-[11px] font-mono text-textMuted mt-0.5 pl-4">
@@ -1407,7 +1448,6 @@
                 remCal >= 0 ? `Осталось: ${remCal} ккал` : `Перебор: +${Math.abs(remCal)} ккал`;
             document.getElementById('calPercentText').textContent = `${calPct}%`;
 
-            // Индикатор зачета дня по белку от 100г + остаток БЖУ
             const passBadge = document.getElementById('proteinPassBadge');
             if (curP >= 100) {
                 passBadge.className = 'text-accentGreen font-bold';
@@ -1422,7 +1462,6 @@
             const remC = Math.max(0, targets.carbs - Math.round(curC));
             document.getElementById('macroRemainHint').textContent = `До ориентира: Б:${remP}г • Ж:${remF}г • У:${remC}г`;
 
-            // Закрепленные продукты (чипсы)
             const pinnedBar = document.getElementById('pinnedFoodsBar');
             const pinnedItems = (appState.foodDatabase || []).filter(f => f.pinned);
             if (pinnedItems.length === 0) {
@@ -1466,7 +1505,7 @@
         }
 
         // =========================================================================
-        // 4. ВКЛАДКА ТРЕНИРОВКА (КАРТОЧКИ ИЗ v3.0 + ЗАМЕТКИ + РЕДАКТИРОВАНИЕ)
+        // 4. ВКЛАДКА ТРЕНИРОВКА (ЗАЩИТА ПОДХОДОВ, РАЗДЕЛЬНЫЕ ЗАМЕНЫ, БЕЗ ТОННАЖА)
         // =========================================================================
         function selectWorkoutDay(dayKey) {
             appState.workoutDay = dayKey;
@@ -1499,14 +1538,14 @@
             saveState();
         }
 
-        // Строго берет ТОЛЬКО одну последнюю прошлую тренировку (исключая редактируемую)
-        function getExerciseHistoryInfo(exId, maxTargetReps) {
+        // Возвращает строго ОДНУ последнюю тренировку по конкретному ID варианта упражнения
+        function getExerciseHistoryInfo(exId, maxTargetReps, isPlank = false) {
             for (let i = appState.workoutHistory.length - 1; i >= 0; i--) {
                 const w = appState.workoutHistory[i];
                 if (editingWorkoutId && w.id === editingWorkoutId) continue;
                 if (w.exercises && w.exercises[exId] && w.exercises[exId].length > 0) {
                     const sets = w.exercises[exId];
-                    const formatted = sets.map(s => `${s.weight}кг×${s.reps}`).join(', ');
+                    const formatted = sets.map(s => isPlank ? `${s.reps}с` : `${s.weight}кг×${s.reps}`).join(', ');
                     const allHitMax = sets.every(s => Number(s.reps) >= maxTargetReps);
                     const lastWeight = sets[sets.length - 1].weight;
                     return {
@@ -1522,10 +1561,12 @@
             return { found: false, readyForProgression: false };
         }
 
-        function ensureSessionSetState(ex, phaseObj, historyInfo) {
-            const key = `${appState.workoutDay}_${ex.id}`;
-            if (!appState.activeSessionSets[key] || appState.activeSessionSets[key].length !== phaseObj.sets) {
-                const defaultW = historyInfo.found ? historyInfo.lastWeight : phaseObj.defaultWeight;
+        // Не стирает введенные подходы при смене фазы Старт/Целевой
+        function ensureSessionSetState(activeEx, phaseObj, historyInfo) {
+            const key = `${appState.workoutDay}_${activeEx.id}`;
+            const defaultW = historyInfo.found ? historyInfo.lastWeight : phaseObj.defaultWeight;
+
+            if (!appState.activeSessionSets[key]) {
                 const arr = [];
                 for (let s = 0; s < phaseObj.sets; s++) {
                     const prevSet = (historyInfo.found && historyInfo.lastSets[s]) ? historyInfo.lastSets[s] : null;
@@ -1536,16 +1577,28 @@
                     });
                 }
                 appState.activeSessionSets[key] = arr;
+            } else if (appState.activeSessionSets[key].length < phaseObj.sets) {
+                while (appState.activeSessionSets[key].length < phaseObj.sets) {
+                    const sIdx = appState.activeSessionSets[key].length;
+                    const prevSet = (historyInfo.found && historyInfo.lastSets[sIdx]) ? historyInfo.lastSets[sIdx] : null;
+                    const lastExisting = appState.activeSessionSets[key][sIdx - 1];
+                    appState.activeSessionSets[key].push({
+                        weight: prevSet ? prevSet.weight : (lastExisting ? lastExisting.weight : defaultW),
+                        reps: prevSet ? prevSet.reps : (lastExisting ? lastExisting.reps : phaseObj.maxReps),
+                        done: false
+                    });
+                }
             }
-            return appState.activeSessionSets[key];
+            return appState.activeSessionSets[key].slice(0, phaseObj.sets);
         }
 
         function prefillAllFromLastWorkout() {
             const dayObj = WORKOUT_PROGRAM[appState.workoutDay];
             let updatedCount = 0;
-            dayObj.exercises.forEach(ex => {
+            dayObj.exercises.forEach(rawEx => {
+                const ex = resolveActiveExerciseConfig(rawEx);
                 const phaseObj = ex[appState.workoutPhase];
-                const hist = getExerciseHistoryInfo(ex.id, phaseObj.maxReps);
+                const hist = getExerciseHistoryInfo(ex.id, phaseObj.maxReps, ex.isPlank);
                 if (hist.found) {
                     const key = `${appState.workoutDay}_${ex.id}`;
                     const arr = [];
@@ -1600,23 +1653,18 @@
         function updateWorkoutSummaryTotals() {
             const dayObj = WORKOUT_PROGRAM[appState.workoutDay];
             let completedSets = 0;
-            let totalVolume = 0;
 
-            dayObj.exercises.forEach(ex => {
+            dayObj.exercises.forEach(rawEx => {
+                const ex = resolveActiveExerciseConfig(rawEx);
+                const phaseObj = ex[appState.workoutPhase];
                 const key = `${appState.workoutDay}_${ex.id}`;
-                const sets = appState.activeSessionSets[key] || [];
+                const sets = (appState.activeSessionSets[key] || []).slice(0, phaseObj.sets);
                 sets.forEach(s => {
-                    if (s.done) {
-                        completedSets++;
-                        if (!ex.isPlank) {
-                            totalVolume += (parseFloat(s.weight) || 0) * (parseFloat(s.reps) || 0);
-                        }
-                    }
+                    if (s.done) completedSets++;
                 });
             });
 
             document.getElementById('summaryCompletedSets').textContent = completedSets;
-            document.getElementById('summaryVolume').textContent = `${Math.round(totalVolume)} кг`;
         }
 
         let plankInterval = null;
@@ -1631,7 +1679,7 @@
             plankInterval = setInterval(() => {
                 plankRemaining--;
                 if (btn) {
-                    btn.textContent = `⏱ ДЕРЖИМ ПЛАНКУ: ${plankRemaining} СЕК (НАЖМИ ДЛЯ СБРОСА)`;
+                    btn.textContent = `⏱ ДЕРЖИМ ПЛАНКУ: ${plankRemaining} СЕК (СБРОС)`;
                 }
                 if (plankRemaining <= 0) {
                     clearInterval(plankInterval);
@@ -1657,7 +1705,6 @@
             const weight = getCurrentUserWeight();
             document.getElementById('headerWeightVal').textContent = weight.toFixed(1);
 
-            // Баннер напоминания о бэкапе
             const backupBanner = document.getElementById('backupReminderBanner');
             if ((appState.workoutsSinceLastBackup || 0) >= 1) {
                 backupBanner.classList.remove('hidden');
@@ -1665,7 +1712,6 @@
                 backupBanner.classList.add('hidden');
             }
 
-            // Очередь блоков
             const nextBlock = getNextRecommendedBlock();
             const nextBlockName = WORKOUT_PROGRAM[nextBlock].shortName;
             document.getElementById('smartQueueBadge').textContent = `По очереди: ${nextBlockName}`;
@@ -1687,7 +1733,6 @@
                 }
             });
 
-            // Кнопки ЦНС 1-10
             const cnsContainer = document.getElementById('cnsButtonsContainer');
             cnsContainer.innerHTML = '';
             for (let i = 1; i <= 10; i++) {
@@ -1721,7 +1766,6 @@
                 optBanner.classList.remove('hidden');
             }
 
-            // Режим редактирования прошлой тренировки
             const editBanner = document.getElementById('editingWorkoutBanner');
             const finishBtn = document.getElementById('finishWorkoutMainBtn');
             if (editingWorkoutId) {
@@ -1773,27 +1817,21 @@
             const container = document.getElementById('exercisesContainer');
             container.innerHTML = '';
 
-            dayObj.exercises.forEach((ex, exIdx) => {
+            dayObj.exercises.forEach((rawEx, exIdx) => {
+                const ex = resolveActiveExerciseConfig(rawEx);
                 const phaseObj = ex[appState.workoutPhase];
-                const historyInfo = getExerciseHistoryInfo(ex.id, phaseObj.maxReps);
+                const historyInfo = getExerciseHistoryInfo(ex.id, phaseObj.maxReps, ex.isPlank);
                 const sessionSets = ensureSessionSetState(ex, phaseObj, historyInfo);
 
-                let displayTitle = ex.name;
-                let displayTip = ex.tip;
                 let variantToggleHTML = '';
-
-                if (ex.hasVariantToggle && ex.toggleStateKey) {
-                    const activeVarKey = appState[ex.toggleStateKey] || Object.keys(ex.variants)[0];
-                    const v = ex.variants[activeVarKey] || Object.values(ex.variants)[0];
-                    displayTitle = v.name;
-                    displayTip = v.tip;
-
-                    const varKeys = Object.keys(ex.variants);
+                if (rawEx.hasVariantToggle && rawEx.toggleStateKey) {
+                    const activeVarKey = ex.activeVarKey;
+                    const varKeys = Object.keys(rawEx.variants);
                     variantToggleHTML = `
                         <div class="grid grid-cols-2 gap-1.5 bg-bgMain p-1 rounded-xl border border-borderSubtle">
                             ${varKeys.map(vk => `
-                                <button onclick="toggleExerciseVariant('${ex.toggleStateKey}', '${vk}')" class="py-1.5 px-2 rounded-lg font-mono text-xs font-bold ${activeVarKey === vk ? 'bg-bgElevated text-accentGreen border border-accentGreen/40' : 'text-textMuted'}">
-                                    ${ex.variants[vk].name.split('(')[0].trim()}
+                                <button onclick="toggleExerciseVariant('${rawEx.toggleStateKey}', '${vk}')" class="py-1.5 px-2 rounded-lg font-mono text-xs font-bold ${activeVarKey === vk ? 'bg-bgElevated text-accentGreen border border-accentGreen/40' : 'text-textMuted'}">
+                                    ${rawEx.variants[vk].shortLabel}
                                 </button>
                             `).join('')}
                         </div>
@@ -1806,9 +1844,9 @@
                 card.className = 'tactical-card p-4 space-y-3';
 
                 const progressionBadgeHTML = historyInfo.readyForProgression
-                    ? `<div class="p-2.5 rounded-xl bg-accentGreen/15 border border-accentGreen text-accentGreen text-xs font-mono font-bold flex items-center justify-between">
-                         <span>🔥 ПРОГРЕССИЯ: все подходы закрыты на максимум!</span>
-                         <span class="underline ml-2 shrink-0">${ex.progressionStep}</span>
+                    ? `<div class="p-2.5 rounded-xl bg-accentGreen/15 border border-accentGreen text-accentGreen text-xs font-mono font-bold flex items-center justify-between gap-2">
+                         <span>🔥 ПРОГРЕССИЯ: все подходы закрыты!</span>
+                         <span class="underline shrink-0">${ex.progressionStep}</span>
                        </div>`
                     : '';
 
@@ -1816,7 +1854,7 @@
                     ? `<div class="pt-1">
                          ${plankInterval
                             ? `<button id="plankLiveBtn" onclick="stopPlankStopwatch()" class="tactical-btn w-full py-2.5 rounded-xl bg-accentAmber text-black font-mono font-extrabold text-xs uppercase">
-                                 ⏱ ДЕРЖИМ ПЛАНКУ: ${plankRemaining} СЕК (НАЖМИ ДЛЯ СБРОСА)
+                                 ⏱ ДЕРЖИМ ПЛАНКУ: ${plankRemaining} СЕК (СБРОС)
                                </button>`
                             : `<button onclick="startPlankStopwatch(${phaseObj.maxReps})" class="tactical-btn w-full py-2.5 rounded-xl bg-bgElevated border border-accentAmber/50 text-accentAmber font-mono font-bold text-xs uppercase">
                                  ⏱ Запустить секундомер планки (${phaseObj.maxReps} сек)
@@ -1831,6 +1869,24 @@
                         ? 'bg-accentGreen text-black border-accentGreen font-extrabold'
                         : 'bg-bgElevated text-textMuted border-borderSubtle hover:text-white';
 
+                    if (ex.isPlank) {
+                        return `
+                            <div class="grid grid-cols-12 gap-1.5 items-center p-2 rounded-xl border ${rowBg}">
+                                <div class="col-span-2 font-mono font-bold text-xs text-textMuted text-center">#${sIdx + 1}</div>
+                                <div class="col-span-8 flex items-center bg-bgCard rounded-lg border border-borderSubtle overflow-hidden">
+                                    <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'reps', -5)" class="px-3 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">-5с</button>
+                                    <input type="number" step="5" value="${s.reps}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'reps', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
+                                    <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'reps', 5)" class="px-3 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">+5с</button>
+                                </div>
+                                <div class="col-span-2 flex justify-end">
+                                    <button onclick="toggleSetComplete('${ex.id}', ${sIdx}, ${ex.rest}, '${ex.name.replace(/'/g, '')}')" class="tactical-btn w-full h-10 rounded-lg border font-mono text-sm flex items-center justify-center ${btnBg}">
+                                        ✓
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+
                     return `
                         <div class="grid grid-cols-12 gap-1.5 items-center p-2 rounded-xl border ${rowBg}">
                             <div class="col-span-1 font-mono font-bold text-xs text-textMuted text-center">#${sIdx + 1}</div>
@@ -1842,7 +1898,7 @@
                                 <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'weight', 2.5)" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">+</button>
                             </div>
 
-                            <!-- Повторы или Секунды -->
+                            <!-- Повторы -->
                             <div class="col-span-4 flex items-center bg-bgCard rounded-lg border border-borderSubtle overflow-hidden">
                                 <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'reps', -1)" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">-</button>
                                 <input type="number" step="1" value="${s.reps}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'reps', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
@@ -1851,7 +1907,7 @@
 
                             <!-- Чекбокс Готово -->
                             <div class="col-span-2 flex justify-end">
-                                <button onclick="toggleSetComplete('${ex.id}', ${sIdx}, ${ex.rest}, '${displayTitle.replace(/'/g, '')}')" class="tactical-btn w-full h-10 rounded-lg border font-mono text-sm flex items-center justify-center ${btnBg}">
+                                <button onclick="toggleSetComplete('${ex.id}', ${sIdx}, ${ex.rest}, '${ex.name.replace(/'/g, '')}')" class="tactical-btn w-full h-10 rounded-lg border font-mono text-sm flex items-center justify-center ${btnBg}">
                                     ✓
                                 </button>
                             </div>
@@ -1864,9 +1920,9 @@
                         <div class="flex items-center space-x-2.5">
                             <span class="w-7 h-7 rounded-lg bg-bgElevated border border-borderSubtle font-mono font-extrabold text-xs text-accentGreen flex items-center justify-center shrink-0">${exIdx + 1}</span>
                             <div>
-                                <h3 class="font-bold text-base text-white leading-snug">${displayTitle}</h3>
+                                <h3 class="font-bold text-base text-white leading-snug">${ex.name}</h3>
                                 <div class="text-xs font-mono text-textMuted mt-0.5">
-                                    Цель: <strong class="text-white">${phaseObj.sets} × ${phaseObj.repsText}</strong> • Вес: <span class="text-accentGreen">${phaseObj.weightHint}</span> • Отдых: ${ex.rest}с
+                                    Цель: <strong class="text-white">${phaseObj.sets} × ${phaseObj.repsText}</strong> • Вес: <span class="text-accentGreen font-bold">${phaseObj.weightHint}</span> • Отдых: ${ex.rest}с
                                 </div>
                             </div>
                         </div>
@@ -1876,27 +1932,35 @@
                     ${progressionBadgeHTML}
 
                     <div class="bg-bgMain/70 px-3 py-2 rounded-lg border-l-2 border-accentAmber text-xs text-textMuted leading-relaxed">
-                        <strong class="text-white">Совет:</strong> ${displayTip}
+                        <strong class="text-white">Совет:</strong> ${ex.tip}
                     </div>
 
-                    <!-- Памятка по настройке тренажера -->
-                    <input type="text" value="${noteVal.replace(/"/g, '&quot;')}" onchange="saveExerciseNote('${ex.id}', this.value)" placeholder="⚙️ Заметка к тренажеру (напр. Лавка 30°, сиденье 4)" class="w-full bg-bgMain border border-borderSubtle rounded-lg px-3 py-1.5 text-xs font-mono text-white placeholder-textMuted/60 focus:outline-none focus:border-accentGreen">
+                    <!-- Памятка по настройке тренажера (мгновенное автосохранение oninput) -->
+                    <input type="text" value="${noteVal.replace(/"/g, '&quot;')}" oninput="saveExerciseNote('${ex.id}', this.value)" placeholder="⚙️ Заметка к тренажеру (напр. Лавка 30°, сиденье 4)" class="w-full bg-bgMain border border-borderSubtle rounded-lg px-3 py-1.5 text-xs font-mono text-white placeholder-textMuted/60 focus:outline-none focus:border-accentGreen">
 
                     ${historyInfo.found ? `
-                        <div class="text-xs font-mono text-textMuted flex items-center justify-between bg-bgMain px-3 py-1.5 rounded-lg border border-borderSubtle">
-                            <span>Прошлый раз (${historyInfo.date}):</span>
-                            <span class="text-white font-bold">${historyInfo.summary}</span>
+                        <div class="text-xs font-mono text-textMuted flex items-center justify-between bg-bgMain px-3 py-1.5 rounded-lg border border-borderSubtle gap-2">
+                            <span class="shrink-0">Прошлый раз (${historyInfo.date}):</span>
+                            <span class="text-white font-bold truncate">${historyInfo.summary}</span>
                         </div>
                     ` : ''}
 
                     ${plankTimerHTML}
 
-                    <div class="grid grid-cols-12 gap-1.5 px-2 text-[10px] font-mono uppercase text-textMuted">
-                        <div class="col-span-1 text-center">Сет</div>
-                        <div class="col-span-5 text-center">Вес (кг)</div>
-                        <div class="col-span-4 text-center">${ex.isPlank ? 'Секунды' : 'Повторы'}</div>
-                        <div class="col-span-2 text-right">Готово</div>
-                    </div>
+                    ${ex.isPlank ? `
+                        <div class="grid grid-cols-12 gap-1.5 px-2 text-[10px] font-mono uppercase text-textMuted">
+                            <div class="col-span-2 text-center">Сет</div>
+                            <div class="col-span-8 text-center">Выдержка (секунды)</div>
+                            <div class="col-span-2 text-right">Готово</div>
+                        </div>
+                    ` : `
+                        <div class="grid grid-cols-12 gap-1.5 px-2 text-[10px] font-mono uppercase text-textMuted">
+                            <div class="col-span-1 text-center">Сет</div>
+                            <div class="col-span-5 text-center">Вес (кг)</div>
+                            <div class="col-span-4 text-center">Повторы</div>
+                            <div class="col-span-2 text-right">Готово</div>
+                        </div>
+                    `}
 
                     <div class="space-y-2">
                         ${setsRowsHTML}
@@ -1911,25 +1975,40 @@
 
         function clearCurrentWorkoutSession() {
             const dayObj = WORKOUT_PROGRAM[appState.workoutDay];
-            dayObj.exercises.forEach(ex => {
+            dayObj.exercises.forEach(rawEx => {
+                const ex = resolveActiveExerciseConfig(rawEx);
                 delete appState.activeSessionSets[`${appState.workoutDay}_${ex.id}`];
             });
             editingWorkoutId = null;
+            savedActiveSessionBackup = null;
             saveState();
             renderWorkoutTab();
             showToast('Текущая сессия сброшена');
         }
 
-        // Редактирование прошлой тренировки из журнала без удаления
+        // Редактирование прошлой тренировки с сохранением текущей незавершенной сессии в буфер
         function startEditWorkoutById(workoutId) {
             const target = appState.workoutHistory.find(w => w.id === workoutId);
             if (!target) return;
+
+            if (!editingWorkoutId) {
+                savedActiveSessionBackup = JSON.parse(JSON.stringify(appState.activeSessionSets));
+            }
+
             editingWorkoutId = workoutId;
             appState.workoutDay = target.dayId;
             if (target.phase) appState.workoutPhase = target.phase;
 
+            // Автоматическое переключение тумблера, если в архивной записи был выбран второй вариант
+            if (target.exercises && target.exercises['d2_ex1_lat']) appState.d2Ex1Variant = 'latpulldown';
+            else if (target.exercises && target.exercises['d2_ex1']) appState.d2Ex1Variant = 'pullups';
+
+            if (target.exercises && target.exercises['d3_ex2_hip']) appState.d3Ex2Variant = 'hipthrust';
+            else if (target.exercises && target.exercises['d3_ex2']) appState.d3Ex2Variant = 'legpress';
+
             const dayObj = WORKOUT_PROGRAM[target.dayId];
-            dayObj.exercises.forEach(ex => {
+            dayObj.exercises.forEach(rawEx => {
+                const ex = resolveActiveExerciseConfig(rawEx);
                 const phaseObj = ex[appState.workoutPhase];
                 const savedSets = (target.exercises && target.exercises[ex.id]) ? target.exercises[ex.id] : [];
                 const arr = [];
@@ -1952,18 +2031,25 @@
 
         function cancelEditingWorkout() {
             editingWorkoutId = null;
-            clearCurrentWorkoutSession();
+            if (savedActiveSessionBackup) {
+                appState.activeSessionSets = savedActiveSessionBackup;
+                savedActiveSessionBackup = null;
+            }
+            saveState();
+            renderWorkoutTab();
+            showToast('Редактирование отменено');
         }
 
         function finishAndSaveWorkout() {
             const dayObj = WORKOUT_PROGRAM[appState.workoutDay];
             const savedExercises = {};
             let totalSetsDone = 0;
-            let totalTonnage = 0;
 
-            dayObj.exercises.forEach(ex => {
+            dayObj.exercises.forEach(rawEx => {
+                const ex = resolveActiveExerciseConfig(rawEx);
+                const phaseObj = ex[appState.workoutPhase];
                 const key = `${appState.workoutDay}_${ex.id}`;
-                const sets = appState.activeSessionSets[key] || [];
+                const sets = (appState.activeSessionSets[key] || []).slice(0, phaseObj.sets);
                 const doneSets = sets.filter(s => s.done);
                 if (doneSets.length > 0) {
                     savedExercises[ex.id] = doneSets.map(s => ({
@@ -1971,11 +2057,6 @@
                         reps: Number(s.reps)
                     }));
                     totalSetsDone += doneSets.length;
-                    if (!ex.isPlank) {
-                        doneSets.forEach(s => {
-                            totalTonnage += (Number(s.weight) || 0) * (Number(s.reps) || 0);
-                        });
-                    }
                 }
             });
 
@@ -1991,10 +2072,13 @@
                     appState.workoutHistory[idx].dayName = dayObj.name;
                     appState.workoutHistory[idx].phase = appState.workoutPhase;
                     appState.workoutHistory[idx].setsDone = totalSetsDone;
-                    appState.workoutHistory[idx].tonnage = Math.round(totalTonnage);
                     appState.workoutHistory[idx].exercises = savedExercises;
                 }
                 editingWorkoutId = null;
+                if (savedActiveSessionBackup) {
+                    appState.activeSessionSets = savedActiveSessionBackup;
+                    savedActiveSessionBackup = null;
+                }
                 showToast('Изменения в тренировке сохранены!');
             } else {
                 appState.workoutHistory.push({
@@ -2004,20 +2088,20 @@
                     dayName: dayObj.name,
                     phase: appState.workoutPhase,
                     setsDone: totalSetsDone,
-                    tonnage: Math.round(totalTonnage),
                     exercises: savedExercises
                 });
-                appState.manualQueueNext = null; // Сбрасываем ручной сдвиг, чтобы очередь шагнула естественно
+                appState.manualQueueNext = null;
                 appState.workoutsSinceLastBackup = (appState.workoutsSinceLastBackup || 0) + 1;
+
+                dayObj.exercises.forEach(rawEx => {
+                    const ex = resolveActiveExerciseConfig(rawEx);
+                    const key = `${appState.workoutDay}_${ex.id}`;
+                    if (appState.activeSessionSets[key]) {
+                        appState.activeSessionSets[key].forEach(s => s.done = false);
+                    }
+                });
                 showToast('Тренировка сохранена! Следующий блок обновлен.');
             }
-
-            dayObj.exercises.forEach(ex => {
-                const key = `${appState.workoutDay}_${ex.id}`;
-                if (appState.activeSessionSets[key]) {
-                    appState.activeSessionSets[key].forEach(s => s.done = false);
-                }
-            });
 
             stopRestTimer();
             saveState();
@@ -2028,7 +2112,7 @@
         }
 
         // =========================================================================
-        // 5. УДАЛЕНИЕ ТРЕНИРОВОК И ТАЙМЕР ОТДЫХА (С ПРИВЯЗКОЙ К СИСТЕМНЫМ ЧАСАМ)
+        // 5. УДАЛЕНИЕ ТРЕНИРОВОК И НЕСГОРАЮЩИЙ ТАЙМЕР ОТДЫХА
         // =========================================================================
         function deleteWorkoutById(workoutId) {
             if (pendingDeleteWorkoutId !== workoutId) {
@@ -2048,7 +2132,8 @@
             pendingDeleteWorkoutId = null;
 
             if (target && target.dayId && WORKOUT_PROGRAM[target.dayId]) {
-                WORKOUT_PROGRAM[target.dayId].exercises.forEach(ex => {
+                WORKOUT_PROGRAM[target.dayId].exercises.forEach(rawEx => {
+                    const ex = resolveActiveExerciseConfig(rawEx);
                     delete appState.activeSessionSets[`${target.dayId}_${ex.id}`];
                 });
             }
@@ -2083,6 +2168,7 @@
 
         let restTimerInterval = null;
         let restTargetTimestamp = 0;
+        let lastBeepSecond = -1;
 
         function formatMMSS(sec) {
             const s = Math.max(0, Math.floor(sec));
@@ -2094,19 +2180,21 @@
         function startRestTimer(seconds, exName = '') {
             clearInterval(restTimerInterval);
             restTargetTimestamp = Date.now() + seconds * 1000;
+            lastBeepSecond = -1;
             const bar = document.getElementById('restTimerBar');
             const clock = document.getElementById('restTimerClock');
             const exLabel = document.getElementById('restTimerExName');
 
             bar.classList.remove('hidden');
             clock.textContent = formatMMSS(seconds);
-            exLabel.textContent = exName || 'Отдых между подходами';
+            exLabel.textContent = exName || 'Восстановление';
 
             restTimerInterval = setInterval(() => {
                 const secLeft = Math.ceil((restTargetTimestamp - Date.now()) / 1000);
                 clock.textContent = formatMMSS(secLeft);
 
-                if (secLeft === 10) {
+                if (secLeft === 10 && lastBeepSecond !== 10) {
+                    lastBeepSecond = 10;
                     playTacticalBeep('tick');
                 }
                 if (secLeft <= 0) {
@@ -2116,11 +2204,11 @@
                     showToast('Отдых завершен! Время рабочего подхода.');
                     bar.classList.add('hidden');
                 }
-            }, 500);
+            }, 400);
         }
 
         function adjustRestTimer(delta) {
-            restTargetTimestamp = Math.max(Date.now() + 5000, restTargetTimestamp + delta * 1000);
+            restTargetTimestamp = Math.max(Date.now() + 3000, restTargetTimestamp + delta * 1000);
             const secLeft = Math.ceil((restTargetTimestamp - Date.now()) / 1000);
             document.getElementById('restTimerClock').textContent = formatMMSS(secLeft);
         }
@@ -2132,7 +2220,7 @@
         }
 
         // =========================================================================
-        // 6. ПРОГРЕСС: НЕДЕЛЬНЫЙ АРХИВ, ВЕС СО СПОЙЛЕРОМ И КОД-БЭКАП
+        // 6. ПРОГРЕСС: НЕДЕЛЬНЫЙ АРХИВ, ВЕС СО СПОЙЛЕРОМ И КОМПАКТНЫЙ КОД-БЭКАП
         // =========================================================================
         function logNewWeight() {
             const inp = document.getElementById('weightInput');
@@ -2229,7 +2317,6 @@
         }
 
         function renderProgressTab() {
-            // 1. Недельный архив за последние 7 дней (без будущих дат)
             const wkBody = document.getElementById('weeklyArchiveTableBody');
             let wkHTML = '';
             for (let i = 0; i < 7; i++) {
@@ -2264,7 +2351,6 @@
             }
             wkBody.innerHTML = wkHTML;
 
-            // 2. Трекер и график веса
             const logs = appState.weightLogs;
             const currentW = getCurrentUserWeight();
             const startW = logs.length > 0 ? logs[0].weight : 79.6;
@@ -2302,7 +2388,6 @@
                 </div>
             `).reverse().join('');
 
-            // 3. Журнал тренировок со спойлером (чтобы не рос бесконечно вниз) и кнопками Изменить / Удалить
             const totalW = appState.workoutHistory.length;
             document.getElementById('totalWorkoutsBadge').textContent = `${totalW} трен.`;
             const clearAllBtn = document.getElementById('clearAllWorkoutsBtn');
@@ -2341,16 +2426,12 @@
                             <div class="flex items-start justify-between gap-2">
                                 <div>
                                     <span class="font-bold text-sm text-white block">${w.dayName}</span>
-                                    <span class="text-[11px] font-mono text-accentGreen">${w.date} • Упражнений: ${exCount}</span>
+                                    <span class="text-[11px] font-mono text-accentGreen">${w.date} • Упражнений: ${exCount} • Подходов: ${w.setsDone}</span>
                                 </div>
                                 <div class="flex items-center space-x-1.5 shrink-0">
                                     <button onclick="startEditWorkoutById(${w.id})" class="tactical-btn bg-bgElevated hover:bg-borderSubtle border border-borderSubtle text-white font-mono text-xs px-2.5 py-1 rounded-lg">✏️ Изменить</button>
                                     ${delBtnHTML}
                                 </div>
-                            </div>
-                            <div class="flex items-center justify-between text-xs font-mono text-textMuted pt-1 border-t border-borderSubtle/60">
-                                <span>Подходов: <strong class="text-white">${w.setsDone}</strong></span>
-                                <span>Тоннаж: <strong class="text-accentAmber">${w.tonnage} кг</strong></span>
                             </div>
                         </div>
                     `;
@@ -2359,7 +2440,7 @@
         }
 
         // =========================================================================
-        // 7. МОДАЛЬНОЕ ОКНО БЭКАПА ПО КОДУ И НАВИГАЦИЯ
+        // 7. МОДАЛЬНОЕ ОКНО БЭКАПА С ОЧИСТКОЙ ПУСТЫХ ДНЕЙ И НАВИГАЦИЯ
         // =========================================================================
         function openBackupModal() {
             document.getElementById('backupModal').classList.remove('hidden');
@@ -2394,6 +2475,17 @@
 
         function copyBackupCodeToClipboard() {
             try {
+                // Очищаем пустые дни старше 14 дней, чтобы код бэкапа не раздувался через месяцы
+                const cutoffDate = new Date();
+                cutoffDate.setDate(cutoffDate.getDate() - 14);
+                const cutoffISO = `${cutoffDate.getFullYear()}-${String(cutoffDate.getMonth()+1).padStart(2,'0')}-${String(cutoffDate.getDate()).padStart(2,'0')}`;
+                Object.keys(appState.dailyRecords || {}).forEach(dateKey => {
+                    const r = appState.dailyRecords[dateKey];
+                    if (dateKey < cutoffISO && (!r.foods || r.foods.length === 0)) {
+                        delete appState.dailyRecords[dateKey];
+                    }
+                });
+
                 const jsonStr = JSON.stringify(appState);
                 const encoded = 'TACTICAL_BACKUP_' + btoa(unescape(encodeURIComponent(jsonStr)));
                 if (navigator.clipboard && navigator.clipboard.writeText) {
