@@ -1,0 +1,25 @@
+{
+  "id": "./",
+  "name": "TACTICAL v5.0",
+  "short_name": "TACTICAL",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23090d16'/%3E%3Cpath d='M136 176v160M96 208v96M376 176v160M416 208v96M136 256h240' stroke='%2310b981' stroke-width='36' stroke-linecap='round'/%3E%3C/svg%3E",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23090d16'/%3E%3Cpath d='M136 176v160M96 208v96M376 176v160M416 208v96M136 256h240' stroke='%2310b981' stroke-width='36' stroke-linecap='round'/%3E%3C/svg%3E",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
