@@ -7,9 +7,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>TACTICAL FIT // Дневник Рекомпозиции v5.2</title>
+    <title>TACTICAL FIT // Дневник Рекомпозиции v5.5</title>
     <link rel="manifest" href="./manifest.json">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23090d16'/%3E%3Cpath d='M136 176v160M96 208v96M376 176v160M416 208v96M136 256h240' stroke='%2310b981' stroke-width='36' stroke-linecap='round'/%3E%3C/svg%3E">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230d0f12'/%3E%3Cpath d='M136 176v160M96 208v96M376 176v160M416 208v96M136 256h240' stroke='%2310b981' stroke-width='36' stroke-linecap='round'/%3E%3C/svg%3E">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -35,7 +35,8 @@
                         textMuted: '#9ca3af',
                         accentGreen: '#10b981',
                         accentAmber: '#f59e0b',
-                        accentRed: '#ef4444'
+                        accentRed: '#ef4444',
+                        accentBlue: '#38bdf8'
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -59,7 +60,7 @@
             user-select: none;
             overflow-x: hidden;
         }
-        input, textarea {
+        input, textarea, select {
             user-select: text;
         }
         input[type=number]::-webkit-inner-spin-button, 
@@ -111,7 +112,7 @@
 </head>
 <body class="min-h-screen pb-36 antialiased selection:bg-accentGreen selection:text-black">
 
-    <!-- ВЕРХНЯЯ ТАКТИЧЕСКАЯ ПАНЕЛЬ (ШАПКА С КЛИКАБЕЛЬНЫМ БЭКАПОМ И ТЕКУЩИМ ВЕСОМ СПРАВА) -->
+    <!-- ВЕРХНЯЯ ТАКТИЧЕСКАЯ ПАНЕЛЬ -->
     <header class="sticky top-0 z-30 bg-bgMain/95 backdrop-blur-md border-b border-borderSubtle px-3.5 py-3">
         <div class="max-w-lg mx-auto flex items-center justify-between gap-2">
             <div class="flex items-center space-x-2 min-w-0">
@@ -119,7 +120,7 @@
                 <div class="min-w-0">
                     <div class="flex items-center space-x-1.5">
                         <span class="font-mono font-extrabold text-sm tracking-wider uppercase text-white truncate">TACTICAL RECOMP</span>
-                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v5.2</span>
+                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v5.5</span>
                     </div>
                     <div class="flex items-center space-x-1.5 mt-0.5">
                         <button onclick="openBackupModal()" id="autoSaveBadge" class="tactical-btn text-[10px] font-mono text-accentGreen bg-accentGreen/10 border border-accentGreen/30 px-2 py-0.5 rounded-full flex items-center shrink-0">
@@ -142,7 +143,7 @@
     <!-- ОСНОВНОЙ КОНТЕЙНЕР -->
     <main class="max-w-lg mx-auto px-3.5 pt-4 space-y-5">
 
-        <!-- УМНЫЙ БАННЕР ЗАЩИТЫ ДАННЫХ (НАПОМИНАНИЕ О КОД-БЭКАПЕ) -->
+        <!-- УМНЫЙ БАННЕР ЗАЩИТЫ ДАННЫХ -->
         <div id="backupReminderBanner" class="hidden tactical-card p-3.5 border-accentAmber/60 bg-accentAmber/10 space-y-2.5">
             <div class="flex items-start justify-between">
                 <div class="flex items-center space-x-2">
@@ -205,112 +206,113 @@
                 </div>
             </div>
 
-            <!-- Чек-ин восстановления ЦНС -->
-            <div class="tactical-card p-4">
-                <div class="flex items-center justify-between mb-2">
+            <!-- Карточка Дня Отдыха (показывается, когда выбран режим Отдых и мы не редактируем старую запись) -->
+            <div id="restDayScreenCard" class="hidden tactical-card p-6 text-center space-y-3 border-accentGreen/30">
+                <div class="w-12 h-12 rounded-2xl bg-accentGreen/15 border border-accentGreen/30 text-accentGreen flex items-center justify-center mx-auto text-2xl">
+                    🔋
+                </div>
+                <h2 class="text-base font-bold uppercase tracking-wide text-white">День восстановления и роста</h2>
+                <p class="text-xs text-textMuted leading-relaxed max-w-sm mx-auto">
+                    Сегодня без силовых нагрузок. Мышцы восстанавливаются после микротравм. Держи базовый дефицит калорий и закрой минимум <strong class="text-white">100 г белка</strong>.
+                </p>
+                <div class="pt-2 flex justify-center gap-2">
+                    <button onclick="switchTab('food')" class="tactical-btn bg-accentGreen text-black font-mono font-extrabold text-xs px-4 py-2.5 rounded-xl uppercase">
+                        Перейти в питание →
+                    </button>
+                    <button onclick="setDayMode(getNextRecommendedBlock())" class="tactical-btn bg-bgElevated border border-borderSubtle text-textMuted hover:text-white font-mono text-xs px-3.5 py-2.5 rounded-xl">
+                        Открыть тренажеры
+                    </button>
+                </div>
+            </div>
+
+            <!-- Контейнер активной силовой тренировки -->
+            <div id="activeWorkoutSection" class="space-y-4">
+                <!-- Баннер если редактируем прошлую тренировку из журнала -->
+                <div id="editingWorkoutBanner" class="hidden p-3.5 rounded-xl bg-accentAmber/15 border border-accentAmber text-accentAmber text-xs font-mono flex items-center justify-between gap-2">
                     <div>
-                        <h2 class="text-sm font-bold uppercase tracking-wide text-white">Самочувствие и ЦНС</h2>
-                        <p class="text-xs text-textMuted">Оцени качество сна и бодрость (1–10)</p>
+                        <strong class="block uppercase font-bold">✏️ Редактирование архивной записи</strong>
+                        <span id="editingWorkoutLabel">Исправь веса/повторы и нажми «Сохранить изменения» внизу</span>
                     </div>
-                    <span id="cnsScoreBadge" class="font-mono font-extrabold text-lg px-2.5 py-0.5 rounded bg-bgElevated text-accentGreen">8/10</span>
+                    <button onclick="cancelEditingWorkout()" class="bg-bgElevated text-white px-2.5 py-1.5 rounded-lg font-bold shrink-0">Отмена</button>
                 </div>
                 
-                <div class="grid grid-cols-10 gap-1 my-3" id="cnsButtonsContainer"></div>
+                <!-- Переключатель Блока 1 / 2 / 3 и фазы (Старт vs Целевой) -->
+                <div class="tactical-card p-3.5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono uppercase text-textMuted">Активный тренировочный блок</span>
+                        <button onclick="prefillAllFromLastWorkout()" class="text-xs font-mono text-accentGreen hover:underline font-bold">
+                            ↺ Подтянуть веса с прошлой
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="selectWorkoutDay('d1')" id="wTab-d1" class="tactical-btn py-2.5 px-2 rounded-xl font-mono text-xs font-bold border text-center">
+                            БЛОК 1<br><span class="text-[11px] font-normal opacity-80">Грудь + Триц</span>
+                        </button>
+                        <button onclick="selectWorkoutDay('d2')" id="wTab-d2" class="tactical-btn py-2.5 px-2 rounded-xl font-mono text-xs font-bold border text-center">
+                            БЛОК 2<br><span class="text-[11px] font-normal opacity-80">Спина + Биц</span>
+                        </button>
+                        <button onclick="selectWorkoutDay('d3')" id="wTab-d3" class="tactical-btn py-2.5 px-2 rounded-xl font-mono text-xs font-bold border text-center">
+                            БЛОК 3<br><span class="text-[11px] font-normal opacity-80">Ноги + Плечи</span>
+                        </button>
+                    </div>
 
-                <div id="cnsWarningBanner" class="hidden mt-3 p-3 rounded-xl bg-accentAmber/15 border border-accentAmber text-accentAmber text-xs leading-relaxed font-medium">
-                    ⚠️ <strong class="font-bold uppercase">ЦНС утомлена:</strong> сегодня работаем строго с запасом 2–3 повторения в каждом подходе, без отказов!
-                </div>
-                <div id="cnsOptimalBanner" class="mt-2 text-xs text-textMuted flex items-center justify-between">
-                    <span>Готовность к прогрессии весов:</span>
-                    <span class="font-mono text-accentGreen font-semibold">ПОЛНАЯ БОЕВАЯ</span>
-                </div>
-            </div>
-
-            <!-- Баннер если редактируем прошлую тренировку из журнала -->
-            <div id="editingWorkoutBanner" class="hidden p-3.5 rounded-xl bg-accentAmber/15 border border-accentAmber text-accentAmber text-xs font-mono flex items-center justify-between gap-2">
-                <div>
-                    <strong class="block uppercase font-bold">✏️ Редактирование архивной записи</strong>
-                    <span id="editingWorkoutLabel">Исправь веса/повторы и нажми «Сохранить изменения» внизу</span>
-                </div>
-                <button onclick="cancelEditingWorkout()" class="bg-bgElevated text-white px-2.5 py-1.5 rounded-lg font-bold shrink-0">Отмена</button>
-            </div>
-            
-            <!-- Переключатель Блока 1 / 2 / 3 и фазы (Старт vs Целевой) -->
-            <div class="tactical-card p-3.5 space-y-3">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-mono uppercase text-textMuted">Активный тренировочный блок</span>
-                    <button onclick="prefillAllFromLastWorkout()" class="text-xs font-mono text-accentGreen hover:underline font-bold">
-                        ↺ Подтянуть веса с прошлой
-                    </button>
-                </div>
-                <div class="grid grid-cols-3 gap-2">
-                    <button onclick="selectWorkoutDay('d1')" id="wTab-d1" class="tactical-btn py-2.5 px-2 rounded-xl font-mono text-xs font-bold border text-center">
-                        БЛОК 1<br><span class="text-[11px] font-normal opacity-80">Грудь + Триц</span>
-                    </button>
-                    <button onclick="selectWorkoutDay('d2')" id="wTab-d2" class="tactical-btn py-2.5 px-2 rounded-xl font-mono text-xs font-bold border text-center">
-                        БЛОК 2<br><span class="text-[11px] font-normal opacity-80">Спина + Биц</span>
-                    </button>
-                    <button onclick="selectWorkoutDay('d3')" id="wTab-d3" class="tactical-btn py-2.5 px-2 rounded-xl font-mono text-xs font-bold border text-center">
-                        БЛОК 3<br><span class="text-[11px] font-normal opacity-80">Ноги + Плечи</span>
-                    </button>
+                    <!-- Фаза тренировок: Старт vs Целевой -->
+                    <div class="flex items-center justify-between bg-bgMain p-1.5 rounded-xl border border-borderSubtle">
+                        <button onclick="setWorkoutPhase('start')" id="phaseBtn-start" class="tactical-btn flex-1 py-2 rounded-lg text-xs font-mono font-bold text-center">
+                            Старт (Недели 1–2)
+                        </button>
+                        <button onclick="setWorkoutPhase('target')" id="phaseBtn-target" class="tactical-btn flex-1 py-2 rounded-lg text-xs font-mono font-bold text-center">
+                            Целевой (С недели 3–4)
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Фаза тренировок: Старт vs Целевой -->
-                <div class="flex items-center justify-between bg-bgMain p-1.5 rounded-xl border border-borderSubtle">
-                    <button onclick="setWorkoutPhase('start')" id="phaseBtn-start" class="tactical-btn flex-1 py-2 rounded-lg text-xs font-mono font-bold text-center">
-                        Старт (Недели 1–2)
-                    </button>
-                    <button onclick="setWorkoutPhase('target')" id="phaseBtn-target" class="tactical-btn flex-1 py-2 rounded-lg text-xs font-mono font-bold text-center">
-                        Целевой (С недели 3–4)
-                    </button>
+                <!-- Обязательный чек-лист разминки -->
+                <div class="tactical-card p-3.5">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-mono uppercase tracking-wider text-textMuted">Протокол разминки перед базой</span>
+                        <span id="warmupStatusBadge" class="text-[11px] font-mono text-textMuted">0 / 2</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <button onclick="toggleWarmup(0)" id="warmupBtn-0" class="tactical-btn flex items-center justify-between p-3 rounded-xl bg-bgMain border border-borderSubtle text-left">
+                            <div>
+                                <div class="text-sm font-bold text-white">Кардио-разминка</div>
+                                <div class="text-xs text-textMuted font-mono">7–10 мин • 5.0–5.5 км/ч</div>
+                            </div>
+                            <div id="warmupCheck-0" class="w-7 h-7 rounded-lg border border-borderSubtle flex items-center justify-center font-mono text-sm"></div>
+                        </button>
+                        <button onclick="toggleWarmup(1)" id="warmupBtn-1" class="tactical-btn flex items-center justify-between p-3 rounded-xl bg-bgMain border border-borderSubtle text-left">
+                            <div>
+                                <div class="text-sm font-bold text-white">Суставная разминка</div>
+                                <div class="text-xs text-textMuted font-mono">3 мин • плечи, локти, таз</div>
+                            </div>
+                            <div id="warmupCheck-1" class="w-7 h-7 rounded-lg border border-borderSubtle flex items-center justify-center font-mono text-sm"></div>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Обязательный чек-лист разминки -->
-            <div class="tactical-card p-3.5">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-mono uppercase tracking-wider text-textMuted">Протокол разминки перед базой</span>
-                    <span id="warmupStatusBadge" class="text-[11px] font-mono text-textMuted">0 / 2</span>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <button onclick="toggleWarmup(0)" id="warmupBtn-0" class="tactical-btn flex items-center justify-between p-3 rounded-xl bg-bgMain border border-borderSubtle text-left">
-                        <div>
-                            <div class="text-sm font-bold text-white">Кардио-разминка</div>
-                            <div class="text-xs text-textMuted font-mono">7–10 мин • 5.0–5.5 км/ч</div>
-                        </div>
-                        <div id="warmupCheck-0" class="w-7 h-7 rounded-lg border border-borderSubtle flex items-center justify-center font-mono text-sm"></div>
+                <!-- Список упражнений выбранного блока -->
+                <div id="exercisesContainer" class="space-y-4"></div>
+
+                <!-- Завершение и сохранение тренировки -->
+                <div class="tactical-card p-4 space-y-3 border-accentGreen/40">
+                    <div class="flex items-center justify-between text-xs font-mono text-textMuted">
+                        <span>Закрыто рабочих подходов:</span>
+                        <strong id="summaryCompletedSets" class="text-accentGreen text-sm">0</strong>
+                    </div>
+                    <button onclick="finishAndSaveWorkout()" id="finishWorkoutMainBtn" class="tactical-btn w-full py-4 rounded-xl bg-accentGreen text-black font-mono font-extrabold text-base uppercase tracking-wider shadow-lg shadow-accentGreen/10">
+                        ✓ Завершить и сохранить тренировку
                     </button>
-                    <button onclick="toggleWarmup(1)" id="warmupBtn-1" class="tactical-btn flex items-center justify-between p-3 rounded-xl bg-bgMain border border-borderSubtle text-left">
-                        <div>
-                            <div class="text-sm font-bold text-white">Суставная разминка</div>
-                            <div class="text-xs text-textMuted font-mono">3 мин • плечи, локти, таз</div>
-                        </div>
-                        <div id="warmupCheck-1" class="w-7 h-7 rounded-lg border border-borderSubtle flex items-center justify-center font-mono text-sm"></div>
+                    <button onclick="clearCurrentWorkoutSession()" id="resetSessionBtn" class="tactical-btn w-full py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs font-mono text-textMuted hover:text-accentRed hover:border-accentRed/40">
+                        ↺ Сбросить текущую сессию (очистить галочки)
                     </button>
                 </div>
-            </div>
-
-            <!-- Список упражнений выбранного блока -->
-            <div id="exercisesContainer" class="space-y-4"></div>
-
-            <!-- Завершение и сохранение тренировки (без мусорного тоннажа) -->
-            <div class="tactical-card p-4 space-y-3 border-accentGreen/40">
-                <div class="flex items-center justify-between text-xs font-mono text-textMuted">
-                    <span>Закрыто рабочих подходов:</span>
-                    <strong id="summaryCompletedSets" class="text-accentGreen text-sm">0</strong>
-                </div>
-                <button onclick="finishAndSaveWorkout()" id="finishWorkoutMainBtn" class="tactical-btn w-full py-4 rounded-xl bg-accentGreen text-black font-mono font-extrabold text-base uppercase tracking-wider shadow-lg shadow-accentGreen/10">
-                    ✓ Завершить и сохранить тренировку
-                </button>
-                <button onclick="clearCurrentWorkoutSession()" class="tactical-btn w-full py-2.5 rounded-xl bg-bgMain border border-borderSubtle text-xs font-mono text-textMuted hover:text-accentRed hover:border-accentRed/40">
-                    ↺ Сбросить текущую сессию (очистить галочки)
-                </button>
             </div>
 
         </section>
 
         <!-- ========================================================= -->
-        <!-- ВКЛАДКА 2: ПИТАНИЕ (КБЖУ, ЗАЧЕТ ОТ 100Г, ТВОЯ БАЗА ЕДЫ)   -->
+        <!-- ВКЛАДКА 2: ПИТАНИЕ (КБЖУ, ЗАЧЕТ ОТ 100Г, ГРАММОВКА)       -->
         <!-- ========================================================= -->
         <section id="tab-food" class="space-y-5 hidden">
 
@@ -327,7 +329,7 @@
                         <button onclick="undoLastFood()" id="undoFoodBtn" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-textMuted px-2 py-1.5 rounded-lg border border-borderSubtle hidden">
                             ↶
                         </button>
-                        <button onclick="resetTodayMacros()" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-accentRed/20 hover:text-accentRed text-textMuted px-2 py-1.5 rounded-lg border border-borderSubtle">
+                        <button onclick="resetTodayMacros()" id="resetFoodBtn" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-accentRed/20 hover:text-accentRed text-textMuted px-2 py-1.5 rounded-lg border border-borderSubtle">
                             Сброс
                         </button>
                     </div>
@@ -411,31 +413,31 @@
                             <span class="w-6 h-6 rounded-lg bg-accentGreen/20 text-accentGreen font-mono font-bold text-sm flex items-center justify-center shrink-0">+</span>
                             <div>
                                 <div class="text-sm font-bold text-white">База продуктов и Своя еда</div>
-                                <div class="text-xs text-textMuted font-mono">Выбор порции (0.5x–2x) • Свои шаблоны</div>
+                                <div class="text-xs text-textMuted font-mono">Свой вес (г) • Порции (0.5x–2x) • Шаблоны</div>
                             </div>
                         </div>
                         <span class="font-mono text-xs text-accentGreen font-bold shrink-0">Открыть ▾</span>
                     </button>
                 </div>
 
-                <!-- Лог съеденного за сегодня -->
+                <!-- Лог съеденного за сегодня (С РЕДАКТИРОВАНИЕМ ✎ И УДАЛЕНИЕМ ✕) -->
                 <div class="pt-2 border-t border-borderSubtle">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-mono uppercase text-textMuted">Съедено за сегодня:</span>
+                        <span class="text-xs font-mono uppercase text-textMuted">Съедено за сегодня (✎ — изменить):</span>
                         <span id="todayFoodCountBadge" class="text-[11px] font-mono text-textMuted">0 приемов</span>
                     </div>
-                    <div id="todayFoodList" class="space-y-1.5 max-h-60 overflow-y-auto pr-1"></div>
+                    <div id="todayFoodList" class="space-y-1.5 max-h-72 overflow-y-auto pr-1"></div>
                 </div>
             </div>
 
         </section>
 
         <!-- ========================================================= -->
-        <!-- ВКЛАДКА 3: ПРОГРЕСС, НЕДЕЛЬНЫЙ АРХИВ И ЖУРНАЛ             -->
+        <!-- ВКЛАДКА 3: ПРОГРЕСС, СРЕДНЕЕ КБЖУ, ГРАФИК СИЛЫ И ЖУРНАЛ   -->
         <!-- ========================================================= -->
         <section id="tab-progress" class="space-y-5 hidden">
 
-            <!-- Недельный архив за 7 дней -->
+            <!-- Недельный архив за 7 дней + Среднее КБЖУ -->
             <div class="tactical-card p-4 space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
@@ -444,6 +446,13 @@
                     </div>
                     <span class="text-xs font-mono bg-bgElevated px-2.5 py-1 rounded border border-borderSubtle text-accentGreen">Сводка</span>
                 </div>
+
+                <!-- Плашка среднего КБЖУ за 7 дней -->
+                <div id="weeklyAvgMacrosBox" class="bg-bgMain px-3 py-2.5 rounded-xl border border-borderSubtle text-xs font-mono flex flex-wrap items-center justify-between gap-2">
+                    <span class="text-textMuted uppercase">Среднее за неделю:</span>
+                    <span id="weeklyAvgMacrosValue" class="text-white font-bold">Нет полных дней</span>
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs font-mono">
                         <thead>
@@ -459,7 +468,7 @@
                 </div>
             </div>
             
-            <!-- Карточка ввода утреннего веса (С ВЫБОРОМ ДАТЫ И СПОЙЛЕРОМ) -->
+            <!-- Карточка ввода утреннего веса -->
             <div class="tactical-card p-4 space-y-4">
                 <div class="flex items-center justify-between">
                     <div>
@@ -515,12 +524,36 @@
                 </div>
             </div>
 
-            <!-- Архив завершенных тренировок (БЕЗ ТОННАЖА И БЕЗ БЕСКОНЕЧНОЙ ПРОКРУТКИ) -->
+            <!-- НОВЫЙ БЛОК: График силового прогресса по упражнениям -->
+            <div class="tactical-card p-4 space-y-3.5">
+                <div class="flex items-center justify-between gap-2">
+                    <div>
+                        <h2 class="text-sm font-bold uppercase tracking-wide text-white">Прогресс по упражнениям</h2>
+                        <p class="text-xs text-textMuted">Динамика рабочих весов и повторений</p>
+                    </div>
+                    <span id="strengthProgressDeltaBadge" class="font-mono text-xs bg-accentGreen/15 text-accentGreen px-2.5 py-1 rounded border border-accentGreen/30 font-bold shrink-0">
+                        Старт
+                    </span>
+                </div>
+
+                <select id="strengthExerciseSelect" onchange="changeStrengthChartExercise(this.value)" class="w-full bg-bgMain border border-borderSubtle rounded-xl px-3 py-2.5 text-xs font-mono font-bold text-white focus:outline-none focus:border-accentGreen">
+                </select>
+
+                <div class="bg-bgMain p-3 rounded-xl border border-borderSubtle">
+                    <div class="flex justify-between items-center text-[10px] font-mono text-textMuted mb-2">
+                        <span id="strengthChartSubtitle">ЛУЧШИЙ ПОДХОД СЕССИИ</span>
+                        <span class="text-accentGreen">● Тренировка</span>
+                    </div>
+                    <div id="strengthChartBox" class="w-full h-36 flex items-center justify-center"></div>
+                </div>
+            </div>
+
+            <!-- Архив завершенных тренировок (С РАСКРЫВАЮЩЕЙСЯ ШПАРГАЛКОЙ ПО КЛИКУ) -->
             <div class="tactical-card p-4 space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-sm font-bold uppercase tracking-wide text-white">Журнал тренировок</h2>
-                        <p class="text-xs text-textMuted">Можно изменить любую запись или удалить</p>
+                        <p class="text-xs text-textMuted">Нажми на запись, чтобы открыть шпаргалку весов</p>
                     </div>
                     <div class="flex items-center space-x-2">
                         <span id="totalWorkoutsBadge" class="font-mono text-xs bg-bgElevated px-2.5 py-1 rounded border border-borderSubtle text-accentGreen font-bold">0 трен.</span>
@@ -540,7 +573,7 @@
     </main>
 
     <!-- ========================================================================= -->
-    <!-- МОДАЛЬНОЕ ОКНО БЭКАПА (ПО КЛИКУ НА ВЕРХНЮЮ ПЛАШКУ АВТОСОХРАНЕНИЯ)         -->
+    <!-- МОДАЛЬНОЕ ОКНО БЭКАПА                                                     -->
     <!-- ========================================================================= -->
     <div id="backupModal" onclick="if(event.target===this)closeBackupModal()" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-bgCard border border-borderSubtle w-full max-w-md rounded-2xl p-4 space-y-4 shadow-2xl">
@@ -560,38 +593,54 @@
             <div class="bg-bgMain p-3 rounded-xl border border-borderSubtle space-y-2.5">
                 <span class="text-xs font-mono uppercase text-white font-bold block">Вставь скопированный код-бэкап:</span>
                 <textarea id="restoreCodeInput" rows="3" placeholder="Вставь сюда строку TACTICAL_BACKUP_..." class="w-full bg-bgCard border border-borderSubtle rounded-lg p-2.5 text-xs font-mono text-white focus:outline-none focus:border-accentGreen"></textarea>
-                <button onclick="restoreFromTextCode()" class="tactical-btn w-full bg-bgElevated hover:bg-accentGreen hover:text-black border border-accentGreen/40 text-accentGreen font-mono font-bold text-xs py-2.5 rounded-lg uppercase">
-                    📥 Восстановить базу из кода
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="restoreFromTextCode()" class="tactical-btn flex-1 bg-bgElevated hover:bg-accentGreen hover:text-black border border-accentGreen/40 text-accentGreen font-mono font-bold text-xs py-2.5 rounded-lg uppercase">
+                        📥 Восстановить из кода
+                    </button>
+                    <button onclick="undoLastRestoreBackup()" id="undoRestoreBtn" class="hidden tactical-btn bg-bgElevated border border-accentAmber/50 text-accentAmber font-mono font-bold text-xs px-3 py-2.5 rounded-lg">
+                        ↶ Откат
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- ========================================================================= -->
-    <!-- МОДАЛЬНОЕ МЕНЮ (DRAWER): БАЗА ПРОДУКТОВ И КОНСТРУКТОР СВОЕЙ ЕДЫ           -->
+    <!-- МОДАЛЬНОЕ МЕНЮ (DRAWER): БАЗА ПРОДУКТОВ + СВОЙ ВЕС В ГРАММАХ              -->
     <!-- ========================================================================= -->
     <div id="foodDrawerModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-bgCard border-t sm:border border-borderSubtle w-full max-w-lg rounded-t-2xl sm:rounded-2xl p-4 space-y-4 max-h-[88vh] flex flex-col shadow-2xl">
+        <div class="bg-bgCard border-t sm:border border-borderSubtle w-full max-w-lg rounded-t-2xl sm:rounded-2xl p-4 space-y-3.5 max-h-[90vh] flex flex-col shadow-2xl">
             
-            <div class="flex items-center justify-between border-b border-borderSubtle pb-3">
+            <div class="flex items-center justify-between border-b border-borderSubtle pb-2.5">
                 <div>
                     <h3 class="text-base font-bold text-white uppercase tracking-wide">База продуктов и Своя еда</h3>
-                    <p class="text-xs text-textMuted font-mono">Выбери множитель порции и нажми «+»</p>
+                    <p class="text-xs text-textMuted font-mono">Выбери порцию или укажи точный вес в граммах</p>
                 </div>
                 <button onclick="closeFoodDrawer()" class="w-8 h-8 rounded-lg bg-bgElevated text-textMuted hover:text-white font-mono font-bold">✕</button>
             </div>
 
-            <div class="bg-bgMain p-2 rounded-xl border border-borderSubtle flex items-center justify-between gap-2">
-                <span class="text-xs font-mono text-textMuted pl-1 shrink-0">Порция:</span>
-                <div class="flex space-x-1" id="portionMultButtons">
-                    <button onclick="setFoodMultiplier(0.5)" id="multBtn-0.5" class="px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted">0.5x</button>
-                    <button onclick="setFoodMultiplier(1)" id="multBtn-1" class="px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-accentGreen text-black">1x</button>
-                    <button onclick="setFoodMultiplier(1.5)" id="multBtn-1.5" class="px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted">1.5x</button>
-                    <button onclick="setFoodMultiplier(2)" id="multBtn-2" class="px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted">2x</button>
+            <!-- Панель множителя порции + Поле точной граммовки -->
+            <div class="bg-bgMain p-2.5 rounded-xl border border-borderSubtle space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-mono text-textMuted shrink-0">Быстрая порция:</span>
+                    <div class="flex space-x-1" id="portionMultButtons">
+                        <button onclick="setFoodMultiplier(0.5)" id="multBtn-0.5" class="px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted">0.5x</button>
+                        <button onclick="setFoodMultiplier(1)" id="multBtn-1" class="px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-accentGreen text-black">1x</button>
+                        <button onclick="setFoodMultiplier(1.5)" id="multBtn-1.5" class="px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted">1.5x</button>
+                        <button onclick="setFoodMultiplier(2)" id="multBtn-2" class="px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted">2x</button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-borderSubtle/60">
+                    <span class="text-xs font-mono text-accentGreen font-bold">⚖️ Свой вес (в граммах):</span>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="customFoodGramsInput" oninput="onCustomGramsInput(this.value)" placeholder="напр. 175" class="w-28 bg-bgCard border border-borderSubtle rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-white text-center focus:outline-none focus:border-accentGreen">
+                        <span class="text-xs font-mono text-textMuted">г</span>
+                        <button onclick="clearCustomGrams()" id="clearGramsBtn" class="hidden text-xs font-mono text-textMuted hover:text-white px-1.5">✕</button>
+                    </div>
                 </div>
             </div>
 
-            <div id="foodDatabaseList" class="space-y-1.5 overflow-y-auto flex-1 pr-1 min-h-[160px]"></div>
+            <div id="foodDatabaseList" class="space-y-1.5 overflow-y-auto flex-1 pr-1 min-h-[150px]"></div>
 
             <div class="bg-bgMain p-3.5 rounded-xl border border-borderSubtle space-y-2.5">
                 <div class="flex items-center justify-between">
@@ -601,7 +650,10 @@
                         <span>Закрепить</span>
                     </label>
                 </div>
-                <input type="text" id="newFoodName" placeholder="Название и вес (напр. Овсянка 60г / Шаурма)" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentGreen">
+                <div class="grid grid-cols-12 gap-2">
+                    <input type="text" id="newFoodName" placeholder="Название (напр. Овсянка / Шаурма)" class="col-span-8 bg-bgCard border border-borderSubtle rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-accentGreen">
+                    <input type="number" id="newFoodBaseGrams" placeholder="Порция 100г" class="col-span-4 bg-bgCard border border-borderSubtle rounded-lg px-2 py-2 text-xs font-mono text-white text-center focus:outline-none focus:border-accentGreen">
+                </div>
                 <div class="grid grid-cols-4 gap-2">
                     <div>
                         <label class="text-[10px] font-mono text-textMuted uppercase block mb-0.5">Ккал</label>
@@ -633,7 +685,7 @@
         </div>
     </div>
 
-    <!-- ИСПРАВЛЕННЫЙ ПЛАВАЮЩИЙ ТАЙМЕР ОТДЫХА (НЕ ВЫЛЕЗАЕТ ЗА ЭКРАН НА УЗКИХ ЭКРАНАХ) -->
+    <!-- ПЛАВАЮЩИЙ ТАЙМЕР ОТДЫХА -->
     <div id="restTimerBar" class="fixed bottom-16 left-0 right-0 z-40 px-2.5 pb-2 hidden">
         <div class="max-w-lg mx-auto bg-bgCard/95 backdrop-blur-md border-2 border-accentAmber timer-active-border rounded-2xl p-2.5 shadow-2xl overflow-hidden">
             <div class="flex items-center justify-between gap-2">
@@ -666,7 +718,7 @@
         Сохранено
     </div>
 
-    <!-- НИЖНИЙ ТАБ-БАР НАВИГАЦИИ (ТРЕНИРОВКА | ПИТАНИЕ | ПРОГРЕСС) -->
+    <!-- НИЖНИЙ ТАБ-БАР НАВИГАЦИИ -->
     <nav class="fixed bottom-0 left-0 right-0 z-40 bg-bgCard/95 backdrop-blur-md border-t border-borderSubtle">
         <div class="max-w-lg mx-auto grid grid-cols-3 h-16">
             <button onclick="switchTab('workout')" id="navBtn-workout" class="flex flex-col items-center justify-center space-y-1 font-mono text-xs font-bold text-accentGreen">
@@ -686,7 +738,7 @@
 
     <script>
         // =========================================================================
-        // 1. БАЗА ДАННЫХ ПРОГРАММЫ ТРЕНИРОВОК (С ОТДЕЛЬНЫМИ ВЕСАМИ И ID ДЛЯ ЗАМЕН)
+        // 1. БАЗА ДАННЫХ ПРОГРАММЫ ТРЕНИРОВОК И СТАНДАРТНЫХ ПРОДУКТОВ
         // =========================================================================
         const WORKOUT_PROGRAM = {
             d1: {
@@ -699,6 +751,7 @@
                         name: 'Бабочка (активация)',
                         rest: 90,
                         isPlank: false,
+                        isActivation: true,
                         progressionStep: 'Микро-вес (без отказа)',
                         start: { sets: 2, repsText: '15', minReps: 15, maxReps: 15, weightHint: '10–15 кг', defaultWeight: 12.5 },
                         target: { sets: 2, repsText: '15', minReps: 15, maxReps: 15, weightHint: '10–15 кг', defaultWeight: 15 },
@@ -948,39 +1001,84 @@
                         rest: 90,
                         isPlank: false,
                         progressionStep: '+2.5–5 кг',
-                        start: { sets: 3, repsText: '15–20', minReps: 15, maxReps: 20, weightHint: 'Подбор веса', defaultWeight: 15 },
-                        target: { sets: 3, repsText: '15–20', minReps: 15, maxReps: 20, weightHint: 'Рабочий вес', defaultWeight: 25 },
+                        start: { sets: 3, repsText: '15–20', minReps: 15, maxReps: 20, weightHint: 'Подбор (30–40 кг)', defaultWeight: 30 },
+                        target: { sets: 3, repsText: '15–20', minReps: 15, maxReps: 20, weightHint: 'Рабочий вес', defaultWeight: 40 },
                         tip: 'Выполняй с прямыми ногами, обязательна пауза 1 сек вверху и внизу.'
                     }
                 ]
             }
         };
 
+        // Справочник всех возможных упражнений (включая варианты тумблеров) для шпаргалки и графиков
+        const ALL_EXERCISES_MAP = {};
+        Object.values(WORKOUT_PROGRAM).forEach(block => {
+            block.exercises.forEach(ex => {
+                ALL_EXERCISES_MAP[ex.id] = { id: ex.id, name: ex.name, isPlank: !!ex.isPlank, isActivation: !!ex.isActivation, blockName: block.shortName };
+                if (ex.hasVariantToggle && ex.variants) {
+                    Object.values(ex.variants).forEach(v => {
+                        ALL_EXERCISES_MAP[v.id] = { id: v.id, name: v.name, isPlank: !!ex.isPlank, isActivation: false, blockName: block.shortName };
+                    });
+                }
+            });
+        });
+
         const DEFAULT_FOOD_DB = [
-            { id: 'f_tvorog', name: 'Творог 5% (200г)', cal: 242, p: 34, f: 10, c: 3.6, pinned: true },
-            { id: 'f_rice', name: 'Рис готовый (200г)', cal: 260, p: 5.4, f: 0.6, c: 56, pinned: true },
-            { id: 'f_bread', name: 'Хлеб ржаной (60г)', cal: 130, p: 4, f: 0.8, c: 26, pinned: true },
-            { id: 'f_whey', name: 'Протеин (1 скуп 30г)', cal: 120, p: 24, f: 1.5, c: 2, pinned: true },
-            { id: 'f_chicken', name: 'Грудка / Мясо (150г)', cal: 240, p: 45, f: 5, c: 0, pinned: true },
-            { id: 'f_eggs', name: 'Яйца куриные (2 шт)', cal: 155, p: 13, f: 11, c: 1, pinned: false },
-            { id: 'f_oats', name: 'Овсянка сухая (60г)', cal: 210, p: 7.5, f: 3.8, c: 37, pinned: false },
-            { id: 'f_banana', name: 'Банан средний (120г)', cal: 105, p: 1.3, f: 0.4, c: 27, pinned: false }
+            { id: 'f_tvorog', name: 'Творог 5% (200г)', baseGrams: 200, cal: 242, p: 34, f: 10, c: 3.6, pinned: true },
+            { id: 'f_rice', name: 'Рис готовый (200г)', baseGrams: 200, cal: 260, p: 5.4, f: 0.6, c: 56, pinned: true },
+            { id: 'f_bread', name: 'Хлеб ржаной (60г)', baseGrams: 60, cal: 130, p: 4, f: 0.8, c: 26, pinned: true },
+            { id: 'f_whey', name: 'Протеин (1 скуп 30г)', baseGrams: 30, cal: 120, p: 24, f: 1.5, c: 2, pinned: true },
+            { id: 'f_chicken', name: 'Грудка / Мясо (150г)', baseGrams: 150, cal: 240, p: 45, f: 5, c: 0, pinned: true },
+            { id: 'f_eggs', name: 'Яйца куриные (2 шт / 110г)', baseGrams: 110, cal: 155, p: 13, f: 11, c: 1, pinned: false },
+            { id: 'f_oats', name: 'Овсянка сухая (60г)', baseGrams: 60, cal: 210, p: 7.5, f: 3.8, c: 37, pinned: false },
+            { id: 'f_banana', name: 'Банан средний (120г)', baseGrams: 120, cal: 105, p: 1.3, f: 0.4, c: 27, pinned: false }
         ];
 
         // =========================================================================
-        // 2. СОСТОЯНИЕ ПРИЛОЖЕНИЯ И БЕЗОПАСНОЕ ХРАНИЛИЩЕ
+        // 2. УТИЛИТЫ БЕЗОПАСНОСТИ, ДАТ, ЗВУКА И ХРАНИЛИЩА
         // =========================================================================
         const STORAGE_KEY = 'tactical_recomp_state_v2';
+        const PREV_BACKUP_STORAGE_KEY = 'tactical_recomp_state_v2_prev';
+
         let currentFoodMultiplier = 1;
+        let currentCustomGrams = null;
         let pendingDeleteWorkoutId = null;
-        let editingWorkoutId = null;
-        let savedActiveSessionBackup = null;
+        let expandedWorkoutDetails = {};
+        let editingFoodUid = null;
         let showWeightHistory = false;
         let showAllWorkoutsHistory = false;
+        let selectedStrengthExId = 'd1_ex2';
+        let toastTimeoutId = null;
+        let sharedAudioCtx = null;
+
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function toDateKey(d = new Date()) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
 
         function getTodayKey() {
-            const d = new Date();
-            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            return toDateKey(new Date());
+        }
+
+        function formatShortDate(dateKey) {
+            if (!dateKey || dateKey.length < 10) return dateKey || '';
+            const parts = dateKey.split('-');
+            return `${parts[2]}.${parts[1]}`;
+        }
+
+        // Извлекает базовую граммовку из элемента базы продуктов (или из названия в скобках, иначе 100г)
+        function getFoodItemBaseGrams(item) {
+            if (item.baseGrams && Number(item.baseGrams) > 0) return Number(item.baseGrams);
+            const match = String(item.name || '').match(/(\d+)\s*(?:г|гр|мл)/i);
+            if (match && Number(match[1]) > 0) return Number(match[1]);
+            return 100;
         }
 
         let appState = {
@@ -991,18 +1089,59 @@
             d3Ex2Variant: 'legpress',
             manualQueueNext: null,
             exerciseNotes: {},
+            activeExerciseRir: {},
+            editingWorkoutId: null,
+            savedActiveSessionBackup: null,
+            restTimerTargetTs: 0,
+            restTimerExLabel: '',
             dailyRecords: {},
             activeSessionSets: {},
             workoutHistory: [],
             weightLogs: [
                 { date: getTodayKey(), weight: 79.6 }
             ],
-            foodDatabase: DEFAULT_FOOD_DB,
+            foodDatabase: JSON.parse(JSON.stringify(DEFAULT_FOOD_DB)),
             workoutsSinceLastBackup: 0,
             lastBackupDate: null
         };
 
-        // Помощник разрешения активного варианта упражнения (с собственным ID, весами и целью)
+        function getNextRecommendedBlock() {
+            if (appState.manualQueueNext && ['d1', 'd2', 'd3'].includes(appState.manualQueueNext)) {
+                return appState.manualQueueNext;
+            }
+            if (!appState.workoutHistory || appState.workoutHistory.length === 0) return 'd1';
+            const lastDay = appState.workoutHistory[appState.workoutHistory.length - 1].dayId;
+            if (lastDay === 'd1') return 'd2';
+            if (lastDay === 'd2') return 'd3';
+            return 'd1';
+        }
+
+        // Гарантирует наличие записи за текущий день (не падает после 00:00)
+        function getTodayRecord() {
+            const today = getTodayKey();
+            if (!appState.dailyRecords || typeof appState.dailyRecords !== 'object') {
+                appState.dailyRecords = {};
+            }
+            if (!appState.dailyRecords[today]) {
+                const suggestedBlock = getNextRecommendedBlock();
+                appState.dailyRecords[today] = {
+                    mode: suggestedBlock,
+                    foods: [],
+                    warmup: [false, false]
+                };
+                if (!appState.editingWorkoutId) {
+                    appState.workoutDay = suggestedBlock;
+                }
+            }
+            if (!Array.isArray(appState.dailyRecords[today].foods)) {
+                appState.dailyRecords[today].foods = [];
+            }
+            if (!Array.isArray(appState.dailyRecords[today].warmup)) {
+                appState.dailyRecords[today].warmup = [false, false];
+            }
+            return appState.dailyRecords[today];
+        }
+
         function resolveActiveExerciseConfig(ex) {
             if (ex.hasVariantToggle && ex.toggleStateKey) {
                 const activeVarKey = appState[ex.toggleStateKey] || Object.keys(ex.variants)[0];
@@ -1021,58 +1160,32 @@
             return ex;
         }
 
-        function getNextRecommendedBlock() {
-            if (appState.manualQueueNext && ['d1', 'd2', 'd3'].includes(appState.manualQueueNext)) {
-                return appState.manualQueueNext;
-            }
-            if (!appState.workoutHistory || appState.workoutHistory.length === 0) return 'd1';
-            const lastDay = appState.workoutHistory[appState.workoutHistory.length - 1].dayId;
-            if (lastDay === 'd1') return 'd2';
-            if (lastDay === 'd2') return 'd3';
-            return 'd1';
-        }
-
-        function shiftQueueManually() {
-            const currentNext = getNextRecommendedBlock();
-            const order = ['d1', 'd2', 'd3'];
-            const nextIdx = (order.indexOf(currentNext) + 1) % 3;
-            const newNext = order[nextIdx];
-            appState.manualQueueNext = newNext;
-            const today = getTodayKey();
-            appState.dailyRecords[today].mode = newNext;
-            appState.workoutDay = newNext;
-            saveState();
-            renderWorkoutTab();
-            renderFoodTab();
-            showToast(`Очередь сдвинута: ${WORKOUT_PROGRAM[newNext].shortName}`);
-        }
-
         function loadState() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
                 if (raw) {
                     const parsed = JSON.parse(raw);
-                    appState = { ...appState, ...parsed };
-                    if (!appState.foodDatabase || appState.foodDatabase.length === 0) {
-                        appState.foodDatabase = DEFAULT_FOOD_DB;
+                    if (parsed && typeof parsed === 'object') {
+                        appState = { ...appState, ...parsed };
                     }
-                    if (!appState.exerciseNotes) appState.exerciseNotes = {};
                 }
             } catch (e) {
                 console.error('Ошибка чтения localStorage:', e);
             }
 
-            const today = getTodayKey();
-            if (!appState.dailyRecords[today]) {
-                const suggestedBlock = getNextRecommendedBlock();
-                appState.dailyRecords[today] = {
-                    mode: suggestedBlock,
-                    cns: 8,
-                    foods: [],
-                    warmup: [false, false]
-                };
-                appState.workoutDay = suggestedBlock;
+            if (!Array.isArray(appState.foodDatabase) || appState.foodDatabase.length === 0) {
+                appState.foodDatabase = JSON.parse(JSON.stringify(DEFAULT_FOOD_DB));
             }
+            if (!Array.isArray(appState.workoutHistory)) appState.workoutHistory = [];
+            if (!Array.isArray(appState.weightLogs) || appState.weightLogs.length === 0) {
+                appState.weightLogs = [{ date: getTodayKey(), weight: 79.6 }];
+            }
+            if (!appState.exerciseNotes || typeof appState.exerciseNotes !== 'object') appState.exerciseNotes = {};
+            if (!appState.activeExerciseRir || typeof appState.activeExerciseRir !== 'object') appState.activeExerciseRir = {};
+            if (!appState.activeSessionSets || typeof appState.activeSessionSets !== 'object') appState.activeSessionSets = {};
+
+            getTodayRecord();
+
             if (!['workout', 'food', 'progress'].includes(appState.currentTab)) {
                 appState.currentTab = 'workout';
             }
@@ -1111,10 +1224,12 @@
 
         function showToast(msg) {
             const toast = document.getElementById('tacticalToast');
+            if (!toast) return;
             toast.textContent = msg;
             toast.classList.remove('opacity-0');
             toast.classList.add('opacity-100');
-            setTimeout(() => {
+            if (toastTimeoutId) clearTimeout(toastTimeoutId);
+            toastTimeoutId = setTimeout(() => {
                 toast.classList.remove('opacity-100');
                 toast.classList.add('opacity-0');
             }, 2300);
@@ -1123,25 +1238,33 @@
         function playTacticalBeep(type = 'finish') {
             try {
                 const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                const ctx = new AudioCtx();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
+                if (!sharedAudioCtx && AudioCtx) {
+                    sharedAudioCtx = new AudioCtx();
+                }
+                if (sharedAudioCtx) {
+                    if (sharedAudioCtx.state === 'suspended') {
+                        sharedAudioCtx.resume().catch(() => {});
+                    }
+                    const osc = sharedAudioCtx.createOscillator();
+                    const gain = sharedAudioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(sharedAudioCtx.destination);
 
-                if (type === 'finish') {
-                    osc.frequency.setValueAtTime(880, ctx.currentTime);
-                    osc.frequency.setValueAtTime(1174, ctx.currentTime + 0.14);
-                    gain.gain.setValueAtTime(0.25, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
-                    osc.start(ctx.currentTime);
-                    osc.stop(ctx.currentTime + 0.45);
-                } else {
-                    osc.frequency.setValueAtTime(620, ctx.currentTime);
-                    gain.gain.setValueAtTime(0.12, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
-                    osc.start(ctx.currentTime);
-                    osc.stop(ctx.currentTime + 0.12);
+                    const now = sharedAudioCtx.currentTime;
+                    if (type === 'finish') {
+                        osc.frequency.setValueAtTime(880, now);
+                        osc.frequency.setValueAtTime(1174, now + 0.14);
+                        gain.gain.setValueAtTime(0.25, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                        osc.start(now);
+                        osc.stop(now + 0.45);
+                    } else {
+                        osc.frequency.setValueAtTime(620, now);
+                        gain.gain.setValueAtTime(0.12, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                        osc.start(now);
+                        osc.stop(now + 0.12);
+                    }
                 }
             } catch (e) {}
 
@@ -1151,8 +1274,31 @@
             }
         }
 
+        function renderActiveTabOnly() {
+            const weight = getCurrentUserWeight();
+            const hw = document.getElementById('headerWeightVal');
+            if (hw) hw.textContent = weight.toFixed(1);
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+            const hd = document.getElementById('headerDateDisplay');
+            if (hd) hd.textContent = dateStr.toUpperCase();
+
+            if (appState.currentTab === 'workout') renderWorkoutTab();
+            else if (appState.currentTab === 'food') renderFoodTab();
+            else if (appState.currentTab === 'progress') renderProgressTab();
+        }
+
+        // Автообновление при возврате в приложение после полуночи
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                getTodayRecord();
+                renderActiveTabOnly();
+            }
+        });
+
         // =========================================================================
-        // 3. ПИТАНИЕ: КБЖУ С ЗАЧЕТОМ БЕЛКА ОТ 100Г И КОНСТРУКТОР СВОЕЙ ЕДЫ
+        // 3. ПИТАНИЕ: КБЖУ, ТОЧНАЯ ГРАММОВКА И РЕДАКТИРОВАНИЕ ЗАПИСЕЙ (✎)
         // =========================================================================
         function getCurrentUserWeight() {
             if (!appState.weightLogs || appState.weightLogs.length === 0) return 79.6;
@@ -1161,7 +1307,7 @@
 
         function calculateDynamicMacros(weight, mode) {
             const weightDiff = weight - 79.6;
-            const protein = 125; // Комфортный ориентир 125г, зачет дня от 100г
+            const protein = 125; // Ориентир 125г, зачет дня от 100г
             const fat = Math.round(70 + weightDiff * 0.8);
             const isWorkout = mode !== 'rest';
             const calories = isWorkout ? Math.round(2350 + weightDiff * 24) : Math.round(2050 + weightDiff * 24);
@@ -1169,98 +1315,182 @@
             return { calories, protein, fat, carbs, isWorkout };
         }
 
+        function shiftQueueManually() {
+            const currentNext = getNextRecommendedBlock();
+            const order = ['d1', 'd2', 'd3'];
+            const nextIdx = (order.indexOf(currentNext) + 1) % 3;
+            const newNext = order[nextIdx];
+            appState.manualQueueNext = newNext;
+            const rec = getTodayRecord();
+            rec.mode = newNext;
+            appState.workoutDay = newNext;
+            saveState();
+            renderActiveTabOnly();
+            showToast(`Очередь сдвинута: ${WORKOUT_PROGRAM[newNext].shortName}`);
+        }
+
         function setDayMode(mode) {
-            const today = getTodayKey();
-            appState.dailyRecords[today].mode = mode;
+            const rec = getTodayRecord();
+            rec.mode = mode;
             if (mode !== 'rest') {
                 appState.workoutDay = mode;
             }
             saveState();
-            renderWorkoutTab();
-            renderFoodTab();
-            renderProgressTab();
+            renderActiveTabOnly();
         }
 
-        function setCnsScore(score) {
-            const today = getTodayKey();
-            appState.dailyRecords[today].cns = score;
-            saveState();
-            renderWorkoutTab();
-        }
+        function addQuickFood(name, cal, p, f, c, grams = null) {
+            const rec = getTodayRecord();
+            const cVal = +(Number(cal).toFixed(1));
+            const pVal = +(Number(p).toFixed(1));
+            const fVal = +(Number(f).toFixed(1));
+            const uVal = +(Number(c).toFixed(1));
+            const gVal = grams && Number(grams) > 0 ? Math.round(Number(grams)) : 100;
 
-        function addQuickFood(name, cal, p, f, c) {
-            const today = getTodayKey();
-            appState.dailyRecords[today].foods.push({
-                uid: Date.now() + Math.random(),
-                name,
-                cal: +(Number(cal).toFixed(1)),
-                p: +(Number(p).toFixed(1)),
-                f: +(Number(f).toFixed(1)),
-                c: +(Number(c).toFixed(1)),
+            rec.foods.push({
+                uid: 'fd_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+                name: String(name),
+                cal: cVal,
+                p: pVal,
+                f: fVal,
+                c: uVal,
+                grams: gVal,
+                baseCal: cVal,
+                baseP: pVal,
+                baseF: fVal,
+                baseC: uVal,
+                baseGrams: gVal,
                 time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
             });
             saveState();
-            renderFoodTab();
-            renderProgressTab();
-            showToast(`+ ${name} (${Math.round(cal)} ккал)`);
+            if (appState.currentTab === 'food') renderFoodTab();
+            showToast(`+ ${name} (${Math.round(cVal)} ккал)`);
         }
 
         function copyYesterdayFood() {
             const d = new Date();
             d.setDate(d.getDate() - 1);
-            const yKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            const yKey = toDateKey(d);
             const yRec = appState.dailyRecords[yKey];
             if (!yRec || !yRec.foods || yRec.foods.length === 0) {
                 showToast('За вчерашний день нет записей питания');
                 return;
             }
-            const today = getTodayKey();
+            const rec = getTodayRecord();
+            if (rec.foods.length > 0 && !confirm('Добавить вчерашний рацион к уже записанным за сегодня продуктам?')) {
+                return;
+            }
             const nowTime = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
             yRec.foods.forEach(item => {
-                appState.dailyRecords[today].foods.push({
+                rec.foods.push({
                     ...item,
-                    uid: Date.now() + Math.random(),
+                    uid: 'fd_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
                     time: nowTime
                 });
             });
             saveState();
             renderFoodTab();
-            renderProgressTab();
             showToast('Вчерашний рацион скопирован на сегодня!');
         }
 
         function undoLastFood() {
-            const today = getTodayKey();
-            const foods = appState.dailyRecords[today].foods;
-            if (foods.length > 0) {
-                const removed = foods.pop();
+            const rec = getTodayRecord();
+            if (rec.foods.length > 0) {
+                const removed = rec.foods.pop();
                 saveState();
                 renderFoodTab();
-                renderProgressTab();
                 showToast(`Отменено: ${removed.name}`);
             }
         }
 
-        function removeFoodAtIndex(idx) {
-            const today = getTodayKey();
-            const removed = appState.dailyRecords[today].foods.splice(idx, 1);
-            saveState();
-            renderFoodTab();
-            renderProgressTab();
-            if (removed.length) showToast(`Удалено: ${removed[0].name}`);
+        function removeFoodByUid(uid) {
+            const rec = getTodayRecord();
+            const idx = rec.foods.findIndex(f => String(f.uid) === String(uid));
+            if (idx >= 0) {
+                const removed = rec.foods.splice(idx, 1);
+                if (editingFoodUid === uid) editingFoodUid = null;
+                saveState();
+                renderFoodTab();
+                if (removed.length) showToast(`Удалено: ${removed[0].name}`);
+            }
         }
 
-        function resetTodayMacros() {
-            const today = getTodayKey();
-            appState.dailyRecords[today].foods = [];
+        // Редактирование уже записанного приема пищи за сегодня
+        function startEditLoggedFood(uid) {
+            editingFoodUid = (editingFoodUid === uid) ? null : uid;
+            renderFoodTab();
+        }
+
+        function applyLoggedFoodScale(uid, newGramsRaw, newCalRaw) {
+            const rec = getTodayRecord();
+            const item = rec.foods.find(f => String(f.uid) === String(uid));
+            if (!item) return;
+
+            const baseG = item.baseGrams || item.grams || 100;
+            const baseCal = item.baseCal !== undefined ? item.baseCal : item.cal;
+            const baseP = item.baseP !== undefined ? item.baseP : item.p;
+            const baseF = item.baseF !== undefined ? item.baseF : item.f;
+            const baseC = item.baseC !== undefined ? item.baseC : item.c;
+
+            const newG = parseFloat(newGramsRaw);
+            const newCal = parseFloat(newCalRaw);
+
+            if (newG && newG > 0 && newG !== item.grams) {
+                const ratio = newG / baseG;
+                item.grams = Math.round(newG);
+                item.cal = +(baseCal * ratio).toFixed(1);
+                item.p = +(baseP * ratio).toFixed(1);
+                item.f = +(baseF * ratio).toFixed(1);
+                item.c = +(baseC * ratio).toFixed(1);
+                // Обновляем граммовку в названии, если она там была
+                if (/\(\d+\s*г\)/i.test(item.name)) {
+                    item.name = item.name.replace(/\(\d+\s*г\)/i, `(${Math.round(newG)}г)`);
+                } else if (!item.name.includes('г)')) {
+                    item.name = `${item.name.replace(/\s*\([\d.]+x\)$/i, '')} (${Math.round(newG)}г)`;
+                }
+            } else if (newCal && newCal > 0 && baseCal > 0) {
+                const ratio = newCal / baseCal;
+                item.cal = +(newCal).toFixed(1);
+                item.p = +(baseP * ratio).toFixed(1);
+                item.f = +(baseF * ratio).toFixed(1);
+                item.c = +(baseC * ratio).toFixed(1);
+                item.grams = Math.round(baseG * ratio);
+            }
+
+            editingFoodUid = null;
             saveState();
             renderFoodTab();
-            renderProgressTab();
+            showToast('Запись приема пищи обновлена!');
+        }
+
+        let confirmResetFoodFlag = false;
+        function resetTodayMacros() {
+            const rec = getTodayRecord();
+            if (rec.foods.length === 0) return;
+            const btn = document.getElementById('resetFoodBtn');
+            if (!confirmResetFoodFlag) {
+                confirmResetFoodFlag = true;
+                if (btn) btn.textContent = 'Точно?';
+                setTimeout(() => {
+                    confirmResetFoodFlag = false;
+                    if (btn) btn.textContent = 'Сброс';
+                }, 3500);
+                return;
+            }
+            confirmResetFoodFlag = false;
+            if (btn) btn.textContent = 'Сброс';
+            rec.foods = [];
+            saveState();
+            renderFoodTab();
             showToast('Рацион за сегодня очищен');
         }
 
         function openFoodDrawer() {
             currentFoodMultiplier = 1;
+            currentCustomGrams = null;
+            const gInp = document.getElementById('customFoodGramsInput');
+            if (gInp) gInp.value = '';
+            document.getElementById('clearGramsBtn').classList.add('hidden');
             updateMultiplierButtonsUI();
             renderFoodDatabaseDrawer();
             document.getElementById('foodDrawerModal').classList.remove('hidden');
@@ -1272,6 +1502,33 @@
 
         function setFoodMultiplier(mult) {
             currentFoodMultiplier = mult;
+            currentCustomGrams = null;
+            const gInp = document.getElementById('customFoodGramsInput');
+            if (gInp) gInp.value = '';
+            document.getElementById('clearGramsBtn').classList.add('hidden');
+            updateMultiplierButtonsUI();
+            renderFoodDatabaseDrawer();
+        }
+
+        function onCustomGramsInput(rawVal) {
+            const val = parseFloat(rawVal);
+            const clearBtn = document.getElementById('clearGramsBtn');
+            if (val && val > 0) {
+                currentCustomGrams = val;
+                clearBtn.classList.remove('hidden');
+            } else {
+                currentCustomGrams = null;
+                clearBtn.classList.add('hidden');
+            }
+            updateMultiplierButtonsUI();
+            renderFoodDatabaseDrawer();
+        }
+
+        function clearCustomGrams() {
+            currentCustomGrams = null;
+            const gInp = document.getElementById('customFoodGramsInput');
+            if (gInp) gInp.value = '';
+            document.getElementById('clearGramsBtn').classList.add('hidden');
             updateMultiplierButtonsUI();
             renderFoodDatabaseDrawer();
         }
@@ -1280,7 +1537,7 @@
             [0.5, 1, 1.5, 2].forEach(m => {
                 const btn = document.getElementById(`multBtn-${m}`);
                 if (!btn) return;
-                if (m === currentFoodMultiplier) {
+                if (!currentCustomGrams && m === currentFoodMultiplier) {
                     btn.className = 'px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-accentGreen text-black';
                 } else {
                     btn.className = 'px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted hover:text-white';
@@ -1288,12 +1545,27 @@
             });
         }
 
-        function eatFromDatabase(foodId) {
+        function eatFromDatabase(foodId, forceStandard = false) {
             const item = appState.foodDatabase.find(f => f.id === foodId);
             if (!item) return;
-            const m = currentFoodMultiplier;
-            const label = m === 1 ? item.name : `${item.name} (${m}x)`;
-            addQuickFood(label, item.cal * m, item.p * m, item.f * m, item.c * m);
+            const baseG = getFoodItemBaseGrams(item);
+
+            let ratio = 1;
+            let finalGrams = baseG;
+            let label = item.name;
+
+            if (!forceStandard && currentCustomGrams && currentCustomGrams > 0) {
+                ratio = currentCustomGrams / baseG;
+                finalGrams = Math.round(currentCustomGrams);
+                const cleanTitle = item.name.replace(/\s*\(\d+\s*(?:г|гр|мл).*?\)/i, '').trim();
+                label = `${cleanTitle} (${finalGrams}г)`;
+            } else if (!forceStandard && currentFoodMultiplier !== 1) {
+                ratio = currentFoodMultiplier;
+                finalGrams = Math.round(baseG * ratio);
+                label = `${item.name} (${currentFoodMultiplier}x)`;
+            }
+
+            addQuickFood(label, item.cal * ratio, item.p * ratio, item.f * ratio, item.c * ratio, finalGrams);
         }
 
         function togglePinFood(foodId) {
@@ -1302,23 +1574,26 @@
             item.pinned = !item.pinned;
             saveState();
             renderFoodDatabaseDrawer();
-            renderFoodTab();
+            if (appState.currentTab === 'food') renderFoodTab();
         }
 
         function deleteFoodFromDatabase(foodId) {
             appState.foodDatabase = appState.foodDatabase.filter(f => f.id !== foodId);
             saveState();
             renderFoodDatabaseDrawer();
-            renderFoodTab();
+            if (appState.currentTab === 'food') renderFoodTab();
             showToast('Продукт удален из базы');
         }
 
         function saveNewFoodTemplate(andEatNow = false) {
-            const name = document.getElementById('newFoodName').value.trim();
-            if (!name) {
+            const rawName = document.getElementById('newFoodName').value.trim();
+            if (!rawName) {
                 showToast('Укажи название продукта');
                 return;
             }
+            const baseGInput = parseFloat(document.getElementById('newFoodBaseGrams').value);
+            const baseGrams = (baseGInput && baseGInput > 0) ? Math.round(baseGInput) : 100;
+
             const p = parseFloat(document.getElementById('newFoodP').value) || 0;
             const f = parseFloat(document.getElementById('newFoodF').value) || 0;
             const c = parseFloat(document.getElementById('newFoodC').value) || 0;
@@ -1330,10 +1605,14 @@
                 return;
             }
 
+            const hasGramsInTitle = /\(\d+\s*(?:г|гр|мл|шт)/i.test(rawName);
+            const finalName = hasGramsInTitle ? rawName : `${rawName} (${baseGrams}г)`;
+
             const pinned = document.getElementById('newFoodPinCheck').checked;
             const newItem = {
                 id: 'cust_' + Date.now(),
-                name,
+                name: finalName,
+                baseGrams,
                 cal: Math.round(cal),
                 p: +(p.toFixed(1)),
                 f: +(f.toFixed(1)),
@@ -1345,47 +1624,51 @@
             saveState();
 
             if (andEatNow) {
-                const m = currentFoodMultiplier;
-                const label = m === 1 ? newItem.name : `${newItem.name} (${m}x)`;
-                addQuickFood(label, newItem.cal * m, newItem.p * m, newItem.f * m, newItem.c * m);
+                eatFromDatabase(newItem.id, false);
                 closeFoodDrawer();
             } else {
                 showToast(`Добавлено в базу: ${newItem.name}`);
             }
 
             document.getElementById('newFoodName').value = '';
+            document.getElementById('newFoodBaseGrams').value = '';
             document.getElementById('newFoodCal').value = '';
             document.getElementById('newFoodP').value = '';
             document.getElementById('newFoodF').value = '';
             document.getElementById('newFoodC').value = '';
 
             renderFoodDatabaseDrawer();
-            renderFoodTab();
+            if (appState.currentTab === 'food') renderFoodTab();
         }
 
         function renderFoodDatabaseDrawer() {
             const list = document.getElementById('foodDatabaseList');
-            const m = currentFoodMultiplier;
-
             if (!appState.foodDatabase || appState.foodDatabase.length === 0) {
                 list.innerHTML = `<div class="text-xs font-mono text-textMuted py-4 text-center">База пуста. Добавь свой продукт ниже.</div>`;
                 return;
             }
 
             list.innerHTML = appState.foodDatabase.map(item => {
-                const cal = Math.round(item.cal * m);
-                const p = +(item.p * m).toFixed(1);
-                const f = +(item.f * m).toFixed(1);
-                const c = +(item.c * m).toFixed(1);
+                const baseG = getFoodItemBaseGrams(item);
+                const ratio = (currentCustomGrams && currentCustomGrams > 0)
+                    ? (currentCustomGrams / baseG)
+                    : currentFoodMultiplier;
+
+                const cal = Math.round(item.cal * ratio);
+                const p = +(item.p * ratio).toFixed(1);
+                const f = +(item.f * ratio).toFixed(1);
+                const c = +(item.c * ratio).toFixed(1);
+                const dispGrams = Math.round(baseG * ratio);
 
                 return `
                     <div class="flex items-center justify-between bg-bgMain p-2.5 rounded-xl border border-borderSubtle gap-2">
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center space-x-1.5">
-                                <button onclick="togglePinFood('${item.id}')" title="Закрепить" class="text-xs font-mono ${item.pinned ? 'text-accentAmber' : 'text-textMuted opacity-40'}">★</button>
-                                <span class="font-bold text-sm text-white truncate">${item.name}</span>
+                                <button onclick="togglePinFood('${escapeHtml(item.id)}')" title="Закрепить" class="text-xs font-mono ${item.pinned ? 'text-accentAmber' : 'text-textMuted opacity-40'}">★</button>
+                                <span class="font-bold text-sm text-white truncate">${escapeHtml(item.name)}</span>
                             </div>
                             <div class="text-[11px] font-mono text-textMuted mt-0.5 pl-4">
+                                <span class="text-accentGreen">${dispGrams}г</span> →
                                 <span class="text-white font-semibold">${cal} ккал</span> •
                                 <span class="text-emerald-400">Б:${p}</span>
                                 <span class="text-amber-400">Ж:${f}</span>
@@ -1393,10 +1676,10 @@
                             </div>
                         </div>
                         <div class="flex items-center space-x-1.5 shrink-0">
-                            <button onclick="eatFromDatabase('${item.id}')" class="tactical-btn bg-accentGreen text-black font-mono font-extrabold text-xs px-3 py-2 rounded-lg">
+                            <button onclick="eatFromDatabase('${escapeHtml(item.id)}', false)" class="tactical-btn bg-accentGreen text-black font-mono font-extrabold text-xs px-3 py-2 rounded-lg">
                                 + Съесть
                             </button>
-                            <button onclick="deleteFoodFromDatabase('${item.id}')" class="tactical-btn bg-bgElevated hover:bg-accentRed/20 text-textMuted hover:text-accentRed font-mono text-xs px-2.5 py-2 rounded-lg">
+                            <button onclick="deleteFoodFromDatabase('${escapeHtml(item.id)}')" class="tactical-btn bg-bgElevated hover:bg-accentRed/20 text-textMuted hover:text-accentRed font-mono text-xs px-2.5 py-2 rounded-lg">
                                 ✕
                             </button>
                         </div>
@@ -1406,8 +1689,7 @@
         }
 
         function renderFoodTab() {
-            const today = getTodayKey();
-            const rec = appState.dailyRecords[today];
+            const rec = getTodayRecord();
             const weight = getCurrentUserWeight();
 
             document.getElementById('headerWeightVal').textContent = weight.toFixed(1);
@@ -1418,10 +1700,10 @@
 
             let curCal = 0, curP = 0, curF = 0, curC = 0;
             rec.foods.forEach(item => {
-                curCal += item.cal;
-                curP += item.p;
-                curF += item.f;
-                curC += item.c;
+                curCal += Number(item.cal) || 0;
+                curP += Number(item.p) || 0;
+                curF += Number(item.f) || 0;
+                curC += Number(item.c) || 0;
             });
 
             document.getElementById('calCurrent').textContent = Math.round(curCal);
@@ -1462,17 +1744,18 @@
             const remC = Math.max(0, targets.carbs - Math.round(curC));
             document.getElementById('macroRemainHint').textContent = `До ориентира: Б:${remP}г • Ж:${remF}г • У:${remC}г`;
 
+            // Безопасная отрисовка чипсов через eatFromDatabase(id, true)
             const pinnedBar = document.getElementById('pinnedFoodsBar');
             const pinnedItems = (appState.foodDatabase || []).filter(f => f.pinned);
             if (pinnedItems.length === 0) {
                 pinnedBar.innerHTML = `<span class="text-xs font-mono text-textMuted">Нет закрепленных продуктов. Открой базу ниже и нажми ★</span>`;
             } else {
                 pinnedBar.innerHTML = pinnedItems.map(item => `
-                    <button onclick="addQuickFood('${item.name.replace(/'/g, '')}', ${item.cal}, ${item.p}, ${item.f}, ${item.c})" class="tactical-btn bg-bgMain hover:bg-bgElevated border border-borderSubtle rounded-xl px-3 py-2 text-left flex items-center space-x-2">
+                    <button onclick="eatFromDatabase('${escapeHtml(item.id)}', true)" class="tactical-btn bg-bgMain hover:bg-bgElevated border border-borderSubtle rounded-xl px-3 py-2 text-left flex items-center space-x-2">
                         <span class="text-accentGreen font-mono font-bold text-xs">+</span>
                         <div>
-                            <div class="text-xs font-bold text-white leading-tight">${item.name}</div>
-                            <div class="text-[10px] font-mono text-textMuted">${item.cal} ккал • Б:${item.p}</div>
+                            <div class="text-xs font-bold text-white leading-tight">${escapeHtml(item.name)}</div>
+                            <div class="text-[10px] font-mono text-textMuted">${Math.round(item.cal)} ккал • Б:${item.p}</div>
                         </div>
                     </button>
                 `).join('');
@@ -1488,27 +1771,53 @@
             if (rec.foods.length === 0) {
                 foodList.innerHTML = `<div class="text-xs text-textMuted font-mono py-2">Приемов пищи за сегодня пока нет.</div>`;
             } else {
-                foodList.innerHTML = rec.foods.map((f, idx) => `
-                    <div class="flex items-center justify-between bg-bgMain px-3 py-2 rounded-lg border border-borderSubtle text-xs">
-                        <div class="truncate pr-2">
-                            <span class="font-mono text-textMuted mr-1.5">${f.time}</span>
-                            <span class="font-semibold text-white">${f.name}</span>
+                foodList.innerHTML = rec.foods.map((f, idx) => {
+                    if (!f.uid) f.uid = 'fd_legacy_' + idx;
+                    const isEditing = (editingFoodUid === f.uid);
+                    const gVal = f.grams || 100;
+
+                    return `
+                        <div class="bg-bgMain px-3 py-2 rounded-lg border ${isEditing ? 'border-accentGreen' : 'border-borderSubtle'} text-xs space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="truncate pr-1">
+                                    <span class="font-mono text-textMuted mr-1">${escapeHtml(f.time)}</span>
+                                    <span class="font-semibold text-white">${escapeHtml(f.name)}</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5 font-mono shrink-0">
+                                    <span class="text-accentGreen font-bold">${Math.round(f.cal)} ккал</span>
+                                    <span class="text-textMuted text-[10px]">(Б:${Math.round(f.p)} Ж:${Math.round(f.f)} У:${Math.round(f.c)})</span>
+                                    <button onclick="startEditLoggedFood('${escapeHtml(f.uid)}')" title="Изменить порцию/вес" class="w-6 h-6 rounded bg-bgElevated hover:bg-borderSubtle text-textMuted hover:text-white flex items-center justify-center">✎</button>
+                                    <button onclick="removeFoodByUid('${escapeHtml(f.uid)}')" title="Удалить запись" class="w-6 h-6 rounded bg-bgElevated hover:bg-accentRed/20 text-textMuted hover:text-accentRed flex items-center justify-center">✕</button>
+                                </div>
+                            </div>
+                            ${isEditing ? `
+                                <div class="pt-1.5 border-t border-borderSubtle flex items-center justify-between gap-2 font-mono">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-[10px] text-textMuted">Вес(г):</span>
+                                        <input type="number" id="editFoodG_${escapeHtml(f.uid)}" value="${gVal}" class="w-16 bg-bgCard border border-borderSubtle rounded px-2 py-1 text-xs text-white text-center">
+                                        <span class="text-[10px] text-textMuted">или Ккал:</span>
+                                        <input type="number" id="editFoodCal_${escapeHtml(f.uid)}" value="${Math.round(f.cal)}" class="w-16 bg-bgCard border border-borderSubtle rounded px-2 py-1 text-xs text-white text-center">
+                                    </div>
+                                    <button onclick="applyLoggedFoodScale('${escapeHtml(f.uid)}', document.getElementById('editFoodG_${escapeHtml(f.uid)}').value, document.getElementById('editFoodCal_${escapeHtml(f.uid)}').value)" class="bg-accentGreen text-black font-bold px-2.5 py-1 rounded text-xs">
+                                        ✓ Ок
+                                    </button>
+                                </div>
+                            ` : ''}
                         </div>
-                        <div class="flex items-center space-x-2 font-mono shrink-0">
-                            <span class="text-accentGreen font-bold">${Math.round(f.cal)} ккал</span>
-                            <span class="text-textMuted text-[10px]">(Б:${Math.round(f.p)} Ж:${Math.round(f.f)} У:${Math.round(f.c)})</span>
-                            <button onclick="removeFoodAtIndex(${idx})" title="Удалить запись" class="w-6 h-6 rounded bg-bgElevated hover:bg-accentRed/20 text-textMuted hover:text-accentRed flex items-center justify-center">✕</button>
-                        </div>
-                    </div>
-                `).reverse().join('');
+                    `;
+                }).reverse().join('');
             }
         }
 
         // =========================================================================
-        // 4. ВКЛАДКА ТРЕНИРОВКА (ЗАЩИТА ПОДХОДОВ, РАЗДЕЛЬНЫЕ ЗАМЕНЫ, БЕЗ ТОННАЖА)
+        // 4. ВКЛАДКА ТРЕНИРОВКА (ДВОЙНАЯ ПРОГРЕССИЯ, RIR, ПЛАТО, БЕЙДЖИ ПРОШЛОГО РАЗА)
         // =========================================================================
         function selectWorkoutDay(dayKey) {
             appState.workoutDay = dayKey;
+            const rec = getTodayRecord();
+            if (rec.mode === 'rest' && !appState.editingWorkoutId) {
+                rec.mode = dayKey;
+            }
             saveState();
             renderWorkoutTab();
         }
@@ -1520,8 +1829,8 @@
         }
 
         function toggleWarmup(idx) {
-            const today = getTodayKey();
-            appState.dailyRecords[today].warmup[idx] = !appState.dailyRecords[today].warmup[idx];
+            const rec = getTodayRecord();
+            rec.warmup[idx] = !rec.warmup[idx];
             saveState();
             renderWorkoutTab();
         }
@@ -1538,30 +1847,100 @@
             saveState();
         }
 
-        // Возвращает строго ОДНУ последнюю тренировку по конкретному ID варианта упражнения
-        function getExerciseHistoryInfo(exId, maxTargetReps, isPlank = false) {
-            for (let i = appState.workoutHistory.length - 1; i >= 0; i--) {
-                const w = appState.workoutHistory[i];
-                if (editingWorkoutId && w.id === editingWorkoutId) continue;
-                if (w.exercises && w.exercises[exId] && w.exercises[exId].length > 0) {
-                    const sets = w.exercises[exId];
-                    const formatted = sets.map(s => isPlank ? `${s.reps}с` : `${s.weight}кг×${s.reps}`).join(', ');
-                    const allHitMax = sets.every(s => Number(s.reps) >= maxTargetReps);
-                    const lastWeight = sets[sets.length - 1].weight;
-                    return {
-                        found: true,
-                        date: w.date,
-                        summary: formatted,
-                        readyForProgression: allHitMax,
-                        lastWeight: lastWeight,
-                        lastSets: sets
-                    };
-                }
-            }
-            return { found: false, readyForProgression: false };
+        function setExerciseRir(exId, rirVal) {
+            if (!appState.activeExerciseRir) appState.activeExerciseRir = {};
+            appState.activeExerciseRir[exId] = rirVal;
+            saveState();
+            renderWorkoutTab();
         }
 
-        // Не стирает введенные подходы при смене фазы Старт/Целевой
+        // Умный анализатор истории упражнения: возвращает бейджи прошлого раза + статус Двойной Прогрессии / RIR / Плато
+        function getExerciseHistoryInfo(ex, phaseObj) {
+            const exId = ex.id;
+            const targetSetsCount = phaseObj.sets;
+            const maxTargetReps = phaseObj.maxReps;
+            const isPlank = !!ex.isPlank;
+            const isActivation = !!ex.isActivation;
+
+            const pastSessions = [];
+            for (let i = appState.workoutHistory.length - 1; i >= 0; i--) {
+                const w = appState.workoutHistory[i];
+                if (appState.editingWorkoutId && w.id === appState.editingWorkoutId) continue;
+                if (w.exercises && w.exercises[exId] && w.exercises[exId].length > 0) {
+                    const savedRir = (w.rirs && w.rirs[exId] !== undefined) ? Number(w.rirs[exId]) : 1;
+                    pastSessions.push({
+                        date: w.date,
+                        sets: w.exercises[exId],
+                        rir: savedRir
+                    });
+                    if (pastSessions.length >= 2) break;
+                }
+            }
+
+            if (pastSessions.length === 0) {
+                return { found: false, statusType: 'none' };
+            }
+
+            const last = pastSessions[0];
+            const prev = pastSessions.length > 1 ? pastSessions[1] : null;
+
+            const badgesList = last.sets.map((s, idx) =>
+                isPlank ? `#${idx + 1}: ${s.reps}с` : `#${idx + 1}: ${s.weight}кг×${s.reps}`
+            );
+
+            const lastWeight = Number(last.sets[last.sets.length - 1].weight) || 0;
+            const lastMaxW = Math.max(...last.sets.map(s => Number(s.weight) || 0));
+            const lastTotalReps = last.sets.reduce((acc, s) => acc + (Number(s.reps) || 0), 0);
+            const allSetsCompleted = last.sets.length >= targetSetsCount;
+            const allHitMax = allSetsCompleted && last.sets.every(s => (Number(s.reps) || 0) >= maxTargetReps);
+
+            let statusType = 'working';
+            let statusText = '';
+
+            if (allHitMax) {
+                // Защита от ложного плато на статике (Планка / Активационная бабочка)
+                if (isPlank || isActivation) {
+                    statusType = 'norm_stable';
+                    statusText = `✅ Целевой норматив (${targetSetsCount}×${phaseObj.repsText}) стабилен!`;
+                } else if (last.rir === 0) {
+                    statusType = 'consolidate_rir0';
+                    statusText = `⚡ Все ${targetSetsCount}×${maxTargetReps} закрыты, но в отказ (RIR 0). Закрепи ${lastMaxW} кг ещё на 1 тренировке.`;
+                } else {
+                    statusType = 'progression_ready';
+                    statusText = `🔥 ПРОГРЕССИЯ: все ${targetSetsCount}×${maxTargetReps} закрыты с запасом! Шаг: ${ex.progressionStep}`;
+                }
+            } else if (prev && !isPlank && !isActivation) {
+                const prevMaxW = Math.max(...prev.sets.map(s => Number(s.weight) || 0));
+                const prevTotalReps = prev.sets.reduce((acc, s) => acc + (Number(s.reps) || 0), 0);
+
+                if (lastMaxW > prevMaxW) {
+                    statusType = 'working_up';
+                    statusText = `📈 Рабочий вес повышен до ${lastMaxW} кг. Наращивай повторы до ${targetSetsCount}×${maxTargetReps}.`;
+                } else if (lastMaxW === prevMaxW && lastTotalReps > prevTotalReps) {
+                    const diff = lastTotalReps - prevTotalReps;
+                    statusType = 'working_up';
+                    statusText = `📈 Двойная прогрессия: +${diff} повт. к прошлому разу (${prevTotalReps} → ${lastTotalReps}). Дожимаем до ${targetSetsCount}×${maxTargetReps}.`;
+                } else if (lastMaxW <= prevMaxW && lastTotalReps <= prevTotalReps) {
+                    statusType = 'plateau';
+                    statusText = `⚠️ ПЛАТО (2 трен. без роста на ${lastMaxW} кг): проверь сон/калории или сделай разгрузку (-10% веса).`;
+                }
+            } else {
+                statusType = 'working';
+                statusText = `🎯 Рабочая фаза: удерживай вес и добавляй по 1 повтору до закрытия всех ${targetSetsCount}×${maxTargetReps}.`;
+            }
+
+            return {
+                found: true,
+                date: last.date,
+                badgesList,
+                lastWeight,
+                lastSets: last.sets,
+                lastRir: last.rir,
+                statusType,
+                statusText
+            };
+        }
+
         function ensureSessionSetState(activeEx, phaseObj, historyInfo) {
             const key = `${appState.workoutDay}_${activeEx.id}`;
             const defaultW = historyInfo.found ? historyInfo.lastWeight : phaseObj.defaultWeight;
@@ -1598,7 +1977,7 @@
             dayObj.exercises.forEach(rawEx => {
                 const ex = resolveActiveExerciseConfig(rawEx);
                 const phaseObj = ex[appState.workoutPhase];
-                const hist = getExerciseHistoryInfo(ex.id, phaseObj.maxReps, ex.isPlank);
+                const hist = getExerciseHistoryInfo(ex, phaseObj);
                 if (hist.found) {
                     const key = `${appState.workoutDay}_${ex.id}`;
                     const arr = [];
@@ -1619,6 +1998,7 @@
             showToast(updatedCount > 0 ? 'Веса и повторы скопированы с прошлой тренировки!' : 'Для этого блока еще нет прошлых записей');
         }
 
+        // Точечное обновление цифр без сброса фокуса
         function adjustSetField(exId, setIdx, field, delta) {
             const key = `${appState.workoutDay}_${exId}`;
             const setObj = appState.activeSessionSets[key][setIdx];
@@ -1626,7 +2006,9 @@
             val = Math.max(0, +(val + delta).toFixed(2));
             setObj[field] = val;
             saveState();
-            renderWorkoutTab();
+            const inpEl = document.getElementById(`setInp_${exId}_${setIdx}_${field}`);
+            if (inpEl) inpEl.value = val;
+            updateWorkoutSummaryTotals();
         }
 
         function updateSetInput(exId, setIdx, field, rawValue) {
@@ -1664,44 +2046,49 @@
                 });
             });
 
-            document.getElementById('summaryCompletedSets').textContent = completedSets;
+            const sumEl = document.getElementById('summaryCompletedSets');
+            if (sumEl) sumEl.textContent = completedSets;
         }
 
+        // Таймер планки на системных часах (не сбивается и обновляет живую кнопку)
         let plankInterval = null;
-        let plankRemaining = 0;
+        let plankTargetTimestamp = 0;
+        let plankRestAfter = 60;
 
-        function startPlankStopwatch(seconds) {
+        function startPlankStopwatch(seconds, restSec = 60) {
             clearInterval(plankInterval);
-            plankRemaining = seconds;
-            const btn = document.getElementById('plankLiveBtn');
+            plankTargetTimestamp = Date.now() + seconds * 1000;
+            plankRestAfter = restSec || 60;
             playTacticalBeep('tick');
+            renderWorkoutTab();
 
             plankInterval = setInterval(() => {
-                plankRemaining--;
+                const rem = Math.max(0, Math.ceil((plankTargetTimestamp - Date.now()) / 1000));
+                const btn = document.getElementById('plankLiveBtn');
                 if (btn) {
-                    btn.textContent = `⏱ ДЕРЖИМ ПЛАНКУ: ${plankRemaining} СЕК (СБРОС)`;
+                    btn.textContent = `⏱ ДЕРЖИМ ПЛАНКУ: ${rem} СЕК (НАЖМИ ДЛЯ СБРОСА)`;
                 }
-                if (plankRemaining <= 0) {
+                if (rem <= 0) {
                     clearInterval(plankInterval);
                     plankInterval = null;
+                    plankTargetTimestamp = 0;
                     playTacticalBeep('finish');
-                    showToast('Планка выполнена! Отдых 60 сек.');
-                    startRestTimer(60, 'Планка');
+                    showToast(`Планка выполнена! Отдых ${plankRestAfter} сек.`);
+                    startRestTimer(plankRestAfter, 'Планка');
                     renderWorkoutTab();
                 }
-            }, 1000);
-            renderWorkoutTab();
+            }, 300);
         }
 
         function stopPlankStopwatch() {
             clearInterval(plankInterval);
             plankInterval = null;
+            plankTargetTimestamp = 0;
             renderWorkoutTab();
         }
 
         function renderWorkoutTab() {
-            const today = getTodayKey();
-            const rec = appState.dailyRecords[today];
+            const rec = getTodayRecord();
             const weight = getCurrentUserWeight();
             document.getElementById('headerWeightVal').textContent = weight.toFixed(1);
 
@@ -1733,42 +2120,21 @@
                 }
             });
 
-            const cnsContainer = document.getElementById('cnsButtonsContainer');
-            cnsContainer.innerHTML = '';
-            for (let i = 1; i <= 10; i++) {
-                const isSelected = rec.cns === i;
-                const isLow = i <= 5;
-                let btnColor = 'bg-bgMain border-borderSubtle text-textMuted';
-                if (isSelected) {
-                    btnColor = isLow
-                        ? 'bg-accentAmber text-black border-accentAmber font-extrabold'
-                        : 'bg-accentGreen text-black border-accentGreen font-extrabold';
-                }
-                const btn = document.createElement('button');
-                btn.className = `tactical-btn py-2 rounded-lg font-mono text-xs border ${btnColor}`;
-                btn.textContent = i;
-                btn.onclick = () => setCnsScore(i);
-                cnsContainer.appendChild(btn);
-            }
-
-            const cnsBadge = document.getElementById('cnsScoreBadge');
-            cnsBadge.textContent = `${rec.cns}/10`;
-            const warnBanner = document.getElementById('cnsWarningBanner');
-            const optBanner = document.getElementById('cnsOptimalBanner');
-
-            if (rec.cns <= 5) {
-                cnsBadge.className = 'font-mono font-extrabold text-lg px-2.5 py-0.5 rounded bg-accentAmber/20 text-accentAmber';
-                warnBanner.classList.remove('hidden');
-                optBanner.classList.add('hidden');
+            // Если выбран День Отдыха и мы НЕ редактируем старую запись — показываем карточку отдыха
+            const restCard = document.getElementById('restDayScreenCard');
+            const activeSec = document.getElementById('activeWorkoutSection');
+            if (rec.mode === 'rest' && !appState.editingWorkoutId) {
+                restCard.classList.remove('hidden');
+                activeSec.classList.add('hidden');
+                return;
             } else {
-                cnsBadge.className = 'font-mono font-extrabold text-lg px-2.5 py-0.5 rounded bg-bgElevated text-accentGreen';
-                warnBanner.classList.add('hidden');
-                optBanner.classList.remove('hidden');
+                restCard.classList.add('hidden');
+                activeSec.classList.remove('hidden');
             }
 
             const editBanner = document.getElementById('editingWorkoutBanner');
             const finishBtn = document.getElementById('finishWorkoutMainBtn');
-            if (editingWorkoutId) {
+            if (appState.editingWorkoutId) {
                 editBanner.classList.remove('hidden');
                 finishBtn.textContent = '💾 Сохранить изменения в тренировке';
             } else {
@@ -1820,7 +2186,7 @@
             dayObj.exercises.forEach((rawEx, exIdx) => {
                 const ex = resolveActiveExerciseConfig(rawEx);
                 const phaseObj = ex[appState.workoutPhase];
-                const historyInfo = getExerciseHistoryInfo(ex.id, phaseObj.maxReps, ex.isPlank);
+                const historyInfo = getExerciseHistoryInfo(ex, phaseObj);
                 const sessionSets = ensureSessionSetState(ex, phaseObj, historyInfo);
 
                 let variantToggleHTML = '';
@@ -1831,7 +2197,7 @@
                         <div class="grid grid-cols-2 gap-1.5 bg-bgMain p-1 rounded-xl border border-borderSubtle">
                             ${varKeys.map(vk => `
                                 <button onclick="toggleExerciseVariant('${rawEx.toggleStateKey}', '${vk}')" class="py-1.5 px-2 rounded-lg font-mono text-xs font-bold ${activeVarKey === vk ? 'bg-bgElevated text-accentGreen border border-accentGreen/40' : 'text-textMuted'}">
-                                    ${rawEx.variants[vk].shortLabel}
+                                    ${escapeHtml(rawEx.variants[vk].shortLabel)}
                                 </button>
                             `).join('')}
                         </div>
@@ -1840,23 +2206,47 @@
 
                 const noteVal = (appState.exerciseNotes && appState.exerciseNotes[ex.id]) ? appState.exerciseNotes[ex.id] : '';
 
-                const card = document.createElement('div');
-                card.className = 'tactical-card p-4 space-y-3';
+                // Плашка статуса прогрессии / плато / рабочей фазы
+                let statusBannerHTML = '';
+                if (historyInfo.found && historyInfo.statusText) {
+                    let bannerStyle = 'bg-bgMain border-borderSubtle text-textMuted';
+                    if (historyInfo.statusType === 'progression_ready' || historyInfo.statusType === 'norm_stable') {
+                        bannerStyle = 'bg-accentGreen/15 border-accentGreen text-accentGreen font-bold';
+                    } else if (historyInfo.statusType === 'plateau' || historyInfo.statusType === 'consolidate_rir0') {
+                        bannerStyle = 'bg-accentAmber/15 border-accentAmber text-accentAmber font-bold';
+                    } else if (historyInfo.statusType === 'working_up') {
+                        bannerStyle = 'bg-accentBlue/10 border-accentBlue/40 text-accentBlue font-semibold';
+                    }
+                    statusBannerHTML = `
+                        <div class="p-2.5 rounded-xl border text-xs font-mono leading-snug ${bannerStyle}">
+                            ${escapeHtml(historyInfo.statusText)}
+                        </div>
+                    `;
+                }
 
-                const progressionBadgeHTML = historyInfo.readyForProgression
-                    ? `<div class="p-2.5 rounded-xl bg-accentGreen/15 border border-accentGreen text-accentGreen text-xs font-mono font-bold flex items-center justify-between gap-2">
-                         <span>🔥 ПРОГРЕССИЯ: все подходы закрыты!</span>
-                         <span class="underline shrink-0">${ex.progressionStep}</span>
-                       </div>`
-                    : '';
+                // Необрезаемые бейджи «Прошлый раз»
+                const historyBadgesHTML = historyInfo.found ? `
+                    <div class="bg-bgMain px-3 py-2 rounded-xl border border-borderSubtle space-y-1.5">
+                        <div class="flex items-center justify-between text-[11px] font-mono text-textMuted">
+                            <span>Прошлый раз (${formatShortDate(historyInfo.date)}):</span>
+                            <span>${historyInfo.lastRir === 0 ? 'В отказ (RIR 0)' : (historyInfo.lastRir === 2 ? 'Легко (RIR 2+)' : 'Рабоче (RIR 1)')}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${historyInfo.badgesList.map(b => `
+                                <span class="bg-bgCard border border-borderSubtle text-white font-mono font-bold text-xs px-2 py-0.5 rounded-lg">${escapeHtml(b)}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : '';
 
+                const plankRem = plankTargetTimestamp ? Math.max(0, Math.ceil((plankTargetTimestamp - Date.now()) / 1000)) : 0;
                 const plankTimerHTML = ex.isPlank
                     ? `<div class="pt-1">
                          ${plankInterval
                             ? `<button id="plankLiveBtn" onclick="stopPlankStopwatch()" class="tactical-btn w-full py-2.5 rounded-xl bg-accentAmber text-black font-mono font-extrabold text-xs uppercase">
-                                 ⏱ ДЕРЖИМ ПЛАНКУ: ${plankRemaining} СЕК (СБРОС)
+                                 ⏱ ДЕРЖИМ ПЛАНКУ: ${plankRem} СЕК (НАЖМИ ДЛЯ СБРОСА)
                                </button>`
-                            : `<button onclick="startPlankStopwatch(${phaseObj.maxReps})" class="tactical-btn w-full py-2.5 rounded-xl bg-bgElevated border border-accentAmber/50 text-accentAmber font-mono font-bold text-xs uppercase">
+                            : `<button onclick="startPlankStopwatch(${phaseObj.maxReps}, ${ex.rest})" class="tactical-btn w-full py-2.5 rounded-xl bg-bgElevated border border-accentAmber/50 text-accentAmber font-mono font-bold text-xs uppercase">
                                  ⏱ Запустить секундомер планки (${phaseObj.maxReps} сек)
                                </button>`
                          }
@@ -1875,11 +2265,11 @@
                                 <div class="col-span-2 font-mono font-bold text-xs text-textMuted text-center">#${sIdx + 1}</div>
                                 <div class="col-span-8 flex items-center bg-bgCard rounded-lg border border-borderSubtle overflow-hidden">
                                     <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'reps', -5)" class="px-3 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">-5с</button>
-                                    <input type="number" step="5" value="${s.reps}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'reps', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
+                                    <input id="setInp_${ex.id}_${sIdx}_reps" type="number" step="5" value="${s.reps}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'reps', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
                                     <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'reps', 5)" class="px-3 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">+5с</button>
                                 </div>
                                 <div class="col-span-2 flex justify-end">
-                                    <button onclick="toggleSetComplete('${ex.id}', ${sIdx}, ${ex.rest}, '${ex.name.replace(/'/g, '')}')" class="tactical-btn w-full h-10 rounded-lg border font-mono text-sm flex items-center justify-center ${btnBg}">
+                                    <button onclick="toggleSetComplete('${ex.id}', ${sIdx}, ${ex.rest}, '${escapeHtml(ex.name)}')" class="tactical-btn w-full h-10 rounded-lg border font-mono text-sm flex items-center justify-center ${btnBg}">
                                         ✓
                                     </button>
                                 </div>
@@ -1891,23 +2281,23 @@
                         <div class="grid grid-cols-12 gap-1.5 items-center p-2 rounded-xl border ${rowBg}">
                             <div class="col-span-1 font-mono font-bold text-xs text-textMuted text-center">#${sIdx + 1}</div>
                             
-                            <!-- Вес кг с быстрыми шагами -->
+                            <!-- Вес кг -->
                             <div class="col-span-5 flex items-center bg-bgCard rounded-lg border border-borderSubtle overflow-hidden">
                                 <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'weight', -2.5)" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">-</button>
-                                <input type="number" step="0.5" value="${s.weight}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'weight', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
+                                <input id="setInp_${ex.id}_${sIdx}_weight" type="number" step="0.5" value="${s.weight}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'weight', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
                                 <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'weight', 2.5)" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">+</button>
                             </div>
 
                             <!-- Повторы -->
                             <div class="col-span-4 flex items-center bg-bgCard rounded-lg border border-borderSubtle overflow-hidden">
                                 <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'reps', -1)" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">-</button>
-                                <input type="number" step="1" value="${s.reps}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'reps', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
+                                <input id="setInp_${ex.id}_${sIdx}_reps" type="number" step="1" value="${s.reps}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'reps', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
                                 <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'reps', 1)" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">+</button>
                             </div>
 
                             <!-- Чекбокс Готово -->
                             <div class="col-span-2 flex justify-end">
-                                <button onclick="toggleSetComplete('${ex.id}', ${sIdx}, ${ex.rest}, '${ex.name.replace(/'/g, '')}')" class="tactical-btn w-full h-10 rounded-lg border font-mono text-sm flex items-center justify-center ${btnBg}">
+                                <button onclick="toggleSetComplete('${ex.id}', ${sIdx}, ${ex.rest}, '${escapeHtml(ex.name)}')" class="tactical-btn w-full h-10 rounded-lg border font-mono text-sm flex items-center justify-center ${btnBg}">
                                     ✓
                                 </button>
                             </div>
@@ -1915,36 +2305,46 @@
                     `;
                 }).join('');
 
+                // Компактный переключатель запаса сил RIR (1 раз на всё упражнение)
+                const curRir = (appState.activeExerciseRir && appState.activeExerciseRir[ex.id] !== undefined)
+                    ? Number(appState.activeExerciseRir[ex.id])
+                    : 1;
+                const rirSelectorHTML = !ex.isPlank ? `
+                    <div class="flex items-center justify-between bg-bgMain px-2.5 py-1.5 rounded-xl border border-borderSubtle gap-1.5">
+                        <span class="text-[10px] font-mono uppercase text-textMuted shrink-0">Запас сил (RIR):</span>
+                        <div class="grid grid-cols-3 gap-1 flex-1 max-w-[230px]">
+                            <button onclick="setExerciseRir('${ex.id}', 2)" class="py-1 px-1.5 rounded-lg font-mono text-[10px] font-bold ${curRir === 2 ? 'bg-accentGreen text-black' : 'bg-bgCard text-textMuted'}">Легко (2+)</button>
+                            <button onclick="setExerciseRir('${ex.id}', 1)" class="py-1 px-1.5 rounded-lg font-mono text-[10px] font-bold ${curRir === 1 ? 'bg-bgElevated text-accentGreen border border-accentGreen/40' : 'bg-bgCard text-textMuted'}">Рабоче (1)</button>
+                            <button onclick="setExerciseRir('${ex.id}', 0)" class="py-1 px-1.5 rounded-lg font-mono text-[10px] font-bold ${curRir === 0 ? 'bg-accentAmber text-black' : 'bg-bgCard text-textMuted'}">Отказ (0)</button>
+                        </div>
+                    </div>
+                ` : '';
+
+                const card = document.createElement('div');
+                card.className = 'tactical-card p-4 space-y-3';
                 card.innerHTML = `
                     <div class="flex items-start justify-between gap-2">
                         <div class="flex items-center space-x-2.5">
                             <span class="w-7 h-7 rounded-lg bg-bgElevated border border-borderSubtle font-mono font-extrabold text-xs text-accentGreen flex items-center justify-center shrink-0">${exIdx + 1}</span>
                             <div>
-                                <h3 class="font-bold text-base text-white leading-snug">${ex.name}</h3>
+                                <h3 class="font-bold text-base text-white leading-snug">${escapeHtml(ex.name)}</h3>
                                 <div class="text-xs font-mono text-textMuted mt-0.5">
-                                    Цель: <strong class="text-white">${phaseObj.sets} × ${phaseObj.repsText}</strong> • Вес: <span class="text-accentGreen font-bold">${phaseObj.weightHint}</span> • Отдых: ${ex.rest}с
+                                    Цель: <strong class="text-white">${phaseObj.sets} × ${escapeHtml(phaseObj.repsText)}</strong> • Вес: <span class="text-accentGreen font-bold">${escapeHtml(phaseObj.weightHint)}</span> • Отдых: ${ex.rest}с
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     ${variantToggleHTML}
-                    ${progressionBadgeHTML}
+                    ${statusBannerHTML}
 
                     <div class="bg-bgMain/70 px-3 py-2 rounded-lg border-l-2 border-accentAmber text-xs text-textMuted leading-relaxed">
-                        <strong class="text-white">Совет:</strong> ${ex.tip}
+                        <strong class="text-white">Совет:</strong> ${escapeHtml(ex.tip)}
                     </div>
 
-                    <!-- Памятка по настройке тренажера (мгновенное автосохранение oninput) -->
-                    <input type="text" value="${noteVal.replace(/"/g, '&quot;')}" oninput="saveExerciseNote('${ex.id}', this.value)" placeholder="⚙️ Заметка к тренажеру (напр. Лавка 30°, сиденье 4)" class="w-full bg-bgMain border border-borderSubtle rounded-lg px-3 py-1.5 text-xs font-mono text-white placeholder-textMuted/60 focus:outline-none focus:border-accentGreen">
+                    <input type="text" value="${escapeHtml(noteVal)}" oninput="saveExerciseNote('${ex.id}', this.value)" placeholder="⚙️ Заметка к тренажеру (напр. Лавка 30°, сиденье 4)" class="w-full bg-bgMain border border-borderSubtle rounded-lg px-3 py-1.5 text-xs font-mono text-white placeholder-textMuted/60 focus:outline-none focus:border-accentGreen">
 
-                    ${historyInfo.found ? `
-                        <div class="text-xs font-mono text-textMuted flex items-center justify-between bg-bgMain px-3 py-1.5 rounded-lg border border-borderSubtle gap-2">
-                            <span class="shrink-0">Прошлый раз (${historyInfo.date}):</span>
-                            <span class="text-white font-bold truncate">${historyInfo.summary}</span>
-                        </div>
-                    ` : ''}
-
+                    ${historyBadgesHTML}
                     ${plankTimerHTML}
 
                     ${ex.isPlank ? `
@@ -1965,6 +2365,8 @@
                     <div class="space-y-2">
                         ${setsRowsHTML}
                     </div>
+
+                    ${rirSelectorHTML}
                 `;
 
                 container.appendChild(card);
@@ -1973,33 +2375,46 @@
             updateWorkoutSummaryTotals();
         }
 
+        let confirmResetSessionFlag = false;
         function clearCurrentWorkoutSession() {
+            const btn = document.getElementById('resetSessionBtn');
+            if (!confirmResetSessionFlag) {
+                confirmResetSessionFlag = true;
+                if (btn) btn.textContent = 'Точно очистить галочки сессии? Нажми еще раз';
+                setTimeout(() => {
+                    confirmResetSessionFlag = false;
+                    if (btn) btn.textContent = '↺ Сбросить текущую сессию (очистить галочки)';
+                }, 3500);
+                return;
+            }
+            confirmResetSessionFlag = false;
+            if (btn) btn.textContent = '↺ Сбросить текущую сессию (очистить галочки)';
+
             const dayObj = WORKOUT_PROGRAM[appState.workoutDay];
             dayObj.exercises.forEach(rawEx => {
                 const ex = resolveActiveExerciseConfig(rawEx);
                 delete appState.activeSessionSets[`${appState.workoutDay}_${ex.id}`];
             });
-            editingWorkoutId = null;
-            savedActiveSessionBackup = null;
+            appState.editingWorkoutId = null;
+            appState.savedActiveSessionBackup = null;
             saveState();
             renderWorkoutTab();
             showToast('Текущая сессия сброшена');
         }
 
-        // Редактирование прошлой тренировки с сохранением текущей незавершенной сессии в буфер
+        // Редактирование прошлой тренировки (буфер сохраняется в appState и не пропадает при перезагрузке)
         function startEditWorkoutById(workoutId) {
             const target = appState.workoutHistory.find(w => w.id === workoutId);
             if (!target) return;
 
-            if (!editingWorkoutId) {
-                savedActiveSessionBackup = JSON.parse(JSON.stringify(appState.activeSessionSets));
+            if (!appState.editingWorkoutId) {
+                appState.savedActiveSessionBackup = JSON.parse(JSON.stringify(appState.activeSessionSets));
             }
 
-            editingWorkoutId = workoutId;
+            appState.editingWorkoutId = workoutId;
             appState.workoutDay = target.dayId;
             if (target.phase) appState.workoutPhase = target.phase;
 
-            // Автоматическое переключение тумблера, если в архивной записи был выбран второй вариант
             if (target.exercises && target.exercises['d2_ex1_lat']) appState.d2Ex1Variant = 'latpulldown';
             else if (target.exercises && target.exercises['d2_ex1']) appState.d2Ex1Variant = 'pullups';
 
@@ -2021,19 +2436,21 @@
                     }
                 }
                 appState.activeSessionSets[`${target.dayId}_${ex.id}`] = arr;
+                if (target.rirs && target.rirs[ex.id] !== undefined) {
+                    appState.activeExerciseRir[ex.id] = target.rirs[ex.id];
+                }
             });
 
             saveState();
             switchTab('workout');
-            renderWorkoutTab();
-            showToast(`Открыта запись за ${target.date} для правки`);
+            showToast(`Открыта запись за ${formatShortDate(target.date)} для правки`);
         }
 
         function cancelEditingWorkout() {
-            editingWorkoutId = null;
-            if (savedActiveSessionBackup) {
-                appState.activeSessionSets = savedActiveSessionBackup;
-                savedActiveSessionBackup = null;
+            appState.editingWorkoutId = null;
+            if (appState.savedActiveSessionBackup) {
+                appState.activeSessionSets = appState.savedActiveSessionBackup;
+                appState.savedActiveSessionBackup = null;
             }
             saveState();
             renderWorkoutTab();
@@ -2043,6 +2460,7 @@
         function finishAndSaveWorkout() {
             const dayObj = WORKOUT_PROGRAM[appState.workoutDay];
             const savedExercises = {};
+            const savedRirs = {};
             let totalSetsDone = 0;
 
             dayObj.exercises.forEach(rawEx => {
@@ -2056,6 +2474,9 @@
                         weight: Number(s.weight),
                         reps: Number(s.reps)
                     }));
+                    savedRirs[ex.id] = (appState.activeExerciseRir && appState.activeExerciseRir[ex.id] !== undefined)
+                        ? Number(appState.activeExerciseRir[ex.id])
+                        : 1;
                     totalSetsDone += doneSets.length;
                 }
             });
@@ -2065,19 +2486,20 @@
                 return;
             }
 
-            if (editingWorkoutId) {
-                const idx = appState.workoutHistory.findIndex(w => w.id === editingWorkoutId);
+            if (appState.editingWorkoutId) {
+                const idx = appState.workoutHistory.findIndex(w => w.id === appState.editingWorkoutId);
                 if (idx >= 0) {
                     appState.workoutHistory[idx].dayId = appState.workoutDay;
                     appState.workoutHistory[idx].dayName = dayObj.name;
                     appState.workoutHistory[idx].phase = appState.workoutPhase;
                     appState.workoutHistory[idx].setsDone = totalSetsDone;
                     appState.workoutHistory[idx].exercises = savedExercises;
+                    appState.workoutHistory[idx].rirs = savedRirs;
                 }
-                editingWorkoutId = null;
-                if (savedActiveSessionBackup) {
-                    appState.activeSessionSets = savedActiveSessionBackup;
-                    savedActiveSessionBackup = null;
+                appState.editingWorkoutId = null;
+                if (appState.savedActiveSessionBackup) {
+                    appState.activeSessionSets = appState.savedActiveSessionBackup;
+                    appState.savedActiveSessionBackup = null;
                 }
                 showToast('Изменения в тренировке сохранены!');
             } else {
@@ -2088,7 +2510,8 @@
                     dayName: dayObj.name,
                     phase: appState.workoutPhase,
                     setsDone: totalSetsDone,
-                    exercises: savedExercises
+                    exercises: savedExercises,
+                    rirs: savedRirs
                 });
                 appState.manualQueueNext = null;
                 appState.workoutsSinceLastBackup = (appState.workoutsSinceLastBackup || 0) + 1;
@@ -2099,20 +2522,18 @@
                     if (appState.activeSessionSets[key]) {
                         appState.activeSessionSets[key].forEach(s => s.done = false);
                     }
+                    appState.activeExerciseRir[ex.id] = 1;
                 });
                 showToast('Тренировка сохранена! Следующий блок обновлен.');
             }
 
             stopRestTimer();
             saveState();
-            renderWorkoutTab();
-            renderFoodTab();
-            renderProgressTab();
             switchTab('progress');
         }
 
         // =========================================================================
-        // 5. УДАЛЕНИЕ ТРЕНИРОВОК И НЕСГОРАЮЩИЙ ТАЙМЕР ОТДЫХА
+        // 5. УДАЛЕНИЕ ТРЕНИРОВОК И НЕСГОРАЕМЫЙ ТАЙМЕР ОТДЫХА
         // =========================================================================
         function deleteWorkoutById(workoutId) {
             if (pendingDeleteWorkoutId !== workoutId) {
@@ -2121,27 +2542,26 @@
                 setTimeout(() => {
                     if (pendingDeleteWorkoutId === workoutId) {
                         pendingDeleteWorkoutId = null;
-                        renderProgressTab();
+                        if (appState.currentTab === 'progress') renderProgressTab();
                     }
                 }, 4000);
                 return;
             }
 
-            const target = appState.workoutHistory.find(w => w.id === workoutId);
+            // Удаляем только архивную запись, НЕ затирая текущую незавершенную сессию
             appState.workoutHistory = appState.workoutHistory.filter(w => w.id !== workoutId);
             pendingDeleteWorkoutId = null;
-
-            if (target && target.dayId && WORKOUT_PROGRAM[target.dayId]) {
-                WORKOUT_PROGRAM[target.dayId].exercises.forEach(rawEx => {
-                    const ex = resolveActiveExerciseConfig(rawEx);
-                    delete appState.activeSessionSets[`${target.dayId}_${ex.id}`];
-                });
+            if (appState.editingWorkoutId === workoutId) {
+                appState.editingWorkoutId = null;
+                if (appState.savedActiveSessionBackup) {
+                    appState.activeSessionSets = appState.savedActiveSessionBackup;
+                    appState.savedActiveSessionBackup = null;
+                }
             }
 
             saveState();
-            renderWorkoutTab();
             renderProgressTab();
-            showToast('Тренировка удалена! Прогрессия и очередь пересчитаны.');
+            showToast('Тренировка удалена из журнала!');
         }
 
         let confirmClearAllWorkouts = false;
@@ -2157,17 +2577,14 @@
                 return;
             }
             appState.workoutHistory = [];
-            appState.activeSessionSets = {};
             appState.workoutsSinceLastBackup = 0;
             confirmClearAllWorkouts = false;
             saveState();
-            renderWorkoutTab();
             renderProgressTab();
             showToast('Журнал тренировок полностью очищен');
         }
 
         let restTimerInterval = null;
-        let restTargetTimestamp = 0;
         let lastBeepSecond = -1;
 
         function formatMMSS(sec) {
@@ -2179,18 +2596,31 @@
 
         function startRestTimer(seconds, exName = '') {
             clearInterval(restTimerInterval);
-            restTargetTimestamp = Date.now() + seconds * 1000;
+            appState.restTimerTargetTs = Date.now() + seconds * 1000;
+            appState.restTimerExLabel = exName || 'Восстановление';
+            saveState();
+            runRestTimerLoop();
+        }
+
+        function runRestTimerLoop() {
+            clearInterval(restTimerInterval);
+            if (!appState.restTimerTargetTs || appState.restTimerTargetTs <= Date.now()) {
+                appState.restTimerTargetTs = 0;
+                document.getElementById('restTimerBar').classList.add('hidden');
+                return;
+            }
+
             lastBeepSecond = -1;
             const bar = document.getElementById('restTimerBar');
             const clock = document.getElementById('restTimerClock');
             const exLabel = document.getElementById('restTimerExName');
 
             bar.classList.remove('hidden');
-            clock.textContent = formatMMSS(seconds);
-            exLabel.textContent = exName || 'Восстановление';
+            exLabel.textContent = appState.restTimerExLabel || 'Восстановление';
+            clock.textContent = formatMMSS(Math.ceil((appState.restTimerTargetTs - Date.now()) / 1000));
 
             restTimerInterval = setInterval(() => {
-                const secLeft = Math.ceil((restTargetTimestamp - Date.now()) / 1000);
+                const secLeft = Math.ceil((appState.restTimerTargetTs - Date.now()) / 1000);
                 clock.textContent = formatMMSS(secLeft);
 
                 if (secLeft === 10 && lastBeepSecond !== 10) {
@@ -2200,6 +2630,8 @@
                 if (secLeft <= 0) {
                     clearInterval(restTimerInterval);
                     restTimerInterval = null;
+                    appState.restTimerTargetTs = 0;
+                    saveState();
                     playTacticalBeep('finish');
                     showToast('Отдых завершен! Время рабочего подхода.');
                     bar.classList.add('hidden');
@@ -2208,19 +2640,23 @@
         }
 
         function adjustRestTimer(delta) {
-            restTargetTimestamp = Math.max(Date.now() + 3000, restTargetTimestamp + delta * 1000);
-            const secLeft = Math.ceil((restTargetTimestamp - Date.now()) / 1000);
+            if (!appState.restTimerTargetTs) return;
+            appState.restTimerTargetTs = Math.max(Date.now() + 3000, appState.restTimerTargetTs + delta * 1000);
+            saveState();
+            const secLeft = Math.ceil((appState.restTimerTargetTs - Date.now()) / 1000);
             document.getElementById('restTimerClock').textContent = formatMMSS(secLeft);
         }
 
         function stopRestTimer() {
             clearInterval(restTimerInterval);
             restTimerInterval = null;
+            appState.restTimerTargetTs = 0;
+            saveState();
             document.getElementById('restTimerBar').classList.add('hidden');
         }
 
         // =========================================================================
-        // 6. ПРОГРЕСС: НЕДЕЛЬНЫЙ АРХИВ, ВЕС СО СПОЙЛЕРОМ И КОМПАКТНЫЙ КОД-БЭКАП
+        // 6. ПРОГРЕСС: СРЕДНЕЕ КБЖУ, ГРАФИК СИЛЫ И ШПАРГАЛКА В ЖУРНАЛЕ
         // =========================================================================
         function logNewWeight() {
             const inp = document.getElementById('weightInput');
@@ -2240,10 +2676,8 @@
             }
             inp.value = '';
             saveState();
-            renderWorkoutTab();
-            renderFoodTab();
             renderProgressTab();
-            showToast(`Вес ${val.toFixed(1)} кг (${targetDate}) записан!`);
+            showToast(`Вес ${val.toFixed(1)} кг (${formatShortDate(targetDate)}) записан!`);
         }
 
         function deleteWeightEntry(idx) {
@@ -2253,8 +2687,6 @@
             }
             appState.weightLogs.splice(idx, 1);
             saveState();
-            renderWorkoutTab();
-            renderFoodTab();
             renderProgressTab();
             showToast('Замер веса удален');
         }
@@ -2267,6 +2699,135 @@
         function toggleWorkoutHistorySpoiler() {
             showAllWorkoutsHistory = !showAllWorkoutsHistory;
             renderProgressTab();
+        }
+
+        function toggleWorkoutDetails(workoutId) {
+            expandedWorkoutDetails[workoutId] = !expandedWorkoutDetails[workoutId];
+            renderProgressTab();
+        }
+
+        function changeStrengthChartExercise(exId) {
+            selectedStrengthExId = exId;
+            renderStrengthProgressChart();
+        }
+
+        function populateStrengthSelectOptions() {
+            const sel = document.getElementById('strengthExerciseSelect');
+            if (!sel) return;
+            const currentVal = selectedStrengthExId;
+            sel.innerHTML = Object.values(ALL_EXERCISES_MAP).map(ex => `
+                <option value="${escapeHtml(ex.id)}" ${ex.id === currentVal ? 'selected' : ''}>
+                    ${escapeHtml(ex.blockName.split(':')[0])} • ${escapeHtml(ex.name)}
+                </option>
+            `).join('');
+        }
+
+        // Строит график силового прогресса с учетом микро-бонуса за повторения
+        function renderStrengthProgressChart() {
+            const box = document.getElementById('strengthChartBox');
+            const badge = document.getElementById('strengthProgressDeltaBadge');
+            const sub = document.getElementById('strengthChartSubtitle');
+            if (!box) return;
+
+            const exMeta = ALL_EXERCISES_MAP[selectedStrengthExId] || { name: '', isPlank: false };
+            const pointsData = [];
+
+            appState.workoutHistory.forEach(w => {
+                if (w.exercises && w.exercises[selectedStrengthExId] && w.exercises[selectedStrengthExId].length > 0) {
+                    const sets = w.exercises[selectedStrengthExId];
+                    const maxW = Math.max(...sets.map(s => Number(s.weight) || 0));
+                    const totalReps = sets.reduce((a, s) => a + (Number(s.reps) || 0), 0);
+                    // Лучший сет по весу и повторениям
+                    let bestSet = sets[0];
+                    sets.forEach(s => {
+                        const scoreS = (Number(s.weight) || 0) * (1 + (Number(s.reps) || 0) / 30) + (Number(s.reps) || 0) * 0.1;
+                        const scoreBest = (Number(bestSet.weight) || 0) * (1 + (Number(bestSet.reps) || 0) / 30) + (Number(bestSet.reps) || 0) * 0.1;
+                        if (scoreS >= scoreBest) bestSet = s;
+                    });
+
+                    const isBodyweightOnly = maxW === 0;
+                    const plotMetric = isBodyweightOnly
+                        ? totalReps
+                        : +(Number(bestSet.weight) + Number(bestSet.reps) * 0.15).toFixed(2);
+                    const labelText = exMeta.isPlank
+                        ? `${bestSet.reps}с`
+                        : (isBodyweightOnly ? `Σ${totalReps}` : `${bestSet.weight}×${bestSet.reps}`);
+
+                    pointsData.push({
+                        date: formatShortDate(w.date),
+                        maxW,
+                        totalReps,
+                        bestWeight: Number(bestSet.weight) || 0,
+                        bestReps: Number(bestSet.reps) || 0,
+                        plotMetric,
+                        labelText,
+                        isBodyweightOnly
+                    });
+                }
+            });
+
+            if (pointsData.length === 0) {
+                badge.textContent = 'Нет записей';
+                sub.textContent = 'ВЫПОЛНИ УПРАЖНЕНИЕ ДЛЯ ПОСТРОЕНИЯ ГРАФИКА';
+                box.innerHTML = `<span class="text-xs font-mono text-textMuted">Пока нет сохраненных тренировок с этим упражнением</span>`;
+                return;
+            }
+
+            const recent = pointsData.slice(-8);
+            const first = pointsData[0];
+            const last = pointsData[pointsData.length - 1];
+
+            if (last.isBodyweightOnly) {
+                sub.textContent = exMeta.isPlank ? 'ЛУЧШАЯ ВЫДЕРЖКА СЕССИИ (СЕК)' : 'СУММА ПОВТОРЕНИЙ ЗА ТРЕНИРОВКУ';
+                const diffReps = last.totalReps - first.totalReps;
+                badge.textContent = `${diffReps >= 0 ? '+' : ''}${diffReps} ${exMeta.isPlank ? 'сек сумм.' : 'повт. к старту'}`;
+            } else {
+                sub.textContent = 'РАБОЧИЙ ВЕС × ПОВТОРЫ (С УЧЕТОМ ПРОГРЕССИИ ПОВТОРОВ)';
+                const diffW = +(last.bestWeight - first.bestWeight).toFixed(1);
+                if (diffW !== 0) {
+                    badge.textContent = `${diffW > 0 ? '+' : ''}${diffW} кг к старту`;
+                } else {
+                    const diffR = last.bestReps - first.bestReps;
+                    badge.textContent = `${last.bestWeight} кг (${diffR >= 0 ? '+' : ''}${diffR} повт.)`;
+                }
+            }
+
+            const w = 420;
+            const h = 130;
+            const padX = 32;
+            const padY = 24;
+
+            const vals = recent.map(r => r.plotMetric);
+            let minV = Math.min(...vals) - 1;
+            let maxV = Math.max(...vals) + 1;
+            if (maxV - minV < 2) {
+                maxV += 1;
+                minV -= 1;
+            }
+
+            const coords = recent.map((item, idx) => {
+                const x = recent.length === 1
+                    ? w / 2
+                    : padX + (idx / (recent.length - 1)) * (w - padX * 2);
+                const y = h - padY - ((item.plotMetric - minV) / (maxV - minV)) * (h - padY * 2);
+                return { x, y, label: item.labelText, date: item.date };
+            });
+
+            const poly = coords.map(p => `${p.x},${p.y}`).join(' ');
+            const circles = coords.map(p => `
+                <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#10b981" stroke="#0d0f12" stroke-width="2" />
+                <text x="${p.x}" y="${p.y - 9}" text-anchor="middle" fill="#f3f4f6" font-family="JetBrains Mono" font-size="9.5" font-weight="bold">${escapeHtml(p.label)}</text>
+                <text x="${p.x}" y="${h - 4}" text-anchor="middle" fill="#9ca3af" font-family="JetBrains Mono" font-size="9">${escapeHtml(p.date)}</text>
+            `).join('');
+
+            box.innerHTML = `
+                <svg viewBox="0 0 ${w} ${h}" class="w-full h-full overflow-visible">
+                    <line x1="${padX}" y1="${padY}" x2="${w - padX}" y2="${padY}" stroke="#262b36" stroke-dasharray="3 3" stroke-width="1" />
+                    <line x1="${padX}" y1="${h - padY}" x2="${w - padX}" y2="${h - padY}" stroke="#262b36" stroke-dasharray="3 3" stroke-width="1" />
+                    ${coords.length > 1 ? `<polyline fill="none" stroke="#10b981" stroke-width="2.5" points="${poly}" />` : ''}
+                    ${circles}
+                </svg>
+            `;
         }
 
         function renderWeightChartSVG(logs) {
@@ -2295,7 +2856,7 @@
                     ? w / 2
                     : padX + (idx / (recent.length - 1)) * (w - padX * 2);
                 const y = h - padY - ((Number(item.weight) - minW) / (maxW - minW)) * (h - padY * 2);
-                return { x, y, weight: Number(item.weight), date: item.date.slice(5) };
+                return { x, y, weight: Number(item.weight), date: formatShortDate(item.date) };
             });
 
             const polylinePoints = points.map(p => `${p.x},${p.y}`).join(' ');
@@ -2303,7 +2864,7 @@
             const circlesHTML = points.map(p => `
                 <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#10b981" stroke="#0d0f12" stroke-width="2" />
                 <text x="${p.x}" y="${p.y - 9}" text-anchor="middle" fill="#f3f4f6" font-family="JetBrains Mono" font-size="10" font-weight="bold">${p.weight.toFixed(1)}</text>
-                <text x="${p.x}" y="${h - 4}" text-anchor="middle" fill="#9ca3af" font-family="JetBrains Mono" font-size="9">${p.date}</text>
+                <text x="${p.x}" y="${h - 4}" text-anchor="middle" fill="#9ca3af" font-family="JetBrains Mono" font-size="9">${escapeHtml(p.date)}</text>
             `).join('');
 
             box.innerHTML = `
@@ -2317,32 +2878,54 @@
         }
 
         function renderProgressTab() {
+            const todayIso = getTodayKey();
             const wkBody = document.getElementById('weeklyArchiveTableBody');
             let wkHTML = '';
+
+            let sumCal = 0, sumP = 0, sumF = 0, sumC = 0, validMacroDays = 0;
+
             for (let i = 0; i < 7; i++) {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
-                const iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                const iso = toDateKey(d);
                 const dayRec = appState.dailyRecords[iso];
-                const wDone = appState.workoutHistory.find(w => w.date === iso);
+                const workoutsOnDay = appState.workoutHistory.filter(w => w.date === iso);
+
                 let modeLabel = '—';
-                if (wDone) {
-                    modeLabel = `<span class="text-accentGreen font-bold">${wDone.dayId.toUpperCase()} ✓</span>`;
+                if (workoutsOnDay.length > 0) {
+                    const labels = [...new Set(workoutsOnDay.map(w => w.dayId.toUpperCase()))].join('+');
+                    modeLabel = `<span class="text-accentGreen font-bold">${escapeHtml(labels)} ✓</span>`;
                 } else if (dayRec) {
-                    modeLabel = dayRec.mode === 'rest' ? 'Отдых' : dayRec.mode.toUpperCase();
+                    modeLabel = dayRec.mode === 'rest' ? 'Отдых' : escapeHtml(dayRec.mode.toUpperCase());
                 }
 
-                let cal = 0, p = 0;
+                let cal = 0, p = 0, f = 0, c = 0;
                 if (dayRec && dayRec.foods) {
-                    dayRec.foods.forEach(f => { cal += Number(f.cal) || 0; p += Number(f.p) || 0; });
+                    dayRec.foods.forEach(fd => {
+                        cal += Number(fd.cal) || 0;
+                        p += Number(fd.p) || 0;
+                        f += Number(fd.f) || 0;
+                        c += Number(fd.c) || 0;
+                    });
                 }
+
+                // Не включаем сегодняшний незаконченный день (< 1000 ккал и < 100г Б) в расчет недельного среднего
+                const isTodayIncomplete = (iso === todayIso) && (cal < 1000 && p < 100);
+                if (cal > 0 && !isTodayIncomplete) {
+                    sumCal += cal;
+                    sumP += p;
+                    sumF += f;
+                    sumC += c;
+                    validMacroDays++;
+                }
+
                 const pBadge = p >= 100
                     ? `<span class="text-accentGreen font-bold">✅ ${Math.round(p)}г</span>`
                     : `<span class="text-textMuted">${Math.round(p)}г</span>`;
 
                 wkHTML += `
                     <tr class="border-b border-borderSubtle/60">
-                        <td class="py-2 text-textMuted">${iso.slice(5)}</td>
+                        <td class="py-2 text-textMuted">${formatShortDate(iso)}</td>
                         <td class="py-2 text-white">${modeLabel}</td>
                         <td class="py-2 text-white">${Math.round(cal)}</td>
                         <td class="py-2">${pBadge}</td>
@@ -2351,12 +2934,28 @@
             }
             wkBody.innerHTML = wkHTML;
 
+            const avgMacrosEl = document.getElementById('weeklyAvgMacrosValue');
+            if (validMacroDays > 0) {
+                const aCal = Math.round(sumCal / validMacroDays);
+                const aP = Math.round(sumP / validMacroDays);
+                const aF = Math.round(sumF / validMacroDays);
+                const aC = Math.round(sumC / validMacroDays);
+                avgMacrosEl.innerHTML = `<span class="text-accentGreen">${aCal} ккал</span> • Б:${aP}г • Ж:${aF}г • У:${aC}г <span class="text-textMuted font-normal">(${validMacroDays} дн.)</span>`;
+            } else {
+                avgMacrosEl.textContent = 'Накопи хотя бы 1 полный день питания';
+            }
+
+            // Вес тела (среднее за 7 календарных дней)
             const logs = appState.weightLogs;
             const currentW = getCurrentUserWeight();
-            const startW = logs.length > 0 ? logs[0].weight : 79.6;
+            const startW = logs.length > 0 ? Number(logs[0].weight) : 79.6;
 
-            const last7 = logs.slice(-7);
-            const avg7 = last7.reduce((acc, item) => acc + Number(item.weight), 0) / last7.length;
+            const d7 = new Date();
+            d7.setDate(d7.getDate() - 7);
+            const cutoff7Key = toDateKey(d7);
+            const logsLast7Days = logs.filter(l => l.date >= cutoff7Key);
+            const poolForAvg = logsLast7Days.length > 0 ? logsLast7Days : logs.slice(-7);
+            const avg7 = poolForAvg.reduce((acc, item) => acc + Number(item.weight), 0) / poolForAvg.length;
             const delta = currentW - startW;
 
             document.getElementById('statCurrWeight').textContent = `${currentW.toFixed(1)} кг`;
@@ -2380,7 +2979,7 @@
 
             wList.innerHTML = logs.map((item, idx) => `
                 <div class="flex items-center justify-between bg-bgMain px-3 py-2 rounded-lg border border-borderSubtle text-xs font-mono">
-                    <span class="text-textMuted">${item.date}</span>
+                    <span class="text-textMuted">${escapeHtml(item.date)}</span>
                     <div class="flex items-center space-x-3">
                         <span class="text-white font-bold">${Number(item.weight).toFixed(1)} кг</span>
                         <button onclick="deleteWeightEntry(${idx})" title="Удалить замер" class="px-2 py-0.5 rounded bg-bgElevated text-textMuted hover:text-accentRed">Удалить ✕</button>
@@ -2388,6 +2987,11 @@
                 </div>
             `).reverse().join('');
 
+            // График силового прогресса
+            populateStrengthSelectOptions();
+            renderStrengthProgressChart();
+
+            // Журнал тренировок с раскрывающейся шпаргалкой по клику
             const totalW = appState.workoutHistory.length;
             document.getElementById('totalWorkoutsBadge').textContent = `${totalW} трен.`;
             const clearAllBtn = document.getElementById('clearAllWorkoutsBtn');
@@ -2415,24 +3019,44 @@
 
                 histList.innerHTML = visibleList.map(w => {
                     const isConfirming = pendingDeleteWorkoutId === w.id;
+                    const isExpanded = !!expandedWorkoutDetails[w.id];
                     const delBtnHTML = isConfirming
-                        ? `<button onclick="deleteWorkoutById(${w.id})" class="tactical-btn bg-accentRed text-white font-mono font-bold text-xs px-2.5 py-1 rounded-lg">Точно?</button>`
-                        : `<button onclick="deleteWorkoutById(${w.id})" class="tactical-btn bg-bgElevated hover:bg-accentRed/20 border border-borderSubtle text-textMuted hover:text-accentRed font-mono text-xs px-2.5 py-1 rounded-lg">🗑</button>`;
+                        ? `<button onclick="event.stopPropagation(); deleteWorkoutById(${w.id})" class="tactical-btn bg-accentRed text-white font-mono font-bold text-xs px-2.5 py-1 rounded-lg">Точно?</button>`
+                        : `<button onclick="event.stopPropagation(); deleteWorkoutById(${w.id})" class="tactical-btn bg-bgElevated hover:bg-accentRed/20 border border-borderSubtle text-textMuted hover:text-accentRed font-mono text-xs px-2.5 py-1 rounded-lg">🗑</button>`;
 
-                    const exCount = w.exercises ? Object.keys(w.exercises).length : 0;
+                    const exEntries = Object.entries(w.exercises || {});
+                    const exCount = exEntries.length;
+
+                    const detailsHTML = isExpanded ? `
+                        <div class="pt-2.5 mt-2 border-t border-borderSubtle space-y-1.5">
+                            ${exEntries.map(([exId, setsArr]) => {
+                                const meta = ALL_EXERCISES_MAP[exId] || { name: exId, isPlank: false };
+                                const setsBadges = (setsArr || []).map((s, idx) =>
+                                    meta.isPlank ? `#${idx + 1}: ${s.reps}с` : `#${idx + 1}: ${s.weight}кг×${s.reps}`
+                                ).join(' • ');
+                                return `
+                                    <div class="bg-bgCard px-2.5 py-1.5 rounded-lg border border-borderSubtle text-xs">
+                                        <div class="font-semibold text-white">${escapeHtml(meta.name)}</div>
+                                        <div class="font-mono text-[11px] text-accentGreen mt-0.5">${escapeHtml(setsBadges)}</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    ` : '';
 
                     return `
-                        <div class="bg-bgMain p-3.5 rounded-xl border border-borderSubtle space-y-2">
+                        <div onclick="toggleWorkoutDetails(${w.id})" class="bg-bgMain p-3.5 rounded-xl border ${isExpanded ? 'border-accentGreen/50' : 'border-borderSubtle'} cursor-pointer transition-colors">
                             <div class="flex items-start justify-between gap-2">
                                 <div>
-                                    <span class="font-bold text-sm text-white block">${w.dayName}</span>
-                                    <span class="text-[11px] font-mono text-accentGreen">${w.date} • Упражнений: ${exCount} • Подходов: ${w.setsDone}</span>
+                                    <span class="font-bold text-sm text-white block">${escapeHtml(w.dayName)}</span>
+                                    <span class="text-[11px] font-mono text-accentGreen">${formatShortDate(w.date)} • Упр: ${exCount} • Подходов: ${w.setsDone} <span class="text-textMuted ml-1">${isExpanded ? '▴' : '▾ шпаргалка'}</span></span>
                                 </div>
                                 <div class="flex items-center space-x-1.5 shrink-0">
-                                    <button onclick="startEditWorkoutById(${w.id})" class="tactical-btn bg-bgElevated hover:bg-borderSubtle border border-borderSubtle text-white font-mono text-xs px-2.5 py-1 rounded-lg">✏️ Изменить</button>
+                                    <button onclick="event.stopPropagation(); startEditWorkoutById(${w.id})" class="tactical-btn bg-bgElevated hover:bg-borderSubtle border border-borderSubtle text-white font-mono text-xs px-2.5 py-1 rounded-lg">✏️ Изменить</button>
                                     ${delBtnHTML}
                                 </div>
                             </div>
+                            ${detailsHTML}
                         </div>
                     `;
                 }).join('');
@@ -2440,9 +3064,17 @@
         }
 
         // =========================================================================
-        // 7. МОДАЛЬНОЕ ОКНО БЭКАПА С ОЧИСТКОЙ ПУСТЫХ ДНЕЙ И НАВИГАЦИЯ
+        // 7. БЭКАП С ПРОВЕРКОЙ ЦЕЛОСТНОСТИ И ОТКАТОМ + НАВИГАЦИЯ
         // =========================================================================
+        function updateUndoRestoreButtonVisibility() {
+            const btn = document.getElementById('undoRestoreBtn');
+            if (!btn) return;
+            if (localStorage.getItem(PREV_BACKUP_STORAGE_KEY)) btn.classList.remove('hidden');
+            else btn.classList.add('hidden');
+        }
+
         function openBackupModal() {
+            updateUndoRestoreButtonVisibility();
             document.getElementById('backupModal').classList.remove('hidden');
         }
 
@@ -2453,7 +3085,25 @@
         function dismissBackupBanner() {
             appState.workoutsSinceLastBackup = 0;
             saveState();
-            renderWorkoutTab();
+            renderActiveTabOnly();
+        }
+
+        function encodeUtf8Base64(str) {
+            const bytes = new TextEncoder().encode(str);
+            let binary = '';
+            for (let i = 0; i < bytes.length; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        function decodeUtf8Base64(base64) {
+            const binary = atob(base64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return new TextDecoder().decode(bytes);
         }
 
         function copyTextFallback(text) {
@@ -2475,10 +3125,9 @@
 
         function copyBackupCodeToClipboard() {
             try {
-                // Очищаем пустые дни старше 14 дней, чтобы код бэкапа не раздувался через месяцы
                 const cutoffDate = new Date();
                 cutoffDate.setDate(cutoffDate.getDate() - 14);
-                const cutoffISO = `${cutoffDate.getFullYear()}-${String(cutoffDate.getMonth()+1).padStart(2,'0')}-${String(cutoffDate.getDate()).padStart(2,'0')}`;
+                const cutoffISO = toDateKey(cutoffDate);
                 Object.keys(appState.dailyRecords || {}).forEach(dateKey => {
                     const r = appState.dailyRecords[dateKey];
                     if (dateKey < cutoffISO && (!r.foods || r.foods.length === 0)) {
@@ -2487,7 +3136,7 @@
                 });
 
                 const jsonStr = JSON.stringify(appState);
-                const encoded = 'TACTICAL_BACKUP_' + btoa(unescape(encodeURIComponent(jsonStr)));
+                const encoded = 'TACTICAL_BACKUP_' + encodeUtf8Base64(jsonStr);
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(encoded).catch(() => copyTextFallback(encoded));
                 } else {
@@ -2496,7 +3145,7 @@
                 appState.workoutsSinceLastBackup = 0;
                 appState.lastBackupDate = getTodayKey();
                 saveState();
-                renderWorkoutTab();
+                renderActiveTabOnly();
                 showToast('Код-бэкап скопирован! Вставь его в Избранное Telegram.');
             } catch (e) {
                 showToast('Ошибка генерации кода');
@@ -2511,25 +3160,58 @@
             }
             try {
                 const cleanBase64 = raw.replace(/^TACTICAL_BACKUP_/, '');
-                const jsonStr = decodeURIComponent(escape(atob(cleanBase64)));
+                const jsonStr = decodeUtf8Base64(cleanBase64);
                 const parsed = JSON.parse(jsonStr);
-                if (parsed && parsed.weightLogs) {
-                    appState = { ...appState, ...parsed, workoutsSinceLastBackup: 0 };
-                    saveState();
-                    document.getElementById('restoreCodeInput').value = '';
-                    closeBackupModal();
-                    initApp();
-                    showToast('База данных успешно восстановлена из кода!');
-                } else {
-                    showToast('Неверный формат кода');
+
+                const isValid = parsed
+                    && typeof parsed === 'object'
+                    && Array.isArray(parsed.weightLogs)
+                    && Array.isArray(parsed.workoutHistory)
+                    && typeof parsed.dailyRecords === 'object'
+                    && parsed.dailyRecords !== null;
+
+                if (!isValid) {
+                    showToast('Ошибка: структура кода повреждена');
+                    return;
                 }
+
+                if (!confirm(`Восстановить базу данных? (Тренировок в коде: ${parsed.workoutHistory.length}, замеров веса: ${parsed.weightLogs.length})`)) {
+                    return;
+                }
+
+                // Сохраняем текущую базу для возможного отката в 1 клик
+                localStorage.setItem(PREV_BACKUP_STORAGE_KEY, JSON.stringify(appState));
+
+                appState = { ...appState, ...parsed, workoutsSinceLastBackup: 0 };
+                saveState();
+                document.getElementById('restoreCodeInput').value = '';
+                closeBackupModal();
+                initApp();
+                showToast('База данных успешно восстановлена!');
             } catch (e) {
                 showToast('Ошибка чтения кода. Проверь, что скопировал строку целиком.');
             }
         }
 
+        function undoLastRestoreBackup() {
+            const prevRaw = localStorage.getItem(PREV_BACKUP_STORAGE_KEY);
+            if (!prevRaw) return;
+            if (!confirm('Вернуть предыдущую базу данных до восстановления?')) return;
+            try {
+                const prev = JSON.parse(prevRaw);
+                if (prev && typeof prev === 'object') {
+                    appState = { ...appState, ...prev };
+                    saveState();
+                    closeBackupModal();
+                    initApp();
+                    showToast('Предыдущая база возвращена!');
+                }
+            } catch (e) {}
+        }
+
         function switchTab(tabId) {
             appState.currentTab = tabId;
+            saveState();
             ['workout', 'food', 'progress'].forEach(t => {
                 const sec = document.getElementById(`tab-${t}`);
                 const btn = document.getElementById(`navBtn-${t}`);
@@ -2541,6 +3223,7 @@
                     btn.className = 'flex flex-col items-center justify-center space-y-1 font-mono text-xs font-bold text-textMuted hover:text-white';
                 }
             });
+            renderActiveTabOnly();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -2548,19 +3231,13 @@
             loadState();
             requestPersistentStorageProtection();
 
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('ru-RU', {
-                day: 'numeric',
-                month: 'short'
-            });
-            document.getElementById('headerDateDisplay').textContent = dateStr.toUpperCase();
-
             const wDateInp = document.getElementById('weightDateInput');
             if (wDateInp) wDateInp.value = getTodayKey();
 
-            renderWorkoutTab();
-            renderFoodTab();
-            renderProgressTab();
+            if (appState.restTimerTargetTs && appState.restTimerTargetTs > Date.now()) {
+                runRestTimerLoop();
+            }
+
             switchTab(appState.currentTab || 'workout');
         }
 
