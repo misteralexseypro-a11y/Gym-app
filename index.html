@@ -7,7 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>TACTICAL FIT // Дневник Рекомпозиции v5.5</title>
+    <title>TACTICAL FIT // Дневник Рекомпозиции v5.6</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230d0f12'/%3E%3Cpath d='M136 176v160M96 208v96M376 176v160M416 208v96M136 256h240' stroke='%2310b981' stroke-width='36' stroke-linecap='round'/%3E%3C/svg%3E">
     <script>
@@ -120,7 +120,7 @@
                 <div class="min-w-0">
                     <div class="flex items-center space-x-1.5">
                         <span class="font-mono font-extrabold text-sm tracking-wider uppercase text-white truncate">TACTICAL RECOMP</span>
-                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v5.5</span>
+                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v5.6</span>
                     </div>
                     <div class="flex items-center space-x-1.5 mt-0.5">
                         <button onclick="openBackupModal()" id="autoSaveBadge" class="tactical-btn text-[10px] font-mono text-accentGreen bg-accentGreen/10 border border-accentGreen/30 px-2 py-0.5 rounded-full flex items-center shrink-0">
@@ -206,7 +206,7 @@
                 </div>
             </div>
 
-            <!-- Карточка Дня Отдыха (показывается, когда выбран режим Отдых и мы не редактируем старую запись) -->
+            <!-- Карточка Дня Отдыха -->
             <div id="restDayScreenCard" class="hidden tactical-card p-6 text-center space-y-3 border-accentGreen/30">
                 <div class="w-12 h-12 rounded-2xl bg-accentGreen/15 border border-accentGreen/30 text-accentGreen flex items-center justify-center mx-auto text-2xl">
                     🔋
@@ -227,7 +227,7 @@
 
             <!-- Контейнер активной силовой тренировки -->
             <div id="activeWorkoutSection" class="space-y-4">
-                <!-- Баннер если редактируем прошлую тренировку из журнала -->
+                <!-- Баннер редактирования архивной тренировки -->
                 <div id="editingWorkoutBanner" class="hidden p-3.5 rounded-xl bg-accentAmber/15 border border-accentAmber text-accentAmber text-xs font-mono flex items-center justify-between gap-2">
                     <div>
                         <strong class="block uppercase font-bold">✏️ Редактирование архивной записи</strong>
@@ -236,7 +236,7 @@
                     <button onclick="cancelEditingWorkout()" class="bg-bgElevated text-white px-2.5 py-1.5 rounded-lg font-bold shrink-0">Отмена</button>
                 </div>
                 
-                <!-- Переключатель Блока 1 / 2 / 3 и фазы (Старт vs Целевой) -->
+                <!-- Переключатель Блока 1 / 2 / 3 (без лишних фаз и разминки) -->
                 <div class="tactical-card p-3.5 space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-mono uppercase text-textMuted">Активный тренировочный блок</span>
@@ -253,40 +253,6 @@
                         </button>
                         <button onclick="selectWorkoutDay('d3')" id="wTab-d3" class="tactical-btn py-2.5 px-2 rounded-xl font-mono text-xs font-bold border text-center">
                             БЛОК 3<br><span class="text-[11px] font-normal opacity-80">Ноги + Плечи</span>
-                        </button>
-                    </div>
-
-                    <!-- Фаза тренировок: Старт vs Целевой -->
-                    <div class="flex items-center justify-between bg-bgMain p-1.5 rounded-xl border border-borderSubtle">
-                        <button onclick="setWorkoutPhase('start')" id="phaseBtn-start" class="tactical-btn flex-1 py-2 rounded-lg text-xs font-mono font-bold text-center">
-                            Старт (Недели 1–2)
-                        </button>
-                        <button onclick="setWorkoutPhase('target')" id="phaseBtn-target" class="tactical-btn flex-1 py-2 rounded-lg text-xs font-mono font-bold text-center">
-                            Целевой (С недели 3–4)
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Обязательный чек-лист разминки -->
-                <div class="tactical-card p-3.5">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-mono uppercase tracking-wider text-textMuted">Протокол разминки перед базой</span>
-                        <span id="warmupStatusBadge" class="text-[11px] font-mono text-textMuted">0 / 2</span>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <button onclick="toggleWarmup(0)" id="warmupBtn-0" class="tactical-btn flex items-center justify-between p-3 rounded-xl bg-bgMain border border-borderSubtle text-left">
-                            <div>
-                                <div class="text-sm font-bold text-white">Кардио-разминка</div>
-                                <div class="text-xs text-textMuted font-mono">7–10 мин • 5.0–5.5 км/ч</div>
-                            </div>
-                            <div id="warmupCheck-0" class="w-7 h-7 rounded-lg border border-borderSubtle flex items-center justify-center font-mono text-sm"></div>
-                        </button>
-                        <button onclick="toggleWarmup(1)" id="warmupBtn-1" class="tactical-btn flex items-center justify-between p-3 rounded-xl bg-bgMain border border-borderSubtle text-left">
-                            <div>
-                                <div class="text-sm font-bold text-white">Суставная разминка</div>
-                                <div class="text-xs text-textMuted font-mono">3 мин • плечи, локти, таз</div>
-                            </div>
-                            <div id="warmupCheck-1" class="w-7 h-7 rounded-lg border border-borderSubtle flex items-center justify-center font-mono text-sm"></div>
                         </button>
                     </div>
                 </div>
@@ -420,7 +386,7 @@
                     </button>
                 </div>
 
-                <!-- Лог съеденного за сегодня (С РЕДАКТИРОВАНИЕМ ✎ И УДАЛЕНИЕМ ✕) -->
+                <!-- Лог съеденного за сегодня -->
                 <div class="pt-2 border-t border-borderSubtle">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-mono uppercase text-textMuted">Съедено за сегодня (✎ — изменить):</span>
@@ -524,7 +490,7 @@
                 </div>
             </div>
 
-            <!-- НОВЫЙ БЛОК: График силового прогресса по упражнениям -->
+            <!-- График силового прогресса по упражнениям -->
             <div class="tactical-card p-4 space-y-3.5">
                 <div class="flex items-center justify-between gap-2">
                     <div>
@@ -548,7 +514,7 @@
                 </div>
             </div>
 
-            <!-- Архив завершенных тренировок (С РАСКРЫВАЮЩЕЙСЯ ШПАРГАЛКОЙ ПО КЛИКУ) -->
+            <!-- Архив завершенных тренировок -->
             <div class="tactical-card p-4 space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
@@ -738,13 +704,13 @@
 
     <script>
         // =========================================================================
-        // 1. БАЗА ДАННЫХ ПРОГРАММЫ ТРЕНИРОВОК И СТАНДАРТНЫХ ПРОДУКТОВ
+        // 1. БАЗА ДАННЫХ ПРОГРАММЫ ТРЕНИРОВОК (ЕДИНАЯ СТАРТОВАЯ БАЗА + УМНЫЙ ВЕС)
         // =========================================================================
         const WORKOUT_PROGRAM = {
             d1: {
                 id: 'd1',
                 shortName: 'Блок 1: Грудь + Триц',
-                name: 'Блок 1: Грудь + Трицепс',
+                name: 'Блок 1: Грудь + Трицепс + Кор',
                 exercises: [
                     {
                         id: 'd1_ex1',
@@ -752,9 +718,9 @@
                         rest: 90,
                         isPlank: false,
                         isActivation: true,
+                        stepKg: 2.5,
                         progressionStep: 'Микро-вес (без отказа)',
-                        start: { sets: 2, repsText: '15', minReps: 15, maxReps: 15, weightHint: '10–15 кг', defaultWeight: 12.5 },
-                        target: { sets: 2, repsText: '15', minReps: 15, maxReps: 15, weightHint: '10–15 кг', defaultWeight: 15 },
+                        sets: 2, repsText: '15', minReps: 15, maxReps: 15, weightHint: '10–15 кг', defaultWeight: 12.5,
                         tip: 'Не до отказа! Легко сведи, задержи на 1 сек. Цель — включить грудь перед базой, не утомляя её.'
                     },
                     {
@@ -762,9 +728,9 @@
                         name: 'Жим под наклоном (Смит/Хаммер)',
                         rest: 120,
                         isPlank: false,
+                        stepKg: 2.5,
                         progressionStep: '+1.25–2.5 кг на сторону',
-                        start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+10–15 кг/стор', defaultWeight: 12.5 },
-                        target: { sets: 3, repsText: '8–10', minReps: 8, maxReps: 10, weightHint: '+15–25 кг/стор', defaultWeight: 20 },
+                        sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+10–15 кг/стор', defaultWeight: 12.5,
                         tip: 'Лопатки жестко сведены, локти под углом 45°. Толкай вес за счет сведения бицепсов к центру груди.'
                     },
                     {
@@ -772,9 +738,9 @@
                         name: 'Брусья (гравитрон или свой вес)',
                         rest: 120,
                         isPlank: false,
+                        stepKg: 2.5,
                         progressionStep: 'Убавь противовес / +2.5 кг',
-                        start: { sets: 3, repsText: '8–12', minReps: 8, maxReps: 12, weightHint: 'С запасом', defaultWeight: 0 },
-                        target: { sets: 3, repsText: '8–12', minReps: 8, maxReps: 12, weightHint: 'Близко к отказу', defaultWeight: 0 },
+                        sets: 3, repsText: '8–12', minReps: 8, maxReps: 12, weightHint: 'Свой вес / гравитрон', defaultWeight: 0,
                         tip: 'Наклон корпуса вперед, акцент на растяжение низа груди. Вверху локти до щелчка не блокируй.'
                     },
                     {
@@ -782,9 +748,9 @@
                         name: 'Бабочка (добивка)',
                         rest: 120,
                         isPlank: false,
+                        stepKg: 2.5,
                         progressionStep: '+1 плитка (+2.5–5 кг)',
-                        start: { sets: 2, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: '20–25 кг', defaultWeight: 22.5 },
-                        target: { sets: 3, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: '30–40 кг', defaultWeight: 32.5 },
+                        sets: 2, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: '20–25 кг', defaultWeight: 22.5,
                         tip: 'Работа до жжения, пауза 1 сек в центре при пиковом сокращении. Локти далеко за спину не заводи.'
                     },
                     {
@@ -792,9 +758,9 @@
                         name: 'Разгибания на трицепс (канат)',
                         rest: 120,
                         isPlank: false,
+                        stepKg: 2.5,
                         progressionStep: '+2.5 кг в блоке',
-                        start: { sets: 3, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: '15–20 кг', defaultWeight: 17.5 },
-                        target: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '25–30 кг', defaultWeight: 25 },
+                        sets: 3, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: '15–20 кг', defaultWeight: 17.5,
                         tip: 'Локти прижаты к ребрам, двигаются только предплечья. Внизу разводи концы каната в стороны.'
                     },
                     {
@@ -802,9 +768,9 @@
                         name: 'Планка (Статика)',
                         rest: 60,
                         isPlank: true,
+                        stepKg: 0,
                         progressionStep: '+5–10 сек выдержки',
-                        start: { sets: 3, repsText: '45 сек', minReps: 30, maxReps: 45, weightHint: 'Статика', defaultWeight: 0 },
-                        target: { sets: 3, repsText: '60 сек', minReps: 60, maxReps: 60, weightHint: 'Статика', defaultWeight: 0 },
+                        sets: 3, repsText: '45–60 сек', minReps: 45, maxReps: 60, weightHint: 'Статика (свой вес)', defaultWeight: 0,
                         tip: 'Таз подкручен под себя, пресс и ягодицы жестко зажаты, поясница не провисает.'
                     }
                 ]
@@ -812,7 +778,7 @@
             d2: {
                 id: 'd2',
                 shortName: 'Блок 2: Спина + Биц',
-                name: 'Блок 2: Спина + Бицепс + Кор',
+                name: 'Блок 2: Спина + Бицепс + Пресс',
                 exercises: [
                     {
                         id: 'd2_ex1',
@@ -825,25 +791,25 @@
                                 shortLabel: 'Подтягивания',
                                 name: 'Подтягивания на турнике (или гравитрон)',
                                 tip: 'Тянись грудью к перекладине, без раскачки. В нижней точке полностью растягивай широчайшие.',
+                                stepKg: 2.5,
                                 progressionStep: '+1–2 повтора / меньше противовес',
-                                start: { sets: 3, repsText: '6–8', minReps: 6, maxReps: 8, weightHint: 'Свой вес / гравитрон', defaultWeight: 0 },
-                                target: { sets: 3, repsText: '8–12', minReps: 8, maxReps: 12, weightHint: 'Чистая техника', defaultWeight: 0 }
+                                sets: 3, repsText: '6–8', minReps: 6, maxReps: 8, weightHint: 'Свой вес / гравитрон', defaultWeight: 0
                             },
                             latpulldown: {
                                 id: 'd2_ex1_lat',
                                 shortLabel: 'Верхняя тяга блока',
                                 name: 'Верхняя тяга блока к груди',
                                 tip: 'Плечи опущены вниз, тяни рукоять к верху груди локтями вниз, не раскачивай корпус.',
+                                stepKg: 2.5,
                                 progressionStep: '+2.5–5 кг в блоке',
-                                start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '35–45 кг', defaultWeight: 40 },
-                                target: { sets: 3, repsText: '8–10', minReps: 8, maxReps: 10, weightHint: '50–65 кг', defaultWeight: 55 }
+                                sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '35–45 кг', defaultWeight: 40
                             }
                         },
                         rest: 120,
                         isPlank: false,
+                        stepKg: 2.5,
                         progressionStep: '+1–2 повтора / +2.5 кг',
-                        start: { sets: 3, repsText: '6–8', minReps: 6, maxReps: 8, weightHint: 'Свой вес / гравитрон', defaultWeight: 0 },
-                        target: { sets: 3, repsText: '8–12', minReps: 8, maxReps: 12, weightHint: 'Чистая техника', defaultWeight: 0 },
+                        sets: 3, repsText: '6–8', minReps: 6, maxReps: 8, weightHint: 'Свой вес / гравитрон', defaultWeight: 0,
                         tip: 'Тянись грудью к перекладине, без раскачки.'
                     },
                     {
@@ -851,9 +817,9 @@
                         name: 'Тяга Т-грифа с упором грудью',
                         rest: 120,
                         isPlank: false,
+                        stepKg: 2.5,
                         progressionStep: '+2.5 кг (блины)',
-                        start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '15–20 кг', defaultWeight: 17.5 },
-                        target: { sets: 3, repsText: '8–10', minReps: 8, maxReps: 10, weightHint: '25–35 кг', defaultWeight: 30 },
+                        sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '15–20 кг', defaultWeight: 17.5,
                         tip: 'Тяни локтями назад, своди лопатки в верхней точке. Грудь от подушки упора не отрывай.'
                     },
                     {
@@ -861,9 +827,9 @@
                         name: 'Горизонтальная тяга блока (узкий хват)',
                         rest: 120,
                         isPlank: false,
+                        stepKg: 2.5,
                         progressionStep: '+1 плитка (+2.5–5 кг)',
-                        start: { sets: 2, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '25–30 кг', defaultWeight: 27.5 },
-                        target: { sets: 2, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '35–45 кг', defaultWeight: 40 },
+                        sets: 2, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '25–30 кг', defaultWeight: 27.5,
                         tip: 'Растягивай широчайшие в негативной фазе, не раскачивай корпус назад.'
                     },
                     {
@@ -871,9 +837,9 @@
                         name: 'Подъем гантелей на бицепс стоя',
                         rest: 120,
                         isPlank: false,
+                        stepKg: 1,
                         progressionStep: '+1–2 кг на гантель',
-                        start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '6–8 кг в руку', defaultWeight: 7 },
-                        target: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '10–12 кг в руку', defaultWeight: 10 },
+                        sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '6–8 кг в руку', defaultWeight: 7,
                         tip: 'Локти неподвижно у боков, в верхней точке разворачивай мизинец наружу (супинация).'
                     },
                     {
@@ -881,29 +847,29 @@
                         name: '«Молотки» с гантелями',
                         rest: 120,
                         isPlank: false,
+                        stepKg: 1,
                         progressionStep: '+1–2 кг на гантель',
-                        start: { sets: 2, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '6–8 кг в руку', defaultWeight: 7 },
-                        target: { sets: 2, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '10–12 кг в руку', defaultWeight: 10 },
+                        sets: 2, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '6–8 кг в руку', defaultWeight: 7,
                         tip: 'Ладони смотрят друг на друга всю амплитуду, плавный подконтрольный спуск.'
                     },
                     {
-                        id: 'd2_ex6',
-                        name: 'Подъемы коленей в висе',
+                        id: 'd2_ex6_crunch',
+                        name: 'Скручивания в тренажере (Пресс)',
                         rest: 90,
                         isPlank: false,
-                        progressionStep: '+1–2 повторения',
-                        start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: 'Свой вес', defaultWeight: 0 },
-                        target: { sets: 3, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: 'Свой вес', defaultWeight: 0 },
-                        tip: 'Обязательно скручивай таз вверх к груди, а не просто поднимай бедра.'
+                        stepKg: 2.5,
+                        progressionStep: '+2.5 кг в тренажере',
+                        sets: 3, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: 'Небольшой вес (15–25 кг)', defaultWeight: 15,
+                        tip: 'Небольшой вес, контролируемая техника. Скручивай грудной отдел к тазу на выдохе, без рывков бедрами.'
                     },
                     {
                         id: 'd2_ex7',
                         name: 'Гиперэкстензия (Финал)',
                         rest: 90,
                         isPlank: false,
+                        stepKg: 2.5,
                         progressionStep: '+2.5–5 кг к груди',
-                        start: { sets: 3, repsText: '12', minReps: 12, maxReps: 12, weightHint: 'Свой вес', defaultWeight: 0 },
-                        target: { sets: 3, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: '+5–10 кг', defaultWeight: 5 },
+                        sets: 3, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: 'Свой вес / +5 кг', defaultWeight: 0,
                         tip: 'Подъем за счет сжатия ягодиц до прямой линии корпуса без переразгибания поясницы.'
                     }
                 ]
@@ -911,16 +877,16 @@
             d3: {
                 id: 'd3',
                 shortName: 'Блок 3: Ноги + Плечи',
-                name: 'Блок 3: Ноги + Плечи',
+                name: 'Блок 3: Ноги + Плечи + Кор',
                 exercises: [
                     {
                         id: 'd3_ex1',
                         name: 'Гакк-присед',
                         rest: 120,
                         isPlank: false,
+                        stepKg: 5,
                         progressionStep: '+2.5–5 кг суммарно',
-                        start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+10–20 кг', defaultWeight: 20 },
-                        target: { sets: 3, repsText: '8–10', minReps: 8, maxReps: 10, weightHint: 'Рабочий вес (+40–50 кг)', defaultWeight: 45 },
+                        sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+10–20 кг', defaultWeight: 20,
                         tip: 'Глубокий сед, спина плотно прижата, колени в верхней точке до конца не блокируй.'
                     },
                     {
@@ -934,25 +900,25 @@
                                 shortLabel: 'Жим ногами (высоко)',
                                 name: 'Жим ногами (высокая постановка на ягодицы)',
                                 tip: 'Высокая и широкая постановка стоп на верху платформы, таз от спинки не отрывай.',
+                                stepKg: 5,
                                 progressionStep: '+5 кг суммарно',
-                                start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+30–40 кг', defaultWeight: 35 },
-                                target: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+60–80 кг', defaultWeight: 65 }
+                                sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+30–40 кг', defaultWeight: 35
                             },
                             hipthrust: {
                                 id: 'd3_ex2_hip',
                                 shortLabel: 'Ягодичный мостик',
                                 name: 'Ягодичный мостик (Hip Thrust)',
                                 tip: 'Толкай пятками, в верхней точке мощно зажимай ягодицы с паузой 1 сек.',
+                                stepKg: 5,
                                 progressionStep: '+5 кг на штангу/тренажер',
-                                start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '30–40 кг', defaultWeight: 35 },
-                                target: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '50–70 кг', defaultWeight: 55 }
+                                sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '30–40 кг', defaultWeight: 35
                             }
                         },
                         rest: 120,
                         isPlank: false,
+                        stepKg: 5,
                         progressionStep: '+5 кг суммарно',
-                        start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+30–40 кг', defaultWeight: 35 },
-                        target: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+60–80 кг', defaultWeight: 65 },
+                        sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+30–40 кг', defaultWeight: 35,
                         tip: 'Высокая широкая постановка стоп или пауза 1 сек на мостике.'
                     },
                     {
@@ -960,9 +926,9 @@
                         name: 'Сгибание ног сидя',
                         rest: 120,
                         isPlank: false,
+                        stepKg: 2.5,
                         progressionStep: '+2.5–5 кг в блоке',
-                        start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '15–20 кг', defaultWeight: 17.5 },
-                        target: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '25–35 кг', defaultWeight: 30 },
+                        sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '15–20 кг', defaultWeight: 17.5,
                         tip: 'Контролируй негативную фазу: опускай вес медленно (2–3 секунды).'
                     },
                     {
@@ -970,9 +936,9 @@
                         name: 'Жим плеч в тренажере сидя',
                         rest: 120,
                         isPlank: false,
+                        stepKg: 2.5,
                         progressionStep: '+1.25–2.5 кг на сторону',
-                        start: { sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+5–10 кг', defaultWeight: 7.5 },
-                        target: { sets: 3, repsText: '8–10', minReps: 8, maxReps: 10, weightHint: '+15–20 кг', defaultWeight: 17.5 },
+                        sets: 3, repsText: '10–12', minReps: 10, maxReps: 12, weightHint: '+5–10 кг', defaultWeight: 7.5,
                         tip: 'Локти чуть впереди корпуса, опускай рукояти до уровня ушей.'
                     },
                     {
@@ -980,9 +946,9 @@
                         name: 'Махи гантелями в стороны',
                         rest: 120,
                         isPlank: false,
+                        stepKg: 1,
                         progressionStep: '+1 кг на гантель',
-                        start: { sets: 3, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: '4–6 кг', defaultWeight: 5 },
-                        target: { sets: 3, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: '7–9 кг', defaultWeight: 7.5 },
+                        sets: 3, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: '4–6 кг', defaultWeight: 5,
                         tip: 'Движение строго через стороны, мизинец чуть выше большого пальца.'
                     },
                     {
@@ -990,9 +956,9 @@
                         name: 'Обратная бабочка (задняя дельта)',
                         rest: 120,
                         isPlank: false,
+                        stepKg: 2.5,
                         progressionStep: '+2.5 кг в тренажере',
-                        start: { sets: 3, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: '15–20 кг', defaultWeight: 17.5 },
-                        target: { sets: 3, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: '25–35 кг', defaultWeight: 27.5 },
+                        sets: 3, repsText: '12–15', minReps: 12, maxReps: 15, weightHint: '15–20 кг', defaultWeight: 17.5,
                         tip: 'Не своди лопатки вместе — работай изолированно задней дельтой.'
                     },
                     {
@@ -1000,17 +966,29 @@
                         name: 'Икры (в жиме ногами или стоя)',
                         rest: 90,
                         isPlank: false,
+                        stepKg: 2.5,
                         progressionStep: '+2.5–5 кг',
-                        start: { sets: 3, repsText: '15–20', minReps: 15, maxReps: 20, weightHint: 'Подбор (30–40 кг)', defaultWeight: 30 },
-                        target: { sets: 3, repsText: '15–20', minReps: 15, maxReps: 20, weightHint: 'Рабочий вес', defaultWeight: 40 },
+                        sets: 3, repsText: '15–20', minReps: 15, maxReps: 20, weightHint: 'Подбор (30–40 кг)', defaultWeight: 30,
                         tip: 'Выполняй с прямыми ногами, обязательна пауза 1 сек вверху и внизу.'
+                    },
+                    {
+                        id: 'd3_ex8_plank',
+                        name: 'Планка (Статика — Финал)',
+                        rest: 60,
+                        isPlank: true,
+                        stepKg: 0,
+                        progressionStep: '+5–10 сек выдержки',
+                        sets: 3, repsText: '45–60 сек', minReps: 45, maxReps: 60, weightHint: 'Статика (свой вес)', defaultWeight: 0,
+                        tip: 'Таз подкручен под себя, пресс и ягодицы жестко зажаты, поясница не провисает.'
                     }
                 ]
             }
         };
 
-        // Справочник всех возможных упражнений (включая варианты тумблеров) для шпаргалки и графиков
-        const ALL_EXERCISES_MAP = {};
+        // Справочник всех упражнений (включая варианты и архивные ID) для шпаргалки и графиков
+        const ALL_EXERCISES_MAP = {
+            d2_ex6: { id: 'd2_ex6', name: 'Подъемы коленей в висе (архив)', isPlank: false, isActivation: false, blockName: 'Блок 2: Спина + Биц' }
+        };
         Object.values(WORKOUT_PROGRAM).forEach(block => {
             block.exercises.forEach(ex => {
                 ALL_EXERCISES_MAP[ex.id] = { id: ex.id, name: ex.name, isPlank: !!ex.isPlank, isActivation: !!ex.isActivation, blockName: block.shortName };
@@ -1073,7 +1051,6 @@
             return `${parts[2]}.${parts[1]}`;
         }
 
-        // Извлекает базовую граммовку из элемента базы продуктов (или из названия в скобках, иначе 100г)
         function getFoodItemBaseGrams(item) {
             if (item.baseGrams && Number(item.baseGrams) > 0) return Number(item.baseGrams);
             const match = String(item.name || '').match(/(\d+)\s*(?:г|гр|мл)/i);
@@ -1084,7 +1061,6 @@
         let appState = {
             currentTab: 'workout',
             workoutDay: 'd1',
-            workoutPhase: 'start',
             d2Ex1Variant: 'pullups',
             d3Ex2Variant: 'legpress',
             manualQueueNext: null,
@@ -1116,7 +1092,6 @@
             return 'd1';
         }
 
-        // Гарантирует наличие записи за текущий день (не падает после 00:00)
         function getTodayRecord() {
             const today = getTodayKey();
             if (!appState.dailyRecords || typeof appState.dailyRecords !== 'object') {
@@ -1126,8 +1101,7 @@
                 const suggestedBlock = getNextRecommendedBlock();
                 appState.dailyRecords[today] = {
                     mode: suggestedBlock,
-                    foods: [],
-                    warmup: [false, false]
+                    foods: []
                 };
                 if (!appState.editingWorkoutId) {
                     appState.workoutDay = suggestedBlock;
@@ -1135,9 +1109,6 @@
             }
             if (!Array.isArray(appState.dailyRecords[today].foods)) {
                 appState.dailyRecords[today].foods = [];
-            }
-            if (!Array.isArray(appState.dailyRecords[today].warmup)) {
-                appState.dailyRecords[today].warmup = [false, false];
             }
             return appState.dailyRecords[today];
         }
@@ -1151,9 +1122,14 @@
                     id: v.id || ex.id,
                     name: v.name,
                     tip: v.tip,
+                    stepKg: v.stepKg !== undefined ? v.stepKg : ex.stepKg,
                     progressionStep: v.progressionStep || ex.progressionStep,
-                    start: v.start || ex.start,
-                    target: v.target || ex.target,
+                    sets: v.sets || ex.sets,
+                    repsText: v.repsText || ex.repsText,
+                    minReps: v.minReps || ex.minReps,
+                    maxReps: v.maxReps || ex.maxReps,
+                    weightHint: v.weightHint || ex.weightHint,
+                    defaultWeight: v.defaultWeight !== undefined ? v.defaultWeight : ex.defaultWeight,
                     activeVarKey
                 };
             }
@@ -1289,7 +1265,6 @@
             else if (appState.currentTab === 'progress') renderProgressTab();
         }
 
-        // Автообновление при возврате в приложение после полуночи
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
                 getTodayRecord();
@@ -1307,7 +1282,7 @@
 
         function calculateDynamicMacros(weight, mode) {
             const weightDiff = weight - 79.6;
-            const protein = 125; // Ориентир 125г, зачет дня от 100г
+            const protein = 125;
             const fat = Math.round(70 + weightDiff * 0.8);
             const isWorkout = mode !== 'rest';
             const calories = isWorkout ? Math.round(2350 + weightDiff * 24) : Math.round(2050 + weightDiff * 24);
@@ -1415,7 +1390,6 @@
             }
         }
 
-        // Редактирование уже записанного приема пищи за сегодня
         function startEditLoggedFood(uid) {
             editingFoodUid = (editingFoodUid === uid) ? null : uid;
             renderFoodTab();
@@ -1442,7 +1416,6 @@
                 item.p = +(baseP * ratio).toFixed(1);
                 item.f = +(baseF * ratio).toFixed(1);
                 item.c = +(baseC * ratio).toFixed(1);
-                // Обновляем граммовку в названии, если она там была
                 if (/\(\d+\s*г\)/i.test(item.name)) {
                     item.name = item.name.replace(/\(\d+\s*г\)/i, `(${Math.round(newG)}г)`);
                 } else if (!item.name.includes('г)')) {
@@ -1744,7 +1717,6 @@
             const remC = Math.max(0, targets.carbs - Math.round(curC));
             document.getElementById('macroRemainHint').textContent = `До ориентира: Б:${remP}г • Ж:${remF}г • У:${remC}г`;
 
-            // Безопасная отрисовка чипсов через eatFromDatabase(id, true)
             const pinnedBar = document.getElementById('pinnedFoodsBar');
             const pinnedItems = (appState.foodDatabase || []).filter(f => f.pinned);
             if (pinnedItems.length === 0) {
@@ -1810,7 +1782,7 @@
         }
 
         // =========================================================================
-        // 4. ВКЛАДКА ТРЕНИРОВКА (ДВОЙНАЯ ПРОГРЕССИЯ, RIR, ПЛАТО, БЕЙДЖИ ПРОШЛОГО РАЗА)
+        // 4. ВКЛАДКА ТРЕНИРОВКА (УМНЫЙ ВЕС В СТРОКЕ ЦЕЛИ, RIR, СЕКУНДОМЕР ПЛАНКИ ОТ 0)
         // =========================================================================
         function selectWorkoutDay(dayKey) {
             appState.workoutDay = dayKey;
@@ -1818,19 +1790,6 @@
             if (rec.mode === 'rest' && !appState.editingWorkoutId) {
                 rec.mode = dayKey;
             }
-            saveState();
-            renderWorkoutTab();
-        }
-
-        function setWorkoutPhase(phase) {
-            appState.workoutPhase = phase;
-            saveState();
-            renderWorkoutTab();
-        }
-
-        function toggleWarmup(idx) {
-            const rec = getTodayRecord();
-            rec.warmup[idx] = !rec.warmup[idx];
             saveState();
             renderWorkoutTab();
         }
@@ -1854,13 +1813,14 @@
             renderWorkoutTab();
         }
 
-        // Умный анализатор истории упражнения: возвращает бейджи прошлого раза + статус Двойной Прогрессии / RIR / Плато
-        function getExerciseHistoryInfo(ex, phaseObj) {
+        // Анализирует историю упражнения и возвращает динамическую строку «Вес: ...» + статус прогрессии
+        function getExerciseHistoryInfo(ex) {
             const exId = ex.id;
-            const targetSetsCount = phaseObj.sets;
-            const maxTargetReps = phaseObj.maxReps;
+            const targetSetsCount = ex.sets;
+            const maxTargetReps = ex.maxReps;
             const isPlank = !!ex.isPlank;
             const isActivation = !!ex.isActivation;
+            const stepKg = Number(ex.stepKg) || 2.5;
 
             const pastSessions = [];
             for (let i = appState.workoutHistory.length - 1; i >= 0; i--) {
@@ -1878,7 +1838,12 @@
             }
 
             if (pastSessions.length === 0) {
-                return { found: false, statusType: 'none' };
+                return {
+                    found: false,
+                    statusType: 'none',
+                    dynamicWeightLabel: ex.weightHint,
+                    recommendedDefaultWeight: ex.defaultWeight
+                };
             }
 
             const last = pastSessions[0];
@@ -1896,18 +1861,28 @@
 
             let statusType = 'working';
             let statusText = '';
+            let dynamicWeightLabel = lastMaxW > 0 ? `${lastMaxW} кг (рабочий)` : ex.weightHint;
+            let recommendedDefaultWeight = lastWeight;
 
             if (allHitMax) {
-                // Защита от ложного плато на статике (Планка / Активационная бабочка)
                 if (isPlank || isActivation) {
                     statusType = 'norm_stable';
-                    statusText = `✅ Целевой норматив (${targetSetsCount}×${phaseObj.repsText}) стабилен!`;
+                    statusText = `✅ Целевой норматив (${targetSetsCount}×${ex.repsText}) стабилен!`;
+                    dynamicWeightLabel = isPlank ? 'Статика (норматив выполнен)' : `${lastMaxW} кг (активация)`;
                 } else if (last.rir === 0) {
                     statusType = 'consolidate_rir0';
                     statusText = `⚡ Все ${targetSetsCount}×${maxTargetReps} закрыты, но в отказ (RIR 0). Закрепи ${lastMaxW} кг ещё на 1 тренировке.`;
+                    dynamicWeightLabel = lastMaxW > 0 ? `${lastMaxW} кг (закрепить вес)` : 'Свой вес (закрепить)';
                 } else {
                     statusType = 'progression_ready';
+                    const nextW = +(lastMaxW + stepKg).toFixed(1);
                     statusText = `🔥 ПРОГРЕССИЯ: все ${targetSetsCount}×${maxTargetReps} закрыты с запасом! Шаг: ${ex.progressionStep}`;
+                    if (lastMaxW > 0) {
+                        dynamicWeightLabel = `${nextW} кг (рекомендация +${stepKg} кг)`;
+                        recommendedDefaultWeight = nextW;
+                    } else {
+                        dynamicWeightLabel = `Повышай нагрузку (${ex.progressionStep})`;
+                    }
                 }
             } else if (prev && !isPlank && !isActivation) {
                 const prevMaxW = Math.max(...prev.sets.map(s => Number(s.weight) || 0));
@@ -1916,17 +1891,22 @@
                 if (lastMaxW > prevMaxW) {
                     statusType = 'working_up';
                     statusText = `📈 Рабочий вес повышен до ${lastMaxW} кг. Наращивай повторы до ${targetSetsCount}×${maxTargetReps}.`;
+                    dynamicWeightLabel = `${lastMaxW} кг (новый рабочий)`;
                 } else if (lastMaxW === prevMaxW && lastTotalReps > prevTotalReps) {
                     const diff = lastTotalReps - prevTotalReps;
                     statusType = 'working_up';
                     statusText = `📈 Двойная прогрессия: +${diff} повт. к прошлому разу (${prevTotalReps} → ${lastTotalReps}). Дожимаем до ${targetSetsCount}×${maxTargetReps}.`;
+                    dynamicWeightLabel = lastMaxW > 0 ? `${lastMaxW} кг (дожимаем повторы)` : 'Свой вес (+повторы)';
                 } else if (lastMaxW <= prevMaxW && lastTotalReps <= prevTotalReps) {
                     statusType = 'plateau';
+                    const deloadW = Math.max(0, +(Math.round((lastMaxW * 0.9) / 2.5) * 2.5).toFixed(1));
                     statusText = `⚠️ ПЛАТО (2 трен. без роста на ${lastMaxW} кг): проверь сон/калории или сделай разгрузку (-10% веса).`;
+                    dynamicWeightLabel = lastMaxW > 0 ? `${lastMaxW} кг (или разгрузка ${deloadW} кг)` : 'Плато (проверь восстановление)';
                 }
             } else {
                 statusType = 'working';
                 statusText = `🎯 Рабочая фаза: удерживай вес и добавляй по 1 повтору до закрытия всех ${targetSetsCount}×${maxTargetReps}.`;
+                dynamicWeightLabel = lastMaxW > 0 ? `${lastMaxW} кг (рабочий)` : ex.weightHint;
             }
 
             return {
@@ -1937,38 +1917,47 @@
                 lastSets: last.sets,
                 lastRir: last.rir,
                 statusType,
-                statusText
+                statusText,
+                dynamicWeightLabel,
+                recommendedDefaultWeight
             };
         }
 
-        function ensureSessionSetState(activeEx, phaseObj, historyInfo) {
+        function ensureSessionSetState(activeEx, historyInfo) {
             const key = `${appState.workoutDay}_${activeEx.id}`;
-            const defaultW = historyInfo.found ? historyInfo.lastWeight : phaseObj.defaultWeight;
+            const defaultW = historyInfo.found ? historyInfo.recommendedDefaultWeight : activeEx.defaultWeight;
 
             if (!appState.activeSessionSets[key]) {
                 const arr = [];
-                for (let s = 0; s < phaseObj.sets; s++) {
+                for (let s = 0; s < activeEx.sets; s++) {
                     const prevSet = (historyInfo.found && historyInfo.lastSets[s]) ? historyInfo.lastSets[s] : null;
+                    const useWeight = (historyInfo.found && historyInfo.statusType === 'progression_ready' && activeEx.stepKg > 0 && prevSet && prevSet.weight > 0)
+                        ? +(Number(prevSet.weight) + Number(activeEx.stepKg)).toFixed(1)
+                        : (prevSet ? prevSet.weight : defaultW);
+                    const useReps = (historyInfo.found && historyInfo.statusType === 'progression_ready' && activeEx.stepKg > 0 && prevSet && prevSet.weight > 0)
+                        ? activeEx.minReps
+                        : (prevSet ? prevSet.reps : activeEx.maxReps);
+
                     arr.push({
-                        weight: prevSet ? prevSet.weight : defaultW,
-                        reps: prevSet ? prevSet.reps : phaseObj.maxReps,
+                        weight: useWeight,
+                        reps: useReps,
                         done: false
                     });
                 }
                 appState.activeSessionSets[key] = arr;
-            } else if (appState.activeSessionSets[key].length < phaseObj.sets) {
-                while (appState.activeSessionSets[key].length < phaseObj.sets) {
+            } else if (appState.activeSessionSets[key].length < activeEx.sets) {
+                while (appState.activeSessionSets[key].length < activeEx.sets) {
                     const sIdx = appState.activeSessionSets[key].length;
                     const prevSet = (historyInfo.found && historyInfo.lastSets[sIdx]) ? historyInfo.lastSets[sIdx] : null;
                     const lastExisting = appState.activeSessionSets[key][sIdx - 1];
                     appState.activeSessionSets[key].push({
                         weight: prevSet ? prevSet.weight : (lastExisting ? lastExisting.weight : defaultW),
-                        reps: prevSet ? prevSet.reps : (lastExisting ? lastExisting.reps : phaseObj.maxReps),
+                        reps: prevSet ? prevSet.reps : (lastExisting ? lastExisting.reps : activeEx.maxReps),
                         done: false
                     });
                 }
             }
-            return appState.activeSessionSets[key].slice(0, phaseObj.sets);
+            return appState.activeSessionSets[key].slice(0, activeEx.sets);
         }
 
         function prefillAllFromLastWorkout() {
@@ -1976,12 +1965,11 @@
             let updatedCount = 0;
             dayObj.exercises.forEach(rawEx => {
                 const ex = resolveActiveExerciseConfig(rawEx);
-                const phaseObj = ex[appState.workoutPhase];
-                const hist = getExerciseHistoryInfo(ex, phaseObj);
+                const hist = getExerciseHistoryInfo(ex);
                 if (hist.found) {
                     const key = `${appState.workoutDay}_${ex.id}`;
                     const arr = [];
-                    for (let s = 0; s < phaseObj.sets; s++) {
+                    for (let s = 0; s < ex.sets; s++) {
                         const prevSet = hist.lastSets[s] || hist.lastSets[hist.lastSets.length - 1];
                         arr.push({
                             weight: prevSet.weight,
@@ -1998,7 +1986,6 @@
             showToast(updatedCount > 0 ? 'Веса и повторы скопированы с прошлой тренировки!' : 'Для этого блока еще нет прошлых записей');
         }
 
-        // Точечное обновление цифр без сброса фокуса
         function adjustSetField(exId, setIdx, field, delta) {
             const key = `${appState.workoutDay}_${exId}`;
             const setObj = appState.activeSessionSets[key][setIdx];
@@ -2038,9 +2025,8 @@
 
             dayObj.exercises.forEach(rawEx => {
                 const ex = resolveActiveExerciseConfig(rawEx);
-                const phaseObj = ex[appState.workoutPhase];
                 const key = `${appState.workoutDay}_${ex.id}`;
-                const sets = (appState.activeSessionSets[key] || []).slice(0, phaseObj.sets);
+                const sets = (appState.activeSessionSets[key] || []).slice(0, ex.sets);
                 sets.forEach(s => {
                     if (s.done) completedSets++;
                 });
@@ -2050,41 +2036,37 @@
             if (sumEl) sumEl.textContent = completedSets;
         }
 
-        // Таймер планки на системных часах (не сбивается и обновляет живую кнопку)
+        // Свободный секундомер Планки от 0 вверх (показывает результат на кнопке при остановке, не перезаписывая поля)
         let plankInterval = null;
-        let plankTargetTimestamp = 0;
-        let plankRestAfter = 60;
+        let plankStartTimestamp = 0;
+        let plankLastElapsedSec = 0;
 
-        function startPlankStopwatch(seconds, restSec = 60) {
-            clearInterval(plankInterval);
-            plankTargetTimestamp = Date.now() + seconds * 1000;
-            plankRestAfter = restSec || 60;
+        function togglePlankStopwatchUp() {
+            if (plankInterval) {
+                // Остановка секундомера
+                clearInterval(plankInterval);
+                plankInterval = null;
+                plankLastElapsedSec = Math.max(1, Math.floor((Date.now() - plankStartTimestamp) / 1000));
+                plankStartTimestamp = 0;
+                playTacticalBeep('finish');
+                showToast(`Планка: ${plankLastElapsedSec} сек! Впиши результат в подход.`);
+                renderWorkoutTab();
+                return;
+            }
+
+            // Запуск секундомера от 0 вверх
+            plankStartTimestamp = Date.now();
+            plankLastElapsedSec = 0;
             playTacticalBeep('tick');
             renderWorkoutTab();
 
             plankInterval = setInterval(() => {
-                const rem = Math.max(0, Math.ceil((plankTargetTimestamp - Date.now()) / 1000));
+                const elapsed = Math.max(0, Math.floor((Date.now() - plankStartTimestamp) / 1000));
                 const btn = document.getElementById('plankLiveBtn');
                 if (btn) {
-                    btn.textContent = `⏱ ДЕРЖИМ ПЛАНКУ: ${rem} СЕК (НАЖМИ ДЛЯ СБРОСА)`;
+                    btn.textContent = `⏱ ИДЕТ ОТСЧЕТ: ${elapsed} СЕК (НАЖМИ ДЛЯ СТОПА)`;
                 }
-                if (rem <= 0) {
-                    clearInterval(plankInterval);
-                    plankInterval = null;
-                    plankTargetTimestamp = 0;
-                    playTacticalBeep('finish');
-                    showToast(`Планка выполнена! Отдых ${plankRestAfter} сек.`);
-                    startRestTimer(plankRestAfter, 'Планка');
-                    renderWorkoutTab();
-                }
-            }, 300);
-        }
-
-        function stopPlankStopwatch() {
-            clearInterval(plankInterval);
-            plankInterval = null;
-            plankTargetTimestamp = 0;
-            renderWorkoutTab();
+            }, 250);
         }
 
         function renderWorkoutTab() {
@@ -2120,7 +2102,6 @@
                 }
             });
 
-            // Если выбран День Отдыха и мы НЕ редактируем старую запись — показываем карточку отдыха
             const restCard = document.getElementById('restDayScreenCard');
             const activeSec = document.getElementById('activeWorkoutSection');
             if (rec.mode === 'rest' && !appState.editingWorkoutId) {
@@ -2151,43 +2132,14 @@
                 }
             });
 
-            const pStart = document.getElementById('phaseBtn-start');
-            const pTarget = document.getElementById('phaseBtn-target');
-            if (appState.workoutPhase === 'start') {
-                pStart.className = 'tactical-btn flex-1 py-2 rounded-lg text-xs font-mono font-bold text-center bg-bgElevated text-accentGreen border border-accentGreen/40';
-                pTarget.className = 'tactical-btn flex-1 py-2 rounded-lg text-xs font-mono font-bold text-center text-textMuted';
-            } else {
-                pTarget.className = 'tactical-btn flex-1 py-2 rounded-lg text-xs font-mono font-bold text-center bg-bgElevated text-accentGreen border border-accentGreen/40';
-                pStart.className = 'tactical-btn flex-1 py-2 rounded-lg text-xs font-mono font-bold text-center text-textMuted';
-            }
-
-            let warmupCount = 0;
-            [0, 1].forEach(i => {
-                const done = rec.warmup[i];
-                if (done) warmupCount++;
-                const btn = document.getElementById(`warmupBtn-${i}`);
-                const chk = document.getElementById(`warmupCheck-${i}`);
-                if (done) {
-                    btn.className = 'tactical-btn flex items-center justify-between p-3 rounded-xl bg-accentGreen/10 border border-accentGreen text-left';
-                    chk.className = 'w-7 h-7 rounded-lg bg-accentGreen text-black flex items-center justify-center font-mono font-extrabold text-sm';
-                    chk.textContent = '✓';
-                } else {
-                    btn.className = 'tactical-btn flex items-center justify-between p-3 rounded-xl bg-bgMain border border-borderSubtle text-left';
-                    chk.className = 'w-7 h-7 rounded-lg border border-borderSubtle flex items-center justify-center font-mono text-sm text-transparent';
-                    chk.textContent = '✓';
-                }
-            });
-            document.getElementById('warmupStatusBadge').textContent = `${warmupCount} / 2 выполнено`;
-
             const dayObj = WORKOUT_PROGRAM[appState.workoutDay];
             const container = document.getElementById('exercisesContainer');
             container.innerHTML = '';
 
             dayObj.exercises.forEach((rawEx, exIdx) => {
                 const ex = resolveActiveExerciseConfig(rawEx);
-                const phaseObj = ex[appState.workoutPhase];
-                const historyInfo = getExerciseHistoryInfo(ex, phaseObj);
-                const sessionSets = ensureSessionSetState(ex, phaseObj, historyInfo);
+                const historyInfo = getExerciseHistoryInfo(ex);
+                const sessionSets = ensureSessionSetState(ex, historyInfo);
 
                 let variantToggleHTML = '';
                 if (rawEx.hasVariantToggle && rawEx.toggleStateKey) {
@@ -2206,7 +2158,6 @@
 
                 const noteVal = (appState.exerciseNotes && appState.exerciseNotes[ex.id]) ? appState.exerciseNotes[ex.id] : '';
 
-                // Плашка статуса прогрессии / плато / рабочей фазы
                 let statusBannerHTML = '';
                 if (historyInfo.found && historyInfo.statusText) {
                     let bannerStyle = 'bg-bgMain border-borderSubtle text-textMuted';
@@ -2224,7 +2175,6 @@
                     `;
                 }
 
-                // Необрезаемые бейджи «Прошлый раз»
                 const historyBadgesHTML = historyInfo.found ? `
                     <div class="bg-bgMain px-3 py-2 rounded-xl border border-borderSubtle space-y-1.5">
                         <div class="flex items-center justify-between text-[11px] font-mono text-textMuted">
@@ -2239,20 +2189,24 @@
                     </div>
                 ` : '';
 
-                const plankRem = plankTargetTimestamp ? Math.max(0, Math.ceil((plankTargetTimestamp - Date.now()) / 1000)) : 0;
+                const plankElapsedNow = plankStartTimestamp ? Math.max(0, Math.floor((Date.now() - plankStartTimestamp) / 1000)) : 0;
                 const plankTimerHTML = ex.isPlank
                     ? `<div class="pt-1">
                          ${plankInterval
-                            ? `<button id="plankLiveBtn" onclick="stopPlankStopwatch()" class="tactical-btn w-full py-2.5 rounded-xl bg-accentAmber text-black font-mono font-extrabold text-xs uppercase">
-                                 ⏱ ДЕРЖИМ ПЛАНКУ: ${plankRem} СЕК (НАЖМИ ДЛЯ СБРОСА)
+                            ? `<button id="plankLiveBtn" onclick="togglePlankStopwatchUp()" class="tactical-btn w-full py-2.5 rounded-xl bg-accentAmber text-black font-mono font-extrabold text-xs uppercase">
+                                 ⏱ ИДЕТ ОТСЧЕТ: ${plankElapsedNow} СЕК (НАЖМИ ДЛЯ СТОПА)
                                </button>`
-                            : `<button onclick="startPlankStopwatch(${phaseObj.maxReps}, ${ex.rest})" class="tactical-btn w-full py-2.5 rounded-xl bg-bgElevated border border-accentAmber/50 text-accentAmber font-mono font-bold text-xs uppercase">
-                                 ⏱ Запустить секундомер планки (${phaseObj.maxReps} сек)
+                            : `<button id="plankLiveBtn" onclick="togglePlankStopwatchUp()" class="tactical-btn w-full py-2.5 rounded-xl bg-bgElevated border border-accentAmber/50 text-accentAmber font-mono font-bold text-xs uppercase">
+                                 ${plankLastElapsedSec > 0
+                                    ? `⏱ ПРОДЕРЖАЛ: ${plankLastElapsedSec} СЕК — ВПИШИ В ПОДХОД (СТАРТ ЗАНОВО)`
+                                    : `⏱ ЗАПУСТИТЬ СЕКУНДОМЕР ПЛАНКИ (СЧИТАЕТ ОТ 0 ВВЕРХ)`
+                                 }
                                </button>`
                          }
                        </div>`
                     : '';
 
+                const stepBtnVal = Number(ex.stepKg) || 2.5;
                 const setsRowsHTML = sessionSets.map((s, sIdx) => {
                     const rowBg = s.done ? 'bg-accentGreen/10 border-accentGreen/50' : 'bg-bgMain border-borderSubtle';
                     const btnBg = s.done
@@ -2283,9 +2237,9 @@
                             
                             <!-- Вес кг -->
                             <div class="col-span-5 flex items-center bg-bgCard rounded-lg border border-borderSubtle overflow-hidden">
-                                <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'weight', -2.5)" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">-</button>
+                                <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'weight', -${stepBtnVal})" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">-</button>
                                 <input id="setInp_${ex.id}_${sIdx}_weight" type="number" step="0.5" value="${s.weight}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'weight', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
-                                <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'weight', 2.5)" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">+</button>
+                                <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'weight', ${stepBtnVal})" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">+</button>
                             </div>
 
                             <!-- Повторы -->
@@ -2305,7 +2259,6 @@
                     `;
                 }).join('');
 
-                // Компактный переключатель запаса сил RIR (1 раз на всё упражнение)
                 const curRir = (appState.activeExerciseRir && appState.activeExerciseRir[ex.id] !== undefined)
                     ? Number(appState.activeExerciseRir[ex.id])
                     : 1;
@@ -2320,6 +2273,10 @@
                     </div>
                 ` : '';
 
+                const weightLabelColor = historyInfo.statusType === 'plateau'
+                    ? 'text-accentAmber font-bold'
+                    : 'text-accentGreen font-bold';
+
                 const card = document.createElement('div');
                 card.className = 'tactical-card p-4 space-y-3';
                 card.innerHTML = `
@@ -2329,7 +2286,7 @@
                             <div>
                                 <h3 class="font-bold text-base text-white leading-snug">${escapeHtml(ex.name)}</h3>
                                 <div class="text-xs font-mono text-textMuted mt-0.5">
-                                    Цель: <strong class="text-white">${phaseObj.sets} × ${escapeHtml(phaseObj.repsText)}</strong> • Вес: <span class="text-accentGreen font-bold">${escapeHtml(phaseObj.weightHint)}</span> • Отдых: ${ex.rest}с
+                                    Цель: <strong class="text-white">${ex.sets} × ${escapeHtml(ex.repsText)}</strong> • Вес: <span class="${weightLabelColor}">${escapeHtml(historyInfo.dynamicWeightLabel)}</span> • Отдых: ${ex.rest}с
                                 </div>
                             </div>
                         </div>
@@ -2402,7 +2359,6 @@
             showToast('Текущая сессия сброшена');
         }
 
-        // Редактирование прошлой тренировки (буфер сохраняется в appState и не пропадает при перезагрузке)
         function startEditWorkoutById(workoutId) {
             const target = appState.workoutHistory.find(w => w.id === workoutId);
             if (!target) return;
@@ -2413,7 +2369,6 @@
 
             appState.editingWorkoutId = workoutId;
             appState.workoutDay = target.dayId;
-            if (target.phase) appState.workoutPhase = target.phase;
 
             if (target.exercises && target.exercises['d2_ex1_lat']) appState.d2Ex1Variant = 'latpulldown';
             else if (target.exercises && target.exercises['d2_ex1']) appState.d2Ex1Variant = 'pullups';
@@ -2424,15 +2379,14 @@
             const dayObj = WORKOUT_PROGRAM[target.dayId];
             dayObj.exercises.forEach(rawEx => {
                 const ex = resolveActiveExerciseConfig(rawEx);
-                const phaseObj = ex[appState.workoutPhase];
                 const savedSets = (target.exercises && target.exercises[ex.id]) ? target.exercises[ex.id] : [];
                 const arr = [];
-                const len = Math.max(phaseObj.sets, savedSets.length);
+                const len = Math.max(ex.sets, savedSets.length);
                 for (let s = 0; s < len; s++) {
                     if (savedSets[s]) {
                         arr.push({ weight: savedSets[s].weight, reps: savedSets[s].reps, done: true });
                     } else {
-                        arr.push({ weight: phaseObj.defaultWeight, reps: phaseObj.maxReps, done: false });
+                        arr.push({ weight: ex.defaultWeight, reps: ex.maxReps, done: false });
                     }
                 }
                 appState.activeSessionSets[`${target.dayId}_${ex.id}`] = arr;
@@ -2465,9 +2419,8 @@
 
             dayObj.exercises.forEach(rawEx => {
                 const ex = resolveActiveExerciseConfig(rawEx);
-                const phaseObj = ex[appState.workoutPhase];
                 const key = `${appState.workoutDay}_${ex.id}`;
-                const sets = (appState.activeSessionSets[key] || []).slice(0, phaseObj.sets);
+                const sets = (appState.activeSessionSets[key] || []).slice(0, ex.sets);
                 const doneSets = sets.filter(s => s.done);
                 if (doneSets.length > 0) {
                     savedExercises[ex.id] = doneSets.map(s => ({
@@ -2491,7 +2444,6 @@
                 if (idx >= 0) {
                     appState.workoutHistory[idx].dayId = appState.workoutDay;
                     appState.workoutHistory[idx].dayName = dayObj.name;
-                    appState.workoutHistory[idx].phase = appState.workoutPhase;
                     appState.workoutHistory[idx].setsDone = totalSetsDone;
                     appState.workoutHistory[idx].exercises = savedExercises;
                     appState.workoutHistory[idx].rirs = savedRirs;
@@ -2508,7 +2460,6 @@
                     date: getTodayKey(),
                     dayId: appState.workoutDay,
                     dayName: dayObj.name,
-                    phase: appState.workoutPhase,
                     setsDone: totalSetsDone,
                     exercises: savedExercises,
                     rirs: savedRirs
@@ -2516,16 +2467,20 @@
                 appState.manualQueueNext = null;
                 appState.workoutsSinceLastBackup = (appState.workoutsSinceLastBackup || 0) + 1;
 
+                // Сбрасываем кэш текущей сессии блока, чтобы в следующий раз подтянулись новые веса с учетом прогрессии
                 dayObj.exercises.forEach(rawEx => {
                     const ex = resolveActiveExerciseConfig(rawEx);
-                    const key = `${appState.workoutDay}_${ex.id}`;
-                    if (appState.activeSessionSets[key]) {
-                        appState.activeSessionSets[key].forEach(s => s.done = false);
-                    }
+                    delete appState.activeSessionSets[`${appState.workoutDay}_${ex.id}`];
                     appState.activeExerciseRir[ex.id] = 1;
                 });
-                showToast('Тренировка сохранена! Следующий блок обновлен.');
+                showToast('Тренировка сохранена! Следующий блок и веса обновлены.');
             }
+
+            if (plankInterval) {
+                clearInterval(plankInterval);
+                plankInterval = null;
+            }
+            plankLastElapsedSec = 0;
 
             stopRestTimer();
             saveState();
@@ -2548,7 +2503,6 @@
                 return;
             }
 
-            // Удаляем только архивную запись, НЕ затирая текущую незавершенную сессию
             appState.workoutHistory = appState.workoutHistory.filter(w => w.id !== workoutId);
             pendingDeleteWorkoutId = null;
             if (appState.editingWorkoutId === workoutId) {
@@ -2715,14 +2669,15 @@
             const sel = document.getElementById('strengthExerciseSelect');
             if (!sel) return;
             const currentVal = selectedStrengthExId;
-            sel.innerHTML = Object.values(ALL_EXERCISES_MAP).map(ex => `
-                <option value="${escapeHtml(ex.id)}" ${ex.id === currentVal ? 'selected' : ''}>
-                    ${escapeHtml(ex.blockName.split(':')[0])} • ${escapeHtml(ex.name)}
-                </option>
-            `).join('');
+            sel.innerHTML = Object.values(ALL_EXERCISES_MAP)
+                .filter(ex => ex.id !== 'd2_ex6')
+                .map(ex => `
+                    <option value="${escapeHtml(ex.id)}" ${ex.id === currentVal ? 'selected' : ''}>
+                        ${escapeHtml(ex.blockName.split(':')[0])} • ${escapeHtml(ex.name)}
+                    </option>
+                `).join('');
         }
 
-        // Строит график силового прогресса с учетом микро-бонуса за повторения
         function renderStrengthProgressChart() {
             const box = document.getElementById('strengthChartBox');
             const badge = document.getElementById('strengthProgressDeltaBadge');
@@ -2737,7 +2692,6 @@
                     const sets = w.exercises[selectedStrengthExId];
                     const maxW = Math.max(...sets.map(s => Number(s.weight) || 0));
                     const totalReps = sets.reduce((a, s) => a + (Number(s.reps) || 0), 0);
-                    // Лучший сет по весу и повторениям
                     let bestSet = sets[0];
                     sets.forEach(s => {
                         const scoreS = (Number(s.weight) || 0) * (1 + (Number(s.reps) || 0) / 30) + (Number(s.reps) || 0) * 0.1;
@@ -2909,7 +2863,6 @@
                     });
                 }
 
-                // Не включаем сегодняшний незаконченный день (< 1000 ккал и < 100г Б) в расчет недельного среднего
                 const isTodayIncomplete = (iso === todayIso) && (cal < 1000 && p < 100);
                 if (cal > 0 && !isTodayIncomplete) {
                     sumCal += cal;
@@ -2945,7 +2898,6 @@
                 avgMacrosEl.textContent = 'Накопи хотя бы 1 полный день питания';
             }
 
-            // Вес тела (среднее за 7 календарных дней)
             const logs = appState.weightLogs;
             const currentW = getCurrentUserWeight();
             const startW = logs.length > 0 ? Number(logs[0].weight) : 79.6;
@@ -2987,11 +2939,9 @@
                 </div>
             `).reverse().join('');
 
-            // График силового прогресса
             populateStrengthSelectOptions();
             renderStrengthProgressChart();
 
-            // Журнал тренировок с раскрывающейся шпаргалкой по клику
             const totalW = appState.workoutHistory.length;
             document.getElementById('totalWorkoutsBadge').textContent = `${totalW} трен.`;
             const clearAllBtn = document.getElementById('clearAllWorkoutsBtn');
@@ -3179,7 +3129,6 @@
                     return;
                 }
 
-                // Сохраняем текущую базу для возможного отката в 1 клик
                 localStorage.setItem(PREV_BACKUP_STORAGE_KEY, JSON.stringify(appState));
 
                 appState = { ...appState, ...parsed, workoutsSinceLastBackup: 0 };
