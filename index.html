@@ -17,6 +17,7 @@
             });
         }
     </script>
+    <script src="./core.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -970,37 +971,69 @@
         // =========================================================================
         // 2. СОСТОЯНИЕ ПРИЛОЖЕНИЯ И БЕЗОПАСНОЕ ХРАНИЛИЩЕ
         // =========================================================================
+        const C = window.TacticalCore;
         const STORAGE_KEY = 'tactical_recomp_state_v2';
+        const STORAGE_PREV_KEY = 'tactical_recomp_state_before_restore';
+        const REST_TIMER_KEY = 'tactical_rest_timer';
         let currentFoodMultiplier = 1;
         let pendingDeleteWorkoutId = null;
-        let editingWorkoutId = null;
-        let savedActiveSessionBackup = null;
         let showWeightHistory = false;
         let showAllWorkoutsHistory = false;
+        let renderedDayKey = null;
 
         function getTodayKey() {
-            const d = new Date();
-            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            return C.toDateKey(new Date());
         }
 
-        let appState = {
-            currentTab: 'workout',
-            workoutDay: 'd1',
-            workoutPhase: 'start',
-            d2Ex1Variant: 'pullups',
-            d3Ex2Variant: 'legpress',
-            manualQueueNext: null,
-            exerciseNotes: {},
-            dailyRecords: {},
-            activeSessionSets: {},
-            workoutHistory: [],
-            weightLogs: [
-                { date: getTodayKey(), weight: 79.6 }
-            ],
-            foodDatabase: DEFAULT_FOOD_DB,
-            workoutsSinceLastBackup: 0,
-            lastBackupDate: null
-        };
+        function createDefaultState() {
+            return {
+                currentTab: 'workout',
+                workoutDay: 'd1',
+                workoutPhase: 'start',
+                d2Ex1Variant: 'pullups',
+                d3Ex2Variant: 'legpress',
+                manualQueueNext: null,
+                exerciseNotes: {},
+                dailyRecords: {},
+                activeSessionSets: {},
+                sessionRir: {},
+                sessionDeload: {},
+                plateauDismissed: {},
+                strengthChartExId: null,
+                workoutHistory: [],
+                weightLogs: [
+                    { date: getTodayKey(), weight: 79.6 }
+                ],
+                foodDatabase: structuredClone(DEFAULT_FOOD_DB),
+                workoutsSinceLastBackup: 0,
+                lastBackupDate: null,
+                // { workoutId, backup } — сохраняется, чтобы перезагрузка во время правки не теряла текущую сессию
+                editing: null,
+                schemaVersion: C.SCHEMA_VERSION
+            };
+        }
+
+        let appState = createDefaultState();
+
+        function editingWorkoutId() {
+            return appState.editing ? appState.editing.workoutId : null;
+        }
+
+        // Запись дня создаётся лениво: приложение может быть открыто через полночь.
+        function getTodayRecord() {
+            const today = getTodayKey();
+            if (!appState.dailyRecords[today]) {
+                const suggestedBlock = getNextRecommendedBlock();
+                appState.dailyRecords[today] = {
+                    mode: suggestedBlock,
+                    cns: 8,
+                    foods: [],
+                    warmup: [false, false]
+                };
+                if (!appState.editing) appState.workoutDay = suggestedBlock;
+            }
+            return appState.dailyRecords[today];
+        }
 
         // Помощник разрешения активного варианта упражнения (с собственным ID, весами и целью)
         function resolveActiveExerciseConfig(ex) {
