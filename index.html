@@ -7,7 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>TACTICAL FIT // Дневник Рекомпозиции v5.6</title>
+    <title>TACTICAL FIT // Дневник Рекомпозиции v5.7</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230d0f12'/%3E%3Cpath d='M136 176v160M96 208v96M376 176v160M416 208v96M136 256h240' stroke='%2310b981' stroke-width='36' stroke-linecap='round'/%3E%3C/svg%3E">
     <script>
@@ -120,7 +120,7 @@
                 <div class="min-w-0">
                     <div class="flex items-center space-x-1.5">
                         <span class="font-mono font-extrabold text-sm tracking-wider uppercase text-white truncate">TACTICAL RECOMP</span>
-                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v5.6</span>
+                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v5.7</span>
                     </div>
                     <div class="flex items-center space-x-1.5 mt-0.5">
                         <button onclick="openBackupModal()" id="autoSaveBadge" class="tactical-btn text-[10px] font-mono text-accentGreen bg-accentGreen/10 border border-accentGreen/30 px-2 py-0.5 rounded-full flex items-center shrink-0">
@@ -278,7 +278,7 @@
         </section>
 
         <!-- ========================================================= -->
-        <!-- ВКЛАДКА 2: ПИТАНИЕ (КБЖУ, ЗАЧЕТ ОТ 100Г, ГРАММОВКА)       -->
+        <!-- ВКЛАДКА 2: ПИТАНИЕ (КБЖУ, ВЫБОР СЕГОДНЯ/ВЧЕРА, ГРАММОВКА)  -->
         <!-- ========================================================= -->
         <section id="tab-food" class="space-y-5 hidden">
 
@@ -289,7 +289,7 @@
                         <p id="macroFormulaCaption" class="text-xs text-textMuted font-mono">Формула под 79.6 кг</p>
                     </div>
                     <div class="flex items-center space-x-1.5 shrink-0">
-                        <button onclick="copyYesterdayFood()" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-accentGreen px-2.5 py-1.5 rounded-lg border border-accentGreen/30">
+                        <button onclick="copyYesterdayFood()" id="copyYesterdayBtn" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-accentGreen px-2.5 py-1.5 rounded-lg border border-accentGreen/30">
                             ⇄ Вчерашний
                         </button>
                         <button onclick="undoLastFood()" id="undoFoodBtn" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-textMuted px-2 py-1.5 rounded-lg border border-borderSubtle hidden">
@@ -301,10 +301,20 @@
                     </div>
                 </div>
 
+                <!-- ПЕРЕКЛЮЧАТЕЛЬ ДНЯ ПИТАНИЯ: СЕГОДНЯ / ВЧЕРА (ДЛЯ НОЧНОГО ДОЖОРА ПОСЛЕ 00:00) -->
+                <div id="foodDaySwitcherBox" class="bg-bgMain p-1.5 rounded-xl border border-borderSubtle flex items-center justify-between gap-1.5">
+                    <button onclick="setFoodTargetDay(0)" id="foodDayBtn-today" class="tactical-btn flex-1 py-2 px-2 rounded-lg font-mono text-xs font-bold text-center bg-accentGreen text-black">
+                        Сегодня
+                    </button>
+                    <button onclick="setFoodTargetDay(-1)" id="foodDayBtn-yesterday" class="tactical-btn flex-1 py-2 px-2 rounded-lg font-mono text-xs font-bold text-center text-textMuted hover:text-white">
+                        🌙 Вчера (дописать)
+                    </button>
+                </div>
+
                 <!-- Главная шкала калорий -->
-                <div class="bg-bgMain p-3.5 rounded-xl border border-borderSubtle">
+                <div id="mainCalorieBox" class="bg-bgMain p-3.5 rounded-xl border border-borderSubtle">
                     <div class="flex justify-between items-baseline mb-1.5">
-                        <span class="text-xs font-mono uppercase text-textMuted">Калории за сегодня</span>
+                        <span id="calHeaderTitle" class="text-xs font-mono uppercase text-textMuted">Калории за сегодня</span>
                         <div class="font-mono">
                             <span id="calCurrent" class="text-2xl font-extrabold text-white">0</span>
                             <span class="text-sm text-textMuted">/ <span id="calTarget">2350</span> ккал</span>
@@ -386,10 +396,10 @@
                     </button>
                 </div>
 
-                <!-- Лог съеденного за сегодня -->
+                <!-- Лог съеденного за выбранный день -->
                 <div class="pt-2 border-t border-borderSubtle">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-mono uppercase text-textMuted">Съедено за сегодня (✎ — изменить):</span>
+                        <span id="loggedFoodListTitle" class="text-xs font-mono uppercase text-textMuted">Съедено за сегодня (✎ — изменить):</span>
                         <span id="todayFoodCountBadge" class="text-[11px] font-mono text-textMuted">0 приемов</span>
                     </div>
                     <div id="todayFoodList" class="space-y-1.5 max-h-72 overflow-y-auto pr-1"></div>
@@ -985,7 +995,6 @@
             }
         };
 
-        // Справочник всех упражнений (включая варианты и архивные ID) для шпаргалки и графиков
         const ALL_EXERCISES_MAP = {
             d2_ex6: { id: 'd2_ex6', name: 'Подъемы коленей в висе (архив)', isPlank: false, isActivation: false, blockName: 'Блок 2: Спина + Биц' }
         };
@@ -1019,6 +1028,7 @@
 
         let currentFoodMultiplier = 1;
         let currentCustomGrams = null;
+        let selectedFoodDayOffset = 0; // 0 = Сегодня, -1 = Вчера
         let pendingDeleteWorkoutId = null;
         let expandedWorkoutDetails = {};
         let editingFoodUid = null;
@@ -1043,6 +1053,16 @@
 
         function getTodayKey() {
             return toDateKey(new Date());
+        }
+
+        function getYesterdayKey() {
+            const d = new Date();
+            d.setDate(d.getDate() - 1);
+            return toDateKey(d);
+        }
+
+        function getActiveFoodDateKey() {
+            return selectedFoodDayOffset === -1 ? getYesterdayKey() : getTodayKey();
         }
 
         function formatShortDate(dateKey) {
@@ -1092,25 +1112,41 @@
             return 'd1';
         }
 
-        function getTodayRecord() {
-            const today = getTodayKey();
+        function getRecordByDateKey(dateKey) {
             if (!appState.dailyRecords || typeof appState.dailyRecords !== 'object') {
                 appState.dailyRecords = {};
             }
-            if (!appState.dailyRecords[today]) {
+            if (!appState.dailyRecords[dateKey]) {
                 const suggestedBlock = getNextRecommendedBlock();
-                appState.dailyRecords[today] = {
-                    mode: suggestedBlock,
+                const wDone = (appState.workoutHistory || []).find(w => w.date === dateKey);
+                appState.dailyRecords[dateKey] = {
+                    mode: wDone ? wDone.dayId : suggestedBlock,
                     foods: []
                 };
-                if (!appState.editingWorkoutId) {
+                if (dateKey === getTodayKey() && !appState.editingWorkoutId) {
                     appState.workoutDay = suggestedBlock;
                 }
             }
-            if (!Array.isArray(appState.dailyRecords[today].foods)) {
-                appState.dailyRecords[today].foods = [];
+            if (!Array.isArray(appState.dailyRecords[dateKey].foods)) {
+                appState.dailyRecords[dateKey].foods = [];
             }
-            return appState.dailyRecords[today];
+            return appState.dailyRecords[dateKey];
+        }
+
+        function getTodayRecord() {
+            return getRecordByDateKey(getTodayKey());
+        }
+
+        function getActiveFoodRecord() {
+            return getRecordByDateKey(getActiveFoodDateKey());
+        }
+
+        function setFoodTargetDay(offset) {
+            selectedFoodDayOffset = offset === -1 ? -1 : 0;
+            editingFoodUid = null;
+            renderFoodTab();
+            const targetKey = getActiveFoodDateKey();
+            showToast(selectedFoodDayOffset === -1 ? `Открыт вчерашний рацион (${formatShortDate(targetKey)})` : 'Открыт сегодняшний рацион');
         }
 
         function resolveActiveExerciseConfig(ex) {
@@ -1273,7 +1309,7 @@
         });
 
         // =========================================================================
-        // 3. ПИТАНИЕ: КБЖУ, ТОЧНАЯ ГРАММОВКА И РЕДАКТИРОВАНИЕ ЗАПИСЕЙ (✎)
+        // 3. ПИТАНИЕ: КБЖУ, ВЫБОР СЕГОДНЯ/ВЧЕРА, ГРАММОВКА И РЕДАКТИРОВАНИЕ (✎)
         // =========================================================================
         function getCurrentUserWeight() {
             if (!appState.weightLogs || appState.weightLogs.length === 0) return 79.6;
@@ -1315,7 +1351,7 @@
         }
 
         function addQuickFood(name, cal, p, f, c, grams = null) {
-            const rec = getTodayRecord();
+            const rec = getActiveFoodRecord();
             const cVal = +(Number(cal).toFixed(1));
             const pVal = +(Number(p).toFixed(1));
             const fVal = +(Number(f).toFixed(1));
@@ -1339,13 +1375,16 @@
             });
             saveState();
             if (appState.currentTab === 'food') renderFoodTab();
-            showToast(`+ ${name} (${Math.round(cVal)} ккал)`);
+            const dayTag = selectedFoodDayOffset === -1 ? ' (Во вчерашний день)' : '';
+            showToast(`+ ${name} (${Math.round(cVal)} ккал)${dayTag}`);
         }
 
         function copyYesterdayFood() {
-            const d = new Date();
-            d.setDate(d.getDate() - 1);
-            const yKey = toDateKey(d);
+            if (selectedFoodDayOffset === -1) {
+                showToast('Ты уже находишься в режиме редактирования вчерашнего дня');
+                return;
+            }
+            const yKey = getYesterdayKey();
             const yRec = appState.dailyRecords[yKey];
             if (!yRec || !yRec.foods || yRec.foods.length === 0) {
                 showToast('За вчерашний день нет записей питания');
@@ -1369,7 +1408,7 @@
         }
 
         function undoLastFood() {
-            const rec = getTodayRecord();
+            const rec = getActiveFoodRecord();
             if (rec.foods.length > 0) {
                 const removed = rec.foods.pop();
                 saveState();
@@ -1379,7 +1418,7 @@
         }
 
         function removeFoodByUid(uid) {
-            const rec = getTodayRecord();
+            const rec = getActiveFoodRecord();
             const idx = rec.foods.findIndex(f => String(f.uid) === String(uid));
             if (idx >= 0) {
                 const removed = rec.foods.splice(idx, 1);
@@ -1396,7 +1435,7 @@
         }
 
         function applyLoggedFoodScale(uid, newGramsRaw, newCalRaw) {
-            const rec = getTodayRecord();
+            const rec = getActiveFoodRecord();
             const item = rec.foods.find(f => String(f.uid) === String(uid));
             if (!item) return;
 
@@ -1438,7 +1477,7 @@
 
         let confirmResetFoodFlag = false;
         function resetTodayMacros() {
-            const rec = getTodayRecord();
+            const rec = getActiveFoodRecord();
             if (rec.foods.length === 0) return;
             const btn = document.getElementById('resetFoodBtn');
             if (!confirmResetFoodFlag) {
@@ -1455,7 +1494,7 @@
             rec.foods = [];
             saveState();
             renderFoodTab();
-            showToast('Рацион за сегодня очищен');
+            showToast(selectedFoodDayOffset === -1 ? 'Рацион за вчера очищен' : 'Рацион за сегодня очищен');
         }
 
         function openFoodDrawer() {
@@ -1662,10 +1701,45 @@
         }
 
         function renderFoodTab() {
-            const rec = getTodayRecord();
+            const activeDateKey = getActiveFoodDateKey();
+            const isYesterday = (selectedFoodDayOffset === -1);
+            const rec = getActiveFoodRecord();
             const weight = getCurrentUserWeight();
 
             document.getElementById('headerWeightVal').textContent = weight.toFixed(1);
+
+            const todayBtn = document.getElementById('foodDayBtn-today');
+            const yestBtn = document.getElementById('foodDayBtn-yesterday');
+            const switcherBox = document.getElementById('foodDaySwitcherBox');
+            const mainCalBox = document.getElementById('mainCalorieBox');
+            const copyYestBtn = document.getElementById('copyYesterdayBtn');
+
+            if (todayBtn && yestBtn) {
+                todayBtn.textContent = `Сегодня (${formatShortDate(getTodayKey())})`;
+                yestBtn.textContent = `🌙 Вчера (${formatShortDate(getYesterdayKey())})`;
+
+                if (isYesterday) {
+                    yestBtn.className = 'tactical-btn flex-1 py-2 px-2 rounded-lg font-mono text-xs font-extrabold text-center bg-accentAmber text-black';
+                    todayBtn.className = 'tactical-btn flex-1 py-2 px-2 rounded-lg font-mono text-xs font-bold text-center text-textMuted hover:text-white';
+                    switcherBox.className = 'bg-bgMain p-1.5 rounded-xl border border-accentAmber/60 flex items-center justify-between gap-1.5';
+                    mainCalBox.className = 'bg-bgMain p-3.5 rounded-xl border border-accentAmber/50';
+                    if (copyYestBtn) copyYestBtn.classList.add('hidden');
+                } else {
+                    todayBtn.className = 'tactical-btn flex-1 py-2 px-2 rounded-lg font-mono text-xs font-extrabold text-center bg-accentGreen text-black';
+                    yestBtn.className = 'tactical-btn flex-1 py-2 px-2 rounded-lg font-mono text-xs font-bold text-center text-textMuted hover:text-white';
+                    switcherBox.className = 'bg-bgMain p-1.5 rounded-xl border border-borderSubtle flex items-center justify-between gap-1.5';
+                    mainCalBox.className = 'bg-bgMain p-3.5 rounded-xl border border-borderSubtle';
+                    if (copyYestBtn) copyYestBtn.classList.remove('hidden');
+                }
+            }
+
+            document.getElementById('calHeaderTitle').innerHTML = isYesterday
+                ? `<span class="text-accentAmber font-bold">📅 КАЛОРИИ ЗА ВЧЕРА (${formatShortDate(activeDateKey)})</span>`
+                : `Калории за сегодня`;
+
+            document.getElementById('loggedFoodListTitle').textContent = isYesterday
+                ? `Съедено за вчера (${formatShortDate(activeDateKey)}) (✎ — изменить):`
+                : `Съедено за сегодня (✎ — изменить):`;
 
             const targets = calculateDynamicMacros(weight, rec.mode);
             document.getElementById('macroFormulaCaption').textContent =
@@ -1741,7 +1815,7 @@
 
             const foodList = document.getElementById('todayFoodList');
             if (rec.foods.length === 0) {
-                foodList.innerHTML = `<div class="text-xs text-textMuted font-mono py-2">Приемов пищи за сегодня пока нет.</div>`;
+                foodList.innerHTML = `<div class="text-xs text-textMuted font-mono py-2">Приемов пищи за ${isYesterday ? 'вчера' : 'сегодня'} пока нет.</div>`;
             } else {
                 foodList.innerHTML = rec.foods.map((f, idx) => {
                     if (!f.uid) f.uid = 'fd_legacy_' + idx;
@@ -1816,7 +1890,6 @@
             renderWorkoutTab();
         }
 
-        // Анализирует историю упражнения и возвращает динамическую строку «Вес: ...» + статус прогрессии
         function getExerciseHistoryInfo(ex) {
             const exId = ex.id;
             const targetSetsCount = ex.sets;
@@ -2039,14 +2112,12 @@
             if (sumEl) sumEl.textContent = completedSets;
         }
 
-        // Свободный секундомер Планки от 0 вверх (показывает результат на кнопке при остановке, не перезаписывая поля)
         let plankInterval = null;
         let plankStartTimestamp = 0;
         let plankLastElapsedSec = 0;
 
         function togglePlankStopwatchUp() {
             if (plankInterval) {
-                // Остановка секундомера
                 clearInterval(plankInterval);
                 plankInterval = null;
                 plankLastElapsedSec = Math.max(1, Math.floor((Date.now() - plankStartTimestamp) / 1000));
@@ -2057,7 +2128,6 @@
                 return;
             }
 
-            // Запуск секундомера от 0 вверх
             plankStartTimestamp = Date.now();
             plankLastElapsedSec = 0;
             playTacticalBeep('tick');
@@ -2470,7 +2540,6 @@
                 appState.manualQueueNext = null;
                 appState.workoutsSinceLastBackup = (appState.workoutsSinceLastBackup || 0) + 1;
 
-                // Сбрасываем кэш текущей сессии блока, чтобы в следующий раз подтянулись новые веса с учетом прогрессии
                 dayObj.exercises.forEach(rawEx => {
                     const ex = resolveActiveExerciseConfig(rawEx);
                     delete appState.activeSessionSets[`${appState.workoutDay}_${ex.id}`];
