@@ -1751,15 +1751,18 @@
                     return `
                         <div class="bg-bgMain px-3 py-2 rounded-lg border ${isEditing ? 'border-accentGreen' : 'border-borderSubtle'} text-xs space-y-2">
                             <div class="flex items-center justify-between gap-2">
-                                <div class="truncate pr-1">
-                                    <span class="font-mono text-textMuted mr-1">${escapeHtml(f.time)}</span>
-                                    <span class="font-semibold text-white">${escapeHtml(f.name)}</span>
+                                <div class="min-w-0 flex-1">
+                                    <div class="font-semibold text-white leading-snug break-words">
+                                        <span class="font-mono text-[11px] text-textMuted mr-1">${escapeHtml(f.time)}</span>${escapeHtml(f.name)}
+                                    </div>
+                                    <div class="font-mono text-[11px] mt-0.5">
+                                        <span class="text-accentGreen font-bold">${Math.round(f.cal)} ккал</span>
+                                        <span class="text-textMuted ml-1">• Б:${Math.round(f.p)} Ж:${Math.round(f.f)} У:${Math.round(f.c)}</span>
+                                    </div>
                                 </div>
                                 <div class="flex items-center space-x-1.5 font-mono shrink-0">
-                                    <span class="text-accentGreen font-bold">${Math.round(f.cal)} ккал</span>
-                                    <span class="text-textMuted text-[10px]">(Б:${Math.round(f.p)} Ж:${Math.round(f.f)} У:${Math.round(f.c)})</span>
-                                    <button onclick="startEditLoggedFood('${escapeHtml(f.uid)}')" title="Изменить порцию/вес" class="w-6 h-6 rounded bg-bgElevated hover:bg-borderSubtle text-textMuted hover:text-white flex items-center justify-center">✎</button>
-                                    <button onclick="removeFoodByUid('${escapeHtml(f.uid)}')" title="Удалить запись" class="w-6 h-6 rounded bg-bgElevated hover:bg-accentRed/20 text-textMuted hover:text-accentRed flex items-center justify-center">✕</button>
+                                    <button onclick="startEditLoggedFood('${escapeHtml(f.uid)}')" title="Изменить порцию/вес" class="w-7 h-7 rounded-lg bg-bgElevated hover:bg-borderSubtle text-textMuted hover:text-white flex items-center justify-center">✎</button>
+                                    <button onclick="removeFoodByUid('${escapeHtml(f.uid)}')" title="Удалить запись" class="w-7 h-7 rounded-lg bg-bgElevated hover:bg-accentRed/20 text-textMuted hover:text-accentRed flex items-center justify-center">✕</button>
                                 </div>
                             </div>
                             ${isEditing ? `
