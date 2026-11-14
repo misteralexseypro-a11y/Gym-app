@@ -7,7 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>TACTICAL FIT // Дневник Рекомпозиции v5.7</title>
+    <title>TACTICAL FIT // Дневник Рекомпозиции v5.8</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230d0f12'/%3E%3Cpath d='M136 176v160M96 208v96M376 176v160M416 208v96M136 256h240' stroke='%2310b981' stroke-width='36' stroke-linecap='round'/%3E%3C/svg%3E">
     <script>
@@ -120,7 +120,7 @@
                 <div class="min-w-0">
                     <div class="flex items-center space-x-1.5">
                         <span class="font-mono font-extrabold text-sm tracking-wider uppercase text-white truncate">TACTICAL RECOMP</span>
-                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v5.7</span>
+                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v5.8</span>
                     </div>
                     <div class="flex items-center space-x-1.5 mt-0.5">
                         <button onclick="openBackupModal()" id="autoSaveBadge" class="tactical-btn text-[10px] font-mono text-accentGreen bg-accentGreen/10 border border-accentGreen/30 px-2 py-0.5 rounded-full flex items-center shrink-0">
@@ -457,7 +457,7 @@
                 <div class="flex space-x-2">
                     <input type="date" id="weightDateInput" class="bg-bgMain border border-borderSubtle rounded-xl px-2.5 py-3 text-xs font-mono text-white focus:outline-none focus:border-accentGreen w-36 shrink-0">
                     <div class="relative flex-1 min-w-0">
-                        <input type="number" step="0.1" id="weightInput" placeholder="79.6" class="w-full bg-bgMain border border-borderSubtle rounded-xl px-3 py-3 text-base font-mono font-bold text-white focus:outline-none focus:border-accentGreen">
+                        <input type="text" inputmode="decimal" id="weightInput" placeholder="79.6" class="w-full bg-bgMain border border-borderSubtle rounded-xl px-3 py-3 text-base font-mono font-bold text-white focus:outline-none focus:border-accentGreen">
                         <span class="absolute right-2.5 top-3.5 text-xs font-mono text-textMuted">кг</span>
                     </div>
                     <button onclick="logNewWeight()" class="tactical-btn bg-accentGreen text-black font-mono font-bold px-3.5 rounded-xl text-xs uppercase shrink-0">
@@ -609,7 +609,7 @@
                 <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-borderSubtle/60">
                     <span class="text-xs font-mono text-accentGreen font-bold">⚖️ Свой вес (в граммах):</span>
                     <div class="flex items-center gap-1.5">
-                        <input type="number" id="customFoodGramsInput" oninput="onCustomGramsInput(this.value)" placeholder="напр. 175" class="w-28 bg-bgCard border border-borderSubtle rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-white text-center focus:outline-none focus:border-accentGreen">
+                        <input type="text" inputmode="decimal" id="customFoodGramsInput" oninput="onCustomGramsInput(this.value)" placeholder="напр. 175" class="w-28 bg-bgCard border border-borderSubtle rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-white text-center focus:outline-none focus:border-accentGreen">
                         <span class="text-xs font-mono text-textMuted">г</span>
                         <button onclick="clearCustomGrams()" id="clearGramsBtn" class="hidden text-xs font-mono text-textMuted hover:text-white px-1.5">✕</button>
                     </div>
@@ -628,24 +628,24 @@
                 </div>
                 <div class="grid grid-cols-12 gap-2">
                     <input type="text" id="newFoodName" placeholder="Название (напр. Овсянка / Шаурма)" class="col-span-8 bg-bgCard border border-borderSubtle rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-accentGreen">
-                    <input type="number" id="newFoodBaseGrams" placeholder="Порция 100г" class="col-span-4 bg-bgCard border border-borderSubtle rounded-lg px-2 py-2 text-xs font-mono text-white text-center focus:outline-none focus:border-accentGreen">
+                    <input type="text" inputmode="decimal" id="newFoodBaseGrams" placeholder="Порция 100г" class="col-span-4 bg-bgCard border border-borderSubtle rounded-lg px-2 py-2 text-xs font-mono text-white text-center focus:outline-none focus:border-accentGreen">
                 </div>
                 <div class="grid grid-cols-4 gap-2">
                     <div>
                         <label class="text-[10px] font-mono text-textMuted uppercase block mb-0.5">Ккал</label>
-                        <input type="number" id="newFoodCal" placeholder="Авто" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
+                        <input type="text" inputmode="decimal" id="newFoodCal" placeholder="Авто" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
                     </div>
                     <div>
                         <label class="text-[10px] font-mono text-textMuted uppercase block mb-0.5">Белки</label>
-                        <input type="number" id="newFoodP" placeholder="0" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
+                        <input type="text" inputmode="decimal" id="newFoodP" placeholder="0" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
                     </div>
                     <div>
                         <label class="text-[10px] font-mono text-textMuted uppercase block mb-0.5">Жиры</label>
-                        <input type="number" id="newFoodF" placeholder="0" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
+                        <input type="text" inputmode="decimal" id="newFoodF" placeholder="0" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
                     </div>
                     <div>
                         <label class="text-[10px] font-mono text-textMuted uppercase block mb-0.5">Углев</label>
-                        <input type="number" id="newFoodC" placeholder="0" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
+                        <input type="text" inputmode="decimal" id="newFoodC" placeholder="0" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2 py-1.5 text-sm font-mono text-white focus:outline-none focus:border-accentGreen">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2 pt-1">
@@ -1021,7 +1021,7 @@
         ];
 
         // =========================================================================
-        // 2. УТИЛИТЫ БЕЗОПАСНОСТИ, ДАТ, ЗВУКА И ХРАНИЛИЩА
+        // 2. УТИЛИТЫ БЕЗОПАСНОСТИ, ДРОБЕЙ, ДАТ, ЗВУКА И ХРАНИЛИЩА
         // =========================================================================
         const STORAGE_KEY = 'tactical_recomp_state_v2';
         const PREV_BACKUP_STORAGE_KEY = 'tactical_recomp_state_v2_prev';
@@ -1045,6 +1045,21 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
+        }
+
+        // Безопасное чтение чисел с точкой (.) или запятой (,)
+        function parseDecimalInput(rawVal) {
+            if (rawVal === null || rawVal === undefined) return 0;
+            const normalized = String(rawVal).trim().replace(/,/g, '.');
+            const num = parseFloat(normalized);
+            return isNaN(num) ? 0 : num;
+        }
+
+        // Точное отображение до 1 знака после точки (2.5 -> "2.5", 3.0 -> "3")
+        function formatMacroVal(val) {
+            const num = Number(val) || 0;
+            const rounded = Math.round(num * 10) / 10;
+            return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
         }
 
         function toDateKey(d = new Date()) {
@@ -1309,11 +1324,11 @@
         });
 
         // =========================================================================
-        // 3. ПИТАНИЕ: КБЖУ, ВЫБОР СЕГОДНЯ/ВЧЕРА, ГРАММОВКА И РЕДАКТИРОВАНИЕ (✎)
+        // 3. ПИТАНИЕ: КБЖУ, ВЫБОР СЕГОДНЯ/ВЧЕРА, ДЕСЯТЫЕ ДОЛИ И РЕДАКТИРОВАНИЕ (✎)
         // =========================================================================
         function getCurrentUserWeight() {
             if (!appState.weightLogs || appState.weightLogs.length === 0) return 79.6;
-            return parseFloat(appState.weightLogs[appState.weightLogs.length - 1].weight) || 79.6;
+            return parseDecimalInput(appState.weightLogs[appState.weightLogs.length - 1].weight) || 79.6;
         }
 
         function calculateDynamicMacros(weight, mode) {
@@ -1376,7 +1391,7 @@
             saveState();
             if (appState.currentTab === 'food') renderFoodTab();
             const dayTag = selectedFoodDayOffset === -1 ? ' (Во вчерашний день)' : '';
-            showToast(`+ ${name} (${Math.round(cVal)} ккал)${dayTag}`);
+            showToast(`+ ${name} (${Math.round(cVal)} ккал • Б:${formatMacroVal(pVal)})${dayTag}`);
         }
 
         function copyYesterdayFood() {
@@ -1445,8 +1460,8 @@
             const baseF = item.baseF !== undefined ? item.baseF : item.f;
             const baseC = item.baseC !== undefined ? item.baseC : item.c;
 
-            const newG = parseFloat(newGramsRaw);
-            const newCal = parseFloat(newCalRaw);
+            const newG = parseDecimalInput(newGramsRaw);
+            const newCal = parseDecimalInput(newCalRaw);
 
             if (newG && newG > 0 && newG !== item.grams) {
                 const ratio = newG / baseG;
@@ -1523,7 +1538,7 @@
         }
 
         function onCustomGramsInput(rawVal) {
-            const val = parseFloat(rawVal);
+            const val = parseDecimalInput(rawVal);
             const clearBtn = document.getElementById('clearGramsBtn');
             if (val && val > 0) {
                 currentCustomGrams = val;
@@ -1603,13 +1618,13 @@
                 showToast('Укажи название продукта');
                 return;
             }
-            const baseGInput = parseFloat(document.getElementById('newFoodBaseGrams').value);
+            const baseGInput = parseDecimalInput(document.getElementById('newFoodBaseGrams').value);
             const baseGrams = (baseGInput && baseGInput > 0) ? Math.round(baseGInput) : 100;
 
-            const p = parseFloat(document.getElementById('newFoodP').value) || 0;
-            const f = parseFloat(document.getElementById('newFoodF').value) || 0;
-            const c = parseFloat(document.getElementById('newFoodC').value) || 0;
-            const rawCal = parseFloat(document.getElementById('newFoodCal').value) || 0;
+            const p = parseDecimalInput(document.getElementById('newFoodP').value);
+            const f = parseDecimalInput(document.getElementById('newFoodF').value);
+            const c = parseDecimalInput(document.getElementById('newFoodC').value);
+            const rawCal = parseDecimalInput(document.getElementById('newFoodCal').value);
             const cal = rawCal > 0 ? rawCal : Math.round(p * 4 + f * 9 + c * 4);
 
             if (cal <= 0 && p <= 0 && f <= 0 && c <= 0) {
@@ -1625,7 +1640,7 @@
                 id: 'cust_' + Date.now(),
                 name: finalName,
                 baseGrams,
-                cal: Math.round(cal),
+                cal: +(cal.toFixed(1)),
                 p: +(p.toFixed(1)),
                 f: +(f.toFixed(1)),
                 c: +(c.toFixed(1)),
@@ -1667,9 +1682,9 @@
                     : currentFoodMultiplier;
 
                 const cal = Math.round(item.cal * ratio);
-                const p = +(item.p * ratio).toFixed(1);
-                const f = +(item.f * ratio).toFixed(1);
-                const c = +(item.c * ratio).toFixed(1);
+                const p = formatMacroVal(item.p * ratio);
+                const f = formatMacroVal(item.f * ratio);
+                const c = formatMacroVal(item.c * ratio);
                 const dispGrams = Math.round(baseG * ratio);
 
                 return `
@@ -1753,13 +1768,17 @@
                 curC += Number(item.c) || 0;
             });
 
+            curP = +(curP.toFixed(1));
+            curF = +(curF.toFixed(1));
+            curC = +(curC.toFixed(1));
+
             document.getElementById('calCurrent').textContent = Math.round(curCal);
             document.getElementById('calTarget').textContent = targets.calories;
-            document.getElementById('protCurrent').textContent = Math.round(curP);
+            document.getElementById('protCurrent').textContent = formatMacroVal(curP);
             document.getElementById('protTarget').textContent = targets.protein;
-            document.getElementById('fatCurrent').textContent = Math.round(curF);
+            document.getElementById('fatCurrent').textContent = formatMacroVal(curF);
             document.getElementById('fatTarget').textContent = targets.fat;
-            document.getElementById('carbCurrent').textContent = Math.round(curC);
+            document.getElementById('carbCurrent').textContent = formatMacroVal(curC);
             document.getElementById('carbTarget').textContent = targets.carbs;
 
             const calPct = Math.min(100, Math.round((curCal / targets.calories) * 100));
@@ -1780,15 +1799,15 @@
             const passBadge = document.getElementById('proteinPassBadge');
             if (curP >= 100) {
                 passBadge.className = 'text-accentGreen font-bold';
-                passBadge.textContent = `✅ ЗАЧЕТ ПО БЕЛКУ ВЫПОЛНЕН (${Math.round(curP)}г >= 100г)`;
+                passBadge.textContent = `✅ ЗАЧЕТ ПО БЕЛКУ ВЫПОЛНЕН (${formatMacroVal(curP)}г >= 100г)`;
             } else {
                 passBadge.className = 'text-accentAmber font-bold';
-                passBadge.textContent = `До зачета дня по белку (100г): ещё ${Math.max(0, 100 - Math.round(curP))}г`;
+                passBadge.textContent = `До зачета дня по белку (100г): ещё ${formatMacroVal(Math.max(0, 100 - curP))}г`;
             }
 
-            const remP = Math.max(0, targets.protein - Math.round(curP));
-            const remF = Math.max(0, targets.fat - Math.round(curF));
-            const remC = Math.max(0, targets.carbs - Math.round(curC));
+            const remP = formatMacroVal(Math.max(0, targets.protein - curP));
+            const remF = formatMacroVal(Math.max(0, targets.fat - curF));
+            const remC = formatMacroVal(Math.max(0, targets.carbs - curC));
             document.getElementById('macroRemainHint').textContent = `До ориентира: Б:${remP}г • Ж:${remF}г • У:${remC}г`;
 
             const pinnedBar = document.getElementById('pinnedFoodsBar');
@@ -1801,7 +1820,7 @@
                         <span class="text-accentGreen font-mono font-bold text-xs">+</span>
                         <div>
                             <div class="text-xs font-bold text-white leading-tight">${escapeHtml(item.name)}</div>
-                            <div class="text-[10px] font-mono text-textMuted">${Math.round(item.cal)} ккал • Б:${item.p}</div>
+                            <div class="text-[10px] font-mono text-textMuted">${Math.round(item.cal)} ккал • Б:${formatMacroVal(item.p)}</div>
                         </div>
                     </button>
                 `).join('');
@@ -1831,7 +1850,7 @@
                                     </div>
                                     <div class="font-mono text-[11px] mt-0.5">
                                         <span class="text-accentGreen font-bold">${Math.round(f.cal)} ккал</span>
-                                        <span class="text-textMuted ml-1">• Б:${Math.round(f.p)} Ж:${Math.round(f.f)} У:${Math.round(f.c)}</span>
+                                        <span class="text-textMuted ml-1">• Б:${formatMacroVal(f.p)} Ж:${formatMacroVal(f.f)} У:${formatMacroVal(f.c)}</span>
                                     </div>
                                 </div>
                                 <div class="flex items-center space-x-1.5 font-mono shrink-0">
@@ -1843,9 +1862,9 @@
                                 <div class="pt-1.5 border-t border-borderSubtle flex items-center justify-between gap-2 font-mono">
                                     <div class="flex items-center gap-1.5">
                                         <span class="text-[10px] text-textMuted">Вес(г):</span>
-                                        <input type="number" id="editFoodG_${escapeHtml(f.uid)}" value="${gVal}" class="w-16 bg-bgCard border border-borderSubtle rounded px-2 py-1 text-xs text-white text-center">
+                                        <input type="text" inputmode="decimal" id="editFoodG_${escapeHtml(f.uid)}" value="${gVal}" class="w-16 bg-bgCard border border-borderSubtle rounded px-2 py-1 text-xs text-white text-center">
                                         <span class="text-[10px] text-textMuted">или Ккал:</span>
-                                        <input type="number" id="editFoodCal_${escapeHtml(f.uid)}" value="${Math.round(f.cal)}" class="w-16 bg-bgCard border border-borderSubtle rounded px-2 py-1 text-xs text-white text-center">
+                                        <input type="text" inputmode="decimal" id="editFoodCal_${escapeHtml(f.uid)}" value="${Math.round(f.cal)}" class="w-16 bg-bgCard border border-borderSubtle rounded px-2 py-1 text-xs text-white text-center">
                                     </div>
                                     <button onclick="applyLoggedFoodScale('${escapeHtml(f.uid)}', document.getElementById('editFoodG_${escapeHtml(f.uid)}').value, document.getElementById('editFoodCal_${escapeHtml(f.uid)}').value)" class="bg-accentGreen text-black font-bold px-2.5 py-1 rounded text-xs">
                                         ✓ Ок
@@ -2065,7 +2084,7 @@
         function adjustSetField(exId, setIdx, field, delta) {
             const key = `${appState.workoutDay}_${exId}`;
             const setObj = appState.activeSessionSets[key][setIdx];
-            let val = parseFloat(setObj[field]) || 0;
+            let val = parseDecimalInput(setObj[field]);
             val = Math.max(0, +(val + delta).toFixed(2));
             setObj[field] = val;
             saveState();
@@ -2077,7 +2096,7 @@
         function updateSetInput(exId, setIdx, field, rawValue) {
             const key = `${appState.workoutDay}_${exId}`;
             const setObj = appState.activeSessionSets[key][setIdx];
-            setObj[field] = Math.max(0, parseFloat(rawValue) || 0);
+            setObj[field] = Math.max(0, parseDecimalInput(rawValue));
             saveState();
             updateWorkoutSummaryTotals();
         }
@@ -2292,7 +2311,7 @@
                                 <div class="col-span-2 font-mono font-bold text-xs text-textMuted text-center">#${sIdx + 1}</div>
                                 <div class="col-span-8 flex items-center bg-bgCard rounded-lg border border-borderSubtle overflow-hidden">
                                     <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'reps', -5)" class="px-3 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">-5с</button>
-                                    <input id="setInp_${ex.id}_${sIdx}_reps" type="number" step="5" value="${s.reps}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'reps', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
+                                    <input id="setInp_${ex.id}_${sIdx}_reps" type="text" inputmode="numeric" value="${s.reps}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'reps', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
                                     <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'reps', 5)" class="px-3 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">+5с</button>
                                 </div>
                                 <div class="col-span-2 flex justify-end">
@@ -2311,14 +2330,14 @@
                             <!-- Вес кг -->
                             <div class="col-span-5 flex items-center bg-bgCard rounded-lg border border-borderSubtle overflow-hidden">
                                 <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'weight', -${stepBtnVal})" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">-</button>
-                                <input id="setInp_${ex.id}_${sIdx}_weight" type="number" step="0.5" value="${s.weight}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'weight', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
+                                <input id="setInp_${ex.id}_${sIdx}_weight" type="text" inputmode="decimal" value="${s.weight}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'weight', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
                                 <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'weight', ${stepBtnVal})" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">+</button>
                             </div>
 
                             <!-- Повторы -->
                             <div class="col-span-4 flex items-center bg-bgCard rounded-lg border border-borderSubtle overflow-hidden">
                                 <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'reps', -1)" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">-</button>
-                                <input id="setInp_${ex.id}_${sIdx}_reps" type="number" step="1" value="${s.reps}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'reps', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
+                                <input id="setInp_${ex.id}_${sIdx}_reps" type="text" inputmode="numeric" value="${s.reps}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'reps', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
                                 <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'reps', 1)" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">+</button>
                             </div>
 
@@ -2687,9 +2706,9 @@
         function logNewWeight() {
             const inp = document.getElementById('weightInput');
             const dateInp = document.getElementById('weightDateInput');
-            const val = parseFloat(inp.value);
+            const val = parseDecimalInput(inp.value);
             if (!val || val < 40 || val > 200) {
-                showToast('Введи корректный вес в кг (напр. 78.9)');
+                showToast('Введи корректный вес в кг (напр. 78.5)');
                 return;
             }
             const targetDate = (dateInp && dateInp.value) ? dateInp.value : getTodayKey();
@@ -2935,6 +2954,10 @@
                     });
                 }
 
+                p = +(p.toFixed(1));
+                f = +(f.toFixed(1));
+                c = +(c.toFixed(1));
+
                 const isTodayIncomplete = (iso === todayIso) && (cal < 1000 && p < 100);
                 if (cal > 0 && !isTodayIncomplete) {
                     sumCal += cal;
@@ -2945,8 +2968,8 @@
                 }
 
                 const pBadge = p >= 100
-                    ? `<span class="text-accentGreen font-bold">✅ ${Math.round(p)}г</span>`
-                    : `<span class="text-textMuted">${Math.round(p)}г</span>`;
+                    ? `<span class="text-accentGreen font-bold">✅ ${formatMacroVal(p)}г</span>`
+                    : `<span class="text-textMuted">${formatMacroVal(p)}г</span>`;
 
                 wkHTML += `
                     <tr class="border-b border-borderSubtle/60">
@@ -2962,9 +2985,9 @@
             const avgMacrosEl = document.getElementById('weeklyAvgMacrosValue');
             if (validMacroDays > 0) {
                 const aCal = Math.round(sumCal / validMacroDays);
-                const aP = Math.round(sumP / validMacroDays);
-                const aF = Math.round(sumF / validMacroDays);
-                const aC = Math.round(sumC / validMacroDays);
+                const aP = formatMacroVal(sumP / validMacroDays);
+                const aF = formatMacroVal(sumF / validMacroDays);
+                const aC = formatMacroVal(sumC / validMacroDays);
                 avgMacrosEl.innerHTML = `<span class="text-accentGreen">${aCal} ккал</span> • Б:${aP}г • Ж:${aF}г • У:${aC}г <span class="text-textMuted font-normal">(${validMacroDays} дн.)</span>`;
             } else {
                 avgMacrosEl.textContent = 'Накопи хотя бы 1 полный день питания';
