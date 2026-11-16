@@ -7,7 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>TACTICAL FIT // Дневник Рекомпозиции v5.8</title>
+    <title>TACTICAL FIT // Дневник Рекомпозиции v5.9</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230d0f12'/%3E%3Cpath d='M136 176v160M96 208v96M376 176v160M416 208v96M136 256h240' stroke='%2310b981' stroke-width='36' stroke-linecap='round'/%3E%3C/svg%3E">
     <script>
@@ -120,7 +120,7 @@
                 <div class="min-w-0">
                     <div class="flex items-center space-x-1.5">
                         <span class="font-mono font-extrabold text-sm tracking-wider uppercase text-white truncate">TACTICAL RECOMP</span>
-                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v5.8</span>
+                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v5.9</span>
                     </div>
                     <div class="flex items-center space-x-1.5 mt-0.5">
                         <button onclick="openBackupModal()" id="autoSaveBadge" class="tactical-btn text-[10px] font-mono text-accentGreen bg-accentGreen/10 border border-accentGreen/30 px-2 py-0.5 rounded-full flex items-center shrink-0">
@@ -227,16 +227,22 @@
 
             <!-- Контейнер активной силовой тренировки -->
             <div id="activeWorkoutSection" class="space-y-4">
-                <!-- Баннер редактирования архивной тренировки -->
-                <div id="editingWorkoutBanner" class="hidden p-3.5 rounded-xl bg-accentAmber/15 border border-accentAmber text-accentAmber text-xs font-mono flex items-center justify-between gap-2">
-                    <div>
-                        <strong class="block uppercase font-bold">✏️ Редактирование архивной записи</strong>
-                        <span id="editingWorkoutLabel">Исправь веса/повторы и нажми «Сохранить изменения» внизу</span>
+                <!-- Баннер редактирования архивной тренировки (с выбором даты) -->
+                <div id="editingWorkoutBanner" class="hidden p-3.5 rounded-xl bg-accentAmber/15 border border-accentAmber text-accentAmber text-xs font-mono space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <div>
+                            <strong class="block uppercase font-bold">✏️ Редактирование архивной записи</strong>
+                            <span id="editingWorkoutLabel" class="text-[11px] opacity-90">Исправь веса/повторы или дату и нажми «Сохранить изменения» внизу</span>
+                        </div>
+                        <button onclick="cancelEditingWorkout()" class="bg-bgElevated text-white px-2.5 py-1.5 rounded-lg font-bold shrink-0">Отмена</button>
                     </div>
-                    <button onclick="cancelEditingWorkout()" class="bg-bgElevated text-white px-2.5 py-1.5 rounded-lg font-bold shrink-0">Отмена</button>
+                    <div class="flex items-center justify-between gap-2 pt-2 border-t border-accentAmber/30">
+                        <span class="text-white font-bold">📅 Дата тренировки:</span>
+                        <input type="date" id="editingWorkoutDateInput" onchange="appState.editingWorkoutDate = this.value; saveState();" class="bg-bgMain border border-accentAmber/60 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-accentGreen">
+                    </div>
                 </div>
                 
-                <!-- Переключатель Блока 1 / 2 / 3 (без лишних фаз и разминки) -->
+                <!-- Переключатель Блока 1 / 2 / 3 -->
                 <div class="tactical-card p-3.5 space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-mono uppercase text-textMuted">Активный тренировочный блок</span>
@@ -714,7 +720,7 @@
 
     <script>
         // =========================================================================
-        // 1. БАЗА ДАННЫХ ПРОГРАММЫ ТРЕНИРОВОК (ЕДИНАЯ СТАРТОВАЯ БАЗА + УМНЫЙ ВЕС)
+        // 1. БАЗА ДАННЫХ ПРОГРАММЫ ТРЕНИРОВОК (ВКЛЮЧАЯ ПРОГРАММНЫЙ ГРАВИТРОН)
         // =========================================================================
         const WORKOUT_PROGRAM = {
             d1: {
@@ -748,10 +754,11 @@
                         name: 'Брусья (гравитрон или свой вес)',
                         rest: 120,
                         isPlank: false,
+                        isAssisted: true,
                         stepKg: 2.5,
-                        progressionStep: 'Убавь противовес / +2.5 кг',
-                        sets: 3, repsText: '8–12', minReps: 8, maxReps: 12, weightHint: 'Свой вес / гравитрон', defaultWeight: 0,
-                        tip: 'Наклон корпуса вперед, акцент на растяжение низа груди. Вверху локти до щелчка не блокируй.'
+                        progressionStep: 'Убавь противовес (-2.5 кг)',
+                        sets: 3, repsText: '8–12', minReps: 8, maxReps: 12, weightHint: 'Противовес гравитрона / 0 = свой вес', defaultWeight: 25,
+                        tip: 'Вводи цифру противовеса с плитки гравитрона (чем меньше цифра, тем выше нагрузка!). Если делаешь со своим весом без помощи — ставь 0.'
                     },
                     {
                         id: 'd1_ex4',
@@ -792,23 +799,25 @@
                 exercises: [
                     {
                         id: 'd2_ex1',
-                        name: 'Подтягивания на турнике (или гравитрон)',
+                        name: 'Подтягивания (гравитрон или турник)',
                         hasVariantToggle: true,
                         toggleStateKey: 'd2Ex1Variant',
                         variants: {
                             pullups: {
                                 id: 'd2_ex1',
-                                shortLabel: 'Подтягивания',
-                                name: 'Подтягивания на турнике (или гравитрон)',
-                                tip: 'Тянись грудью к перекладине, без раскачки. В нижней точке полностью растягивай широчайшие.',
+                                shortLabel: 'Подтягивания (Гравитрон)',
+                                name: 'Подтягивания (гравитрон или свой вес)',
+                                isAssisted: true,
+                                tip: 'Вводи цифру противовеса с плитки гравитрона (чем меньше плитка, тем ты сильнее!). Для чистых подтягиваний со своим весом ставь 0.',
                                 stepKg: 2.5,
-                                progressionStep: '+1–2 повтора / меньше противовес',
-                                sets: 3, repsText: '6–8', minReps: 6, maxReps: 8, weightHint: 'Свой вес / гравитрон', defaultWeight: 0
+                                progressionStep: 'Убавь противовес (-2.5 кг)',
+                                sets: 3, repsText: '6–8', minReps: 6, maxReps: 8, weightHint: 'Противовес гравитрона / 0 = свой вес', defaultWeight: 30
                             },
                             latpulldown: {
                                 id: 'd2_ex1_lat',
                                 shortLabel: 'Верхняя тяга блока',
                                 name: 'Верхняя тяга блока к груди',
+                                isAssisted: false,
                                 tip: 'Плечи опущены вниз, тяни рукоять к верху груди локтями вниз, не раскачивай корпус.',
                                 stepKg: 2.5,
                                 progressionStep: '+2.5–5 кг в блоке',
@@ -817,9 +826,10 @@
                         },
                         rest: 120,
                         isPlank: false,
+                        isAssisted: true,
                         stepKg: 2.5,
-                        progressionStep: '+1–2 повтора / +2.5 кг',
-                        sets: 3, repsText: '6–8', minReps: 6, maxReps: 8, weightHint: 'Свой вес / гравитрон', defaultWeight: 0,
+                        progressionStep: 'Убавь противовес (-2.5 кг)',
+                        sets: 3, repsText: '6–8', minReps: 6, maxReps: 8, weightHint: 'Противовес гравитрона / 0 = свой вес', defaultWeight: 30,
                         tip: 'Тянись грудью к перекладине, без раскачки.'
                     },
                     {
@@ -909,6 +919,7 @@
                                 id: 'd3_ex2',
                                 shortLabel: 'Жим ногами (высоко)',
                                 name: 'Жим ногами (высокая постановка на ягодицы)',
+                                isAssisted: false,
                                 tip: 'Высокая и широкая постановка стоп на верху платформы, таз от спинки не отрывай.',
                                 stepKg: 5,
                                 progressionStep: '+5 кг суммарно',
@@ -918,6 +929,7 @@
                                 id: 'd3_ex2_hip',
                                 shortLabel: 'Ягодичный мостик',
                                 name: 'Ягодичный мостик (Hip Thrust)',
+                                isAssisted: false,
                                 tip: 'Толкай пятками, в верхней точке мощно зажимай ягодицы с паузой 1 сек.',
                                 stepKg: 5,
                                 progressionStep: '+5 кг на штангу/тренажер',
@@ -996,14 +1008,14 @@
         };
 
         const ALL_EXERCISES_MAP = {
-            d2_ex6: { id: 'd2_ex6', name: 'Подъемы коленей в висе (архив)', isPlank: false, isActivation: false, blockName: 'Блок 2: Спина + Биц' }
+            d2_ex6: { id: 'd2_ex6', name: 'Подъемы коленей в висе (архив)', isPlank: false, isAssisted: false, isActivation: false, blockName: 'Блок 2: Спина + Биц' }
         };
         Object.values(WORKOUT_PROGRAM).forEach(block => {
             block.exercises.forEach(ex => {
-                ALL_EXERCISES_MAP[ex.id] = { id: ex.id, name: ex.name, isPlank: !!ex.isPlank, isActivation: !!ex.isActivation, blockName: block.shortName };
+                ALL_EXERCISES_MAP[ex.id] = { id: ex.id, name: ex.name, isPlank: !!ex.isPlank, isAssisted: !!ex.isAssisted, isActivation: !!ex.isActivation, blockName: block.shortName };
                 if (ex.hasVariantToggle && ex.variants) {
                     Object.values(ex.variants).forEach(v => {
-                        ALL_EXERCISES_MAP[v.id] = { id: v.id, name: v.name, isPlank: !!ex.isPlank, isActivation: false, blockName: block.shortName };
+                        ALL_EXERCISES_MAP[v.id] = { id: v.id, name: v.name, isPlank: !!ex.isPlank, isAssisted: !!v.isAssisted, isActivation: false, blockName: block.shortName };
                     });
                 }
             });
@@ -1047,7 +1059,6 @@
                 .replace(/'/g, '&#39;');
         }
 
-        // Безопасное чтение чисел с точкой (.) или запятой (,)
         function parseDecimalInput(rawVal) {
             if (rawVal === null || rawVal === undefined) return 0;
             const normalized = String(rawVal).trim().replace(/,/g, '.');
@@ -1055,7 +1066,6 @@
             return isNaN(num) ? 0 : num;
         }
 
-        // Точное отображение до 1 знака после точки (2.5 -> "2.5", 3.0 -> "3")
         function formatMacroVal(val) {
             const num = Number(val) || 0;
             const rounded = Math.round(num * 10) / 10;
@@ -1102,6 +1112,7 @@
             exerciseNotes: {},
             activeExerciseRir: {},
             editingWorkoutId: null,
+            editingWorkoutDate: null,
             savedActiveSessionBackup: null,
             restTimerTargetTs: 0,
             restTimerExLabel: '',
@@ -1173,6 +1184,7 @@
                     id: v.id || ex.id,
                     name: v.name,
                     tip: v.tip,
+                    isAssisted: v.isAssisted !== undefined ? v.isAssisted : !!ex.isAssisted,
                     stepKg: v.stepKg !== undefined ? v.stepKg : ex.stepKg,
                     progressionStep: v.progressionStep || ex.progressionStep,
                     sets: v.sets || ex.sets,
@@ -1324,7 +1336,7 @@
         });
 
         // =========================================================================
-        // 3. ПИТАНИЕ: КБЖУ, ВЫБОР СЕГОДНЯ/ВЧЕРА, ДЕСЯТЫЕ ДОЛИ И РЕДАКТИРОВАНИЕ (✎)
+        // 3. ПИТАНИЕ: КБЖУ, ВЫБОР СЕГОДНЯ/ВЧЕРА, ДЕСЯТЫЕ ДОЛИ И ПОЛНОЕ БЖУ В ЧИПСАХ
         // =========================================================================
         function getCurrentUserWeight() {
             if (!appState.weightLogs || appState.weightLogs.length === 0) return 79.6;
@@ -1810,6 +1822,7 @@
             const remC = formatMacroVal(Math.max(0, targets.carbs - curC));
             document.getElementById('macroRemainHint').textContent = `До ориентира: Б:${remP}г • Ж:${remF}г • У:${remC}г`;
 
+            // Полный вывод КБЖУ с десятыми долями на закрепленных продуктах
             const pinnedBar = document.getElementById('pinnedFoodsBar');
             const pinnedItems = (appState.foodDatabase || []).filter(f => f.pinned);
             if (pinnedItems.length === 0) {
@@ -1820,7 +1833,7 @@
                         <span class="text-accentGreen font-mono font-bold text-xs">+</span>
                         <div>
                             <div class="text-xs font-bold text-white leading-tight">${escapeHtml(item.name)}</div>
-                            <div class="text-[10px] font-mono text-textMuted">${Math.round(item.cal)} ккал • Б:${formatMacroVal(item.p)}</div>
+                            <div class="text-[10px] font-mono text-textMuted mt-0.5">${Math.round(item.cal)} ккал • Б:${formatMacroVal(item.p)} Ж:${formatMacroVal(item.f)} У:${formatMacroVal(item.c)}</div>
                         </div>
                     </button>
                 `).join('');
@@ -1878,7 +1891,7 @@
         }
 
         // =========================================================================
-        // 4. ВКЛАДКА ТРЕНИРОВКА (УМНЫЙ ВЕС В СТРОКЕ ЦЕЛИ, RIR, СЕКУНДОМЕР ПЛАНКИ ОТ 0)
+        // 4. ВКЛАДКА ТРЕНИРОВКА (ПРОГРАММНЫЙ ГРАВИТРОН, RIR, СЕКУНДОМЕР ПЛАНКИ)
         // =========================================================================
         function selectWorkoutDay(dayKey) {
             appState.workoutDay = dayKey;
@@ -1909,12 +1922,14 @@
             renderWorkoutTab();
         }
 
+        // Анализирует историю упражнения (включая обратную прогрессию Гравитрона)
         function getExerciseHistoryInfo(ex) {
             const exId = ex.id;
             const targetSetsCount = ex.sets;
             const maxTargetReps = ex.maxReps;
             const isPlank = !!ex.isPlank;
             const isActivation = !!ex.isActivation;
+            const isAssisted = !!ex.isAssisted;
             const stepKg = Number(ex.stepKg) || 2.5;
 
             const pastSessions = [];
@@ -1944,16 +1959,87 @@
             const last = pastSessions[0];
             const prev = pastSessions.length > 1 ? pastSessions[1] : null;
 
-            const badgesList = last.sets.map((s, idx) =>
-                isPlank ? `#${idx + 1}: ${s.reps}с` : `#${idx + 1}: ${s.weight}кг×${s.reps}`
-            );
+            const badgesList = last.sets.map((s, idx) => {
+                if (isPlank) return `#${idx + 1}: ${s.reps}с`;
+                if (isAssisted) {
+                    const wVal = Number(s.weight) || 0;
+                    return wVal > 0 ? `#${idx + 1}: -${wVal}кг×${s.reps}` : `#${idx + 1}: Свой×${s.reps}`;
+                }
+                return `#${idx + 1}: ${s.weight}кг×${s.reps}`;
+            });
 
             const lastWeight = Number(last.sets[last.sets.length - 1].weight) || 0;
-            const lastMaxW = Math.max(...last.sets.map(s => Number(s.weight) || 0));
             const lastTotalReps = last.sets.reduce((acc, s) => acc + (Number(s.reps) || 0), 0);
             const allSetsCompleted = last.sets.length >= targetSetsCount;
             const allHitMax = allSetsCompleted && last.sets.every(s => (Number(s.reps) || 0) >= maxTargetReps);
 
+            // Специальная обратная математика для Гравитрона (чем меньше противовес, тем выше сила)
+            if (isAssisted) {
+                const lastMinAssist = Math.min(...last.sets.map(s => Number(s.weight) || 0));
+                let statusType = 'working';
+                let statusText = '';
+                let dynamicWeightLabel = lastMinAssist > 0 ? `Противовес ${lastMinAssist} кг (рабочий)` : `Свой вес (0 кг помощи)`;
+                let recommendedDefaultWeight = lastMinAssist;
+
+                if (allHitMax) {
+                    if (last.rir === 0) {
+                        statusType = 'consolidate_rir0';
+                        statusText = `⚡ Все ${targetSetsCount}×${maxTargetReps} закрыты, но в отказ (RIR 0). Закрепи противовес ${lastMinAssist} кг ещё на 1 тренировке.`;
+                        dynamicWeightLabel = lastMinAssist > 0 ? `Противовес ${lastMinAssist} кг (закрепить)` : `Свой вес (закрепить)`;
+                    } else if (lastMinAssist > 0) {
+                        statusType = 'progression_ready';
+                        const nextAssist = Math.max(0, +(lastMinAssist - stepKg).toFixed(1));
+                        statusText = `🔥 ПРОГРЕССИЯ ГРАВИТРОНА: все ${targetSetsCount}×${maxTargetReps} закрыты! Убавь помощь тренажера на ${stepKg} кг (до ${nextAssist} кг).`;
+                        dynamicWeightLabel = nextAssist > 0
+                            ? `Противовес ${nextAssist} кг (рекомендация -${stepKg} кг)`
+                            : `0 кг (переход на чистый свой вес!)`;
+                        recommendedDefaultWeight = nextAssist;
+                    } else {
+                        statusType = 'norm_stable';
+                        statusText = `🔥 ПРОГРЕССИЯ: все ${targetSetsCount}×${maxTargetReps} со своим весом (0 кг помощи) закрыты! Добавляй повторы или доп. вес.`;
+                        dynamicWeightLabel = `Свой вес (норматив выполнен!)`;
+                        recommendedDefaultWeight = 0;
+                    }
+                } else if (prev) {
+                    const prevMinAssist = Math.min(...prev.sets.map(s => Number(s.weight) || 0));
+                    const prevTotalReps = prev.sets.reduce((acc, s) => acc + (Number(s.reps) || 0), 0);
+
+                    if (lastMinAssist < prevMinAssist) {
+                        statusType = 'working_up';
+                        statusText = `📈 Противовес снижен до ${lastMinAssist} кг (нагрузка выросла!). Наращивай повторы до ${targetSetsCount}×${maxTargetReps}.`;
+                        dynamicWeightLabel = lastMinAssist > 0 ? `Противовес ${lastMinAssist} кг (новый рабочий)` : `Свой вес (новый уровень)`;
+                    } else if (lastMinAssist === prevMinAssist && lastTotalReps > prevTotalReps) {
+                        const diff = lastTotalReps - prevTotalReps;
+                        statusType = 'working_up';
+                        statusText = `📈 Двойная прогрессия: +${diff} повт. к прошлому разу (${prevTotalReps} → ${lastTotalReps}) на противовесе ${lastMinAssist} кг.`;
+                        dynamicWeightLabel = lastMinAssist > 0 ? `Противовес ${lastMinAssist} кг (дожимаем повторы)` : `Свой вес (+повторы)`;
+                    } else if (lastMinAssist >= prevMinAssist && lastTotalReps <= prevTotalReps) {
+                        statusType = 'plateau';
+                        const deloadAssist = +(Math.round(((lastMinAssist + Math.max(2.5, lastMinAssist * 0.1)) / 2.5)) * 2.5).toFixed(1);
+                        statusText = `⚠️ ПЛАТО (2 трен. без роста): проверь восстановление или временно добавь противовес до ${deloadAssist} кг для разгрузки.`;
+                        dynamicWeightLabel = `Противовес ${lastMinAssist} кг (или разгрузка ${deloadAssist} кг)`;
+                    }
+                } else {
+                    statusType = 'working';
+                    statusText = `🎯 Рабочая фаза: держи противовес ${lastMinAssist} кг и добавляй по 1 повтору до закрытия ${targetSetsCount}×${maxTargetReps}.`;
+                }
+
+                return {
+                    found: true,
+                    date: last.date,
+                    badgesList,
+                    lastWeight: lastMinAssist,
+                    lastSets: last.sets,
+                    lastRir: last.rir,
+                    statusType,
+                    statusText,
+                    dynamicWeightLabel,
+                    recommendedDefaultWeight
+                };
+            }
+
+            // Стандартная прямая логика для всех остальных упражнений
+            const lastMaxW = Math.max(...last.sets.map(s => Number(s.weight) || 0));
             let statusType = 'working';
             let statusText = '';
             let dynamicWeightLabel = lastMaxW > 0 ? `${lastMaxW} кг (рабочий)` : ex.weightHint;
@@ -2026,12 +2112,17 @@
                 const arr = [];
                 for (let s = 0; s < activeEx.sets; s++) {
                     const prevSet = (historyInfo.found && historyInfo.lastSets[s]) ? historyInfo.lastSets[s] : null;
-                    const useWeight = (historyInfo.found && historyInfo.statusType === 'progression_ready' && activeEx.stepKg > 0 && prevSet && prevSet.weight > 0)
-                        ? +(Number(prevSet.weight) + Number(activeEx.stepKg)).toFixed(1)
-                        : (prevSet ? prevSet.weight : defaultW);
-                    const useReps = (historyInfo.found && historyInfo.statusType === 'progression_ready' && activeEx.stepKg > 0 && prevSet && prevSet.weight > 0)
-                        ? activeEx.minReps
-                        : (prevSet ? prevSet.reps : activeEx.maxReps);
+                    let useWeight = prevSet ? prevSet.weight : defaultW;
+                    let useReps = prevSet ? prevSet.reps : activeEx.maxReps;
+
+                    if (historyInfo.found && historyInfo.statusType === 'progression_ready' && activeEx.stepKg > 0 && prevSet && prevSet.weight > 0) {
+                        if (activeEx.isAssisted) {
+                            useWeight = Math.max(0, +(Number(prevSet.weight) - Number(activeEx.stepKg)).toFixed(1));
+                        } else {
+                            useWeight = +(Number(prevSet.weight) + Number(activeEx.stepKg)).toFixed(1);
+                        }
+                        useReps = activeEx.minReps;
+                    }
 
                     arr.push({
                         weight: useWeight,
@@ -2207,9 +2298,13 @@
 
             const editBanner = document.getElementById('editingWorkoutBanner');
             const finishBtn = document.getElementById('finishWorkoutMainBtn');
+            const editDateInp = document.getElementById('editingWorkoutDateInput');
             if (appState.editingWorkoutId) {
                 editBanner.classList.remove('hidden');
                 finishBtn.textContent = '💾 Сохранить изменения в тренировке';
+                if (editDateInp && appState.editingWorkoutDate) {
+                    editDateInp.value = appState.editingWorkoutDate;
+                }
             } else {
                 editBanner.classList.add('hidden');
                 finishBtn.textContent = '✓ Завершить и сохранить тренировку';
@@ -2327,7 +2422,7 @@
                         <div class="grid grid-cols-12 gap-1.5 items-center p-2 rounded-xl border ${rowBg}">
                             <div class="col-span-1 font-mono font-bold text-xs text-textMuted text-center">#${sIdx + 1}</div>
                             
-                            <!-- Вес кг -->
+                            <!-- Вес кг / Противовес -->
                             <div class="col-span-5 flex items-center bg-bgCard rounded-lg border border-borderSubtle overflow-hidden">
                                 <button onclick="adjustSetField('${ex.id}', ${sIdx}, 'weight', -${stepBtnVal})" class="px-2 py-2 text-textMuted hover:text-white font-mono text-sm font-bold">-</button>
                                 <input id="setInp_${ex.id}_${sIdx}_weight" type="text" inputmode="decimal" value="${s.weight}" onfocus="this.select()" oninput="updateSetInput('${ex.id}', ${sIdx}, 'weight', this.value)" class="w-full bg-transparent text-center font-mono font-bold text-sm text-white focus:outline-none">
@@ -2369,6 +2464,8 @@
                     ? 'text-accentAmber font-bold'
                     : 'text-accentGreen font-bold';
 
+                const weightColumnHeader = ex.isAssisted ? 'Противовес (-кг)' : 'Вес (кг)';
+
                 const card = document.createElement('div');
                 card.className = 'tactical-card p-4 space-y-3';
                 card.innerHTML = `
@@ -2405,7 +2502,7 @@
                     ` : `
                         <div class="grid grid-cols-12 gap-1.5 px-2 text-[10px] font-mono uppercase text-textMuted">
                             <div class="col-span-1 text-center">Сет</div>
-                            <div class="col-span-5 text-center">Вес (кг)</div>
+                            <div class="col-span-5 text-center ${ex.isAssisted ? 'text-accentAmber font-bold' : ''}">${weightColumnHeader}</div>
                             <div class="col-span-4 text-center">Повторы</div>
                             <div class="col-span-2 text-right">Готово</div>
                         </div>
@@ -2445,6 +2542,7 @@
                 delete appState.activeSessionSets[`${appState.workoutDay}_${ex.id}`];
             });
             appState.editingWorkoutId = null;
+            appState.editingWorkoutDate = null;
             appState.savedActiveSessionBackup = null;
             saveState();
             renderWorkoutTab();
@@ -2460,6 +2558,7 @@
             }
 
             appState.editingWorkoutId = workoutId;
+            appState.editingWorkoutDate = target.date || getTodayKey();
             appState.workoutDay = target.dayId;
 
             if (target.exercises && target.exercises['d2_ex1_lat']) appState.d2Ex1Variant = 'latpulldown';
@@ -2494,6 +2593,7 @@
 
         function cancelEditingWorkout() {
             appState.editingWorkoutId = null;
+            appState.editingWorkoutDate = null;
             if (appState.savedActiveSessionBackup) {
                 appState.activeSessionSets = appState.savedActiveSessionBackup;
                 appState.savedActiveSessionBackup = null;
@@ -2534,18 +2634,24 @@
             if (appState.editingWorkoutId) {
                 const idx = appState.workoutHistory.findIndex(w => w.id === appState.editingWorkoutId);
                 if (idx >= 0) {
+                    const dateInpEl = document.getElementById('editingWorkoutDateInput');
+                    const newDateVal = (dateInpEl && dateInpEl.value) ? dateInpEl.value : (appState.editingWorkoutDate || appState.workoutHistory[idx].date);
+                    appState.workoutHistory[idx].date = newDateVal;
                     appState.workoutHistory[idx].dayId = appState.workoutDay;
                     appState.workoutHistory[idx].dayName = dayObj.name;
                     appState.workoutHistory[idx].setsDone = totalSetsDone;
                     appState.workoutHistory[idx].exercises = savedExercises;
                     appState.workoutHistory[idx].rirs = savedRirs;
+                    // Сортируем историю по дате на случай переноса в другой день
+                    appState.workoutHistory.sort((a, b) => a.date.localeCompare(b.date) || (a.id - b.id));
                 }
                 appState.editingWorkoutId = null;
+                appState.editingWorkoutDate = null;
                 if (appState.savedActiveSessionBackup) {
                     appState.activeSessionSets = appState.savedActiveSessionBackup;
                     appState.savedActiveSessionBackup = null;
                 }
-                showToast('Изменения в тренировке сохранены!');
+                showToast('Изменения и дата тренировки сохранены!');
             } else {
                 appState.workoutHistory.push({
                     id: Date.now(),
@@ -2598,6 +2704,7 @@
             pendingDeleteWorkoutId = null;
             if (appState.editingWorkoutId === workoutId) {
                 appState.editingWorkoutId = null;
+                appState.editingWorkoutDate = null;
                 if (appState.savedActiveSessionBackup) {
                     appState.activeSessionSets = appState.savedActiveSessionBackup;
                     appState.savedActiveSessionBackup = null;
@@ -2701,7 +2808,7 @@
         }
 
         // =========================================================================
-        // 6. ПРОГРЕСС: СРЕДНЕЕ КБЖУ, ГРАФИК СИЛЫ И ШПАРГАЛКА В ЖУРНАЛЕ
+        // 6. ПРОГРЕСС: СРЕДНЕЕ КБЖУ, ГРАФИК СИЛЫ (С УЧЕТОМ ГРАВИТРОНА) И ЖУРНАЛ
         // =========================================================================
         function logNewWeight() {
             const inp = document.getElementById('weightInput');
@@ -2775,39 +2882,69 @@
             const sub = document.getElementById('strengthChartSubtitle');
             if (!box) return;
 
-            const exMeta = ALL_EXERCISES_MAP[selectedStrengthExId] || { name: '', isPlank: false };
+            const exMeta = ALL_EXERCISES_MAP[selectedStrengthExId] || { name: '', isPlank: false, isAssisted: false };
+            const userW = getCurrentUserWeight();
             const pointsData = [];
 
             appState.workoutHistory.forEach(w => {
                 if (w.exercises && w.exercises[selectedStrengthExId] && w.exercises[selectedStrengthExId].length > 0) {
                     const sets = w.exercises[selectedStrengthExId];
                     const maxW = Math.max(...sets.map(s => Number(s.weight) || 0));
+                    const minW = Math.min(...sets.map(s => Number(s.weight) || 0));
                     const totalReps = sets.reduce((a, s) => a + (Number(s.reps) || 0), 0);
-                    let bestSet = sets[0];
-                    sets.forEach(s => {
-                        const scoreS = (Number(s.weight) || 0) * (1 + (Number(s.reps) || 0) / 30) + (Number(s.reps) || 0) * 0.1;
-                        const scoreBest = (Number(bestSet.weight) || 0) * (1 + (Number(bestSet.reps) || 0) / 30) + (Number(bestSet.reps) || 0) * 0.1;
-                        if (scoreS >= scoreBest) bestSet = s;
-                    });
 
-                    const isBodyweightOnly = maxW === 0;
-                    const plotMetric = isBodyweightOnly
-                        ? totalReps
-                        : +(Number(bestSet.weight) + Number(bestSet.reps) * 0.15).toFixed(2);
-                    const labelText = exMeta.isPlank
-                        ? `${bestSet.reps}с`
-                        : (isBodyweightOnly ? `Σ${totalReps}` : `${bestSet.weight}×${bestSet.reps}`);
+                    if (exMeta.isAssisted) {
+                        // В гравитроне лучший сет — с минимальным противовесом и максимальными повторами
+                        let bestSet = sets[0];
+                        sets.forEach(s => {
+                            const effLoadS = Math.max(5, userW - (Number(s.weight) || 0)) + (Number(s.reps) || 0) * 0.25;
+                            const effLoadBest = Math.max(5, userW - (Number(bestSet.weight) || 0)) + (Number(bestSet.reps) || 0) * 0.25;
+                            if (effLoadS >= effLoadBest) bestSet = s;
+                        });
+                        const assistVal = Number(bestSet.weight) || 0;
+                        const plotMetric = +(Math.max(5, userW - assistVal) + (Number(bestSet.reps) || 0) * 0.15).toFixed(2);
+                        const labelText = assistVal > 0 ? `-${assistVal}×${bestSet.reps}` : `Свой×${bestSet.reps}`;
 
-                    pointsData.push({
-                        date: formatShortDate(w.date),
-                        maxW,
-                        totalReps,
-                        bestWeight: Number(bestSet.weight) || 0,
-                        bestReps: Number(bestSet.reps) || 0,
-                        plotMetric,
-                        labelText,
-                        isBodyweightOnly
-                    });
+                        pointsData.push({
+                            date: formatShortDate(w.date),
+                            maxW,
+                            minW,
+                            totalReps,
+                            bestWeight: assistVal,
+                            bestReps: Number(bestSet.reps) || 0,
+                            plotMetric,
+                            labelText,
+                            isBodyweightOnly: false,
+                            isAssisted: true
+                        });
+                    } else {
+                        let bestSet = sets[0];
+                        sets.forEach(s => {
+                            const scoreS = (Number(s.weight) || 0) * (1 + (Number(s.reps) || 0) / 30) + (Number(s.reps) || 0) * 0.1;
+                            const scoreBest = (Number(bestSet.weight) || 0) * (1 + (Number(bestSet.reps) || 0) / 30) + (Number(bestSet.reps) || 0) * 0.1;
+                            if (scoreS >= scoreBest) bestSet = s;
+                        });
+
+                        const isBodyweightOnly = maxW === 0;
+                        const plotMetric = isBodyweightOnly
+                            ? totalReps
+                            : +(Number(bestSet.weight) + Number(bestSet.reps) * 0.15).toFixed(2);
+                        const labelText = exMeta.isPlank
+                            ? `${bestSet.reps}с`
+                            : (isBodyweightOnly ? `Σ${totalReps}` : `${bestSet.weight}×${bestSet.reps}`);
+
+                        pointsData.push({
+                            date: formatShortDate(w.date),
+                            maxW,
+                            totalReps,
+                            bestWeight: Number(bestSet.weight) || 0,
+                            bestReps: Number(bestSet.reps) || 0,
+                            plotMetric,
+                            labelText,
+                            isBodyweightOnly,
+                            isAssisted: false
+                        });
+                    }
                 }
             });
 
@@ -2822,7 +2959,18 @@
             const first = pointsData[0];
             const last = pointsData[pointsData.length - 1];
 
-            if (last.isBodyweightOnly) {
+            if (last.isAssisted) {
+                sub.textContent = 'ГРАВИТРОН: ЧЕМ МЕНЬШЕ ПРОТИВОВЕС (-КГ), ТЕМ ВЫШЕ ГРАФИК СИЛЫ';
+                const assistReduction = +(first.bestWeight - last.bestWeight).toFixed(1);
+                if (assistReduction > 0) {
+                    badge.textContent = `-${assistReduction} кг помощи (Сила ↑)`;
+                } else if (assistReduction < 0) {
+                    badge.textContent = `Противовес ${last.bestWeight} кг`;
+                } else {
+                    const diffR = last.bestReps - first.bestReps;
+                    badge.textContent = `-${last.bestWeight} кг (${diffR >= 0 ? '+' : ''}${diffR} повт.)`;
+                }
+            } else if (last.isBodyweightOnly) {
                 sub.textContent = exMeta.isPlank ? 'ЛУЧШАЯ ВЫДЕРЖКА СЕССИИ (СЕК)' : 'СУММА ПОВТОРЕНИЙ ЗА ТРЕНИРОВКУ';
                 const diffReps = last.totalReps - first.totalReps;
                 badge.textContent = `${diffReps >= 0 ? '+' : ''}${diffReps} ${exMeta.isPlank ? 'сек сумм.' : 'повт. к старту'}`;
@@ -3075,10 +3223,15 @@
                     const detailsHTML = isExpanded ? `
                         <div class="pt-2.5 mt-2 border-t border-borderSubtle space-y-1.5">
                             ${exEntries.map(([exId, setsArr]) => {
-                                const meta = ALL_EXERCISES_MAP[exId] || { name: exId, isPlank: false };
-                                const setsBadges = (setsArr || []).map((s, idx) =>
-                                    meta.isPlank ? `#${idx + 1}: ${s.reps}с` : `#${idx + 1}: ${s.weight}кг×${s.reps}`
-                                ).join(' • ');
+                                const meta = ALL_EXERCISES_MAP[exId] || { name: exId, isPlank: false, isAssisted: false };
+                                const setsBadges = (setsArr || []).map((s, idx) => {
+                                    if (meta.isPlank) return `#${idx + 1}: ${s.reps}с`;
+                                    if (meta.isAssisted) {
+                                        const wVal = Number(s.weight) || 0;
+                                        return wVal > 0 ? `#${idx + 1}: -${wVal}кг×${s.reps}` : `#${idx + 1}: Свой×${s.reps}`;
+                                    }
+                                    return `#${idx + 1}: ${s.weight}кг×${s.reps}`;
+                                }).join(' • ');
                                 return `
                                     <div class="bg-bgCard px-2.5 py-1.5 rounded-lg border border-borderSubtle text-xs">
                                         <div class="font-semibold text-white">${escapeHtml(meta.name)}</div>
