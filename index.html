@@ -7,7 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>TACTICAL FIT // Дневник Рекомпозиции v5.9</title>
+    <title>TACTICAL FIT // Дневник Рекомпозиции v6.0</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230d0f12'/%3E%3Cpath d='M136 176v160M96 208v96M376 176v160M416 208v96M136 256h240' stroke='%2310b981' stroke-width='36' stroke-linecap='round'/%3E%3C/svg%3E">
     <script>
@@ -22,28 +22,30 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        bgMain: '#0d0f12',
-                        bgCard: '#16191e',
-                        bgElevated: '#1f242d',
-                        borderSubtle: '#262b36',
-                        textMain: '#f3f4f6',
-                        textMuted: '#9ca3af',
-                        accentGreen: '#10b981',
-                        accentAmber: '#f59e0b',
-                        accentRed: '#ef4444',
-                        accentBlue: '#38bdf8'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace']
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        colors: {
+                            bgMain: '#0d0f12',
+                            bgCard: '#16191e',
+                            bgElevated: '#1f242d',
+                            borderSubtle: '#262b36',
+                            textMain: '#f3f4f6',
+                            textMuted: '#9ca3af',
+                            accentGreen: '#10b981',
+                            accentAmber: '#f59e0b',
+                            accentRed: '#ef4444',
+                            accentBlue: '#38bdf8'
+                        },
+                        fontFamily: {
+                            sans: ['Inter', 'sans-serif'],
+                            mono: ['JetBrains Mono', 'monospace']
+                        }
                     }
                 }
-            }
+            };
         }
     </script>
     <style>
@@ -54,14 +56,25 @@
         body {
             background-color: #0d0f12;
             color: #f3f4f6;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             font-size: 16px;
+            margin: 0;
             overscroll-behavior-y: none;
             user-select: none;
             overflow-x: hidden;
         }
+        /* Offline Fallback Styles (на случай отсутствия сети для CDN) */
+        .hidden { display: none !important; }
         input, textarea, select {
             user-select: text;
+            background-color: #0d0f12;
+            color: #f3f4f6;
+            border: 1px solid #262b36;
+            border-radius: 8px;
+        }
+        button {
+            cursor: pointer;
+            color: inherit;
         }
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
@@ -120,7 +133,7 @@
                 <div class="min-w-0">
                     <div class="flex items-center space-x-1.5">
                         <span class="font-mono font-extrabold text-sm tracking-wider uppercase text-white truncate">TACTICAL RECOMP</span>
-                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v5.9</span>
+                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v6.0</span>
                     </div>
                     <div class="flex items-center space-x-1.5 mt-0.5">
                         <button onclick="openBackupModal()" id="autoSaveBadge" class="tactical-btn text-[10px] font-mono text-accentGreen bg-accentGreen/10 border border-accentGreen/30 px-2 py-0.5 rounded-full flex items-center shrink-0">
@@ -133,7 +146,7 @@
             <div class="text-right shrink-0">
                 <span class="text-[10px] font-mono uppercase text-textMuted block">Текущий вес</span>
                 <button onclick="switchTab('progress')" class="font-mono font-bold text-base text-white hover:text-accentGreen flex items-center justify-end space-x-1">
-                    <span id="headerWeightVal">79.6</span>
+                    <span id="headerWeightVal">78.5</span>
                     <span class="text-xs text-textMuted">кг</span>
                 </button>
             </div>
@@ -150,14 +163,19 @@
                     <span class="text-accentAmber text-base">🛡️</span>
                     <div>
                         <h3 class="text-xs font-mono font-bold uppercase text-accentAmber">Защита локальной базы</h3>
-                        <p class="text-xs text-textMain">У тебя новые тренировки без резервной копии. Скопируй код в «Избранное» Telegram за 2 секунды.</p>
+                        <p class="text-xs text-textMain">Новые тренировки без резервной копии. Скачай файл бэкапа или скопируй код.</p>
                     </div>
                 </div>
                 <button onclick="dismissBackupBanner()" class="text-xs text-textMuted hover:text-white px-1">✕</button>
             </div>
-            <button onclick="copyBackupCodeToClipboard()" class="tactical-btn w-full bg-accentAmber text-black font-mono font-bold text-xs py-2.5 px-3 rounded-lg text-center">
-                📋 Скопировать код-бэкап
-            </button>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="downloadBackupJsonFile()" class="tactical-btn bg-accentAmber text-black font-mono font-extrabold text-xs py-2.5 px-2 rounded-lg text-center">
+                    💾 Скачать .JSON
+                </button>
+                <button onclick="copyBackupCodeToClipboard()" class="tactical-btn bg-bgElevated border border-accentAmber/50 text-accentAmber font-mono font-bold text-xs py-2.5 px-2 rounded-lg text-center">
+                    📋 Код в буфер
+                </button>
+            </div>
         </div>
 
         <!-- ========================================================= -->
@@ -213,7 +231,7 @@
                 </div>
                 <h2 class="text-base font-bold uppercase tracking-wide text-white">День восстановления и роста</h2>
                 <p class="text-xs text-textMuted leading-relaxed max-w-sm mx-auto">
-                    Сегодня без силовых нагрузок. Мышцы восстанавливаются после микротравм. Держи базовый дефицит калорий и закрой минимум <strong class="text-white">100 г белка</strong>.
+                    Сегодня без силовых нагрузок. Мышцы восстанавливаются после микротравм. Держи базовый дефицит калорий и закрой минимум <strong class="text-white">125 г белка</strong> (цель — 150 г).
                 </p>
                 <div class="pt-2 flex justify-center gap-2">
                     <button onclick="switchTab('food')" class="tactical-btn bg-accentGreen text-black font-mono font-extrabold text-xs px-4 py-2.5 rounded-xl uppercase">
@@ -292,7 +310,7 @@
                 <div class="flex items-center justify-between gap-2">
                     <div>
                         <h2 class="text-sm font-bold uppercase tracking-wide text-white">Калькулятор питания</h2>
-                        <p id="macroFormulaCaption" class="text-xs text-textMuted font-mono">Формула под 79.6 кг</p>
+                        <p id="macroFormulaCaption" class="text-[11px] text-textMuted font-mono">Рекомпозиция (178 см • 25 лет)</p>
                     </div>
                     <div class="flex items-center space-x-1.5 shrink-0">
                         <button onclick="copyYesterdayFood()" id="copyYesterdayBtn" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-accentGreen px-2.5 py-1.5 rounded-lg border border-accentGreen/30">
@@ -323,22 +341,22 @@
                         <span id="calHeaderTitle" class="text-xs font-mono uppercase text-textMuted">Калории за сегодня</span>
                         <div class="font-mono">
                             <span id="calCurrent" class="text-2xl font-extrabold text-white">0</span>
-                            <span class="text-sm text-textMuted">/ <span id="calTarget">2350</span> ккал</span>
+                            <span class="text-sm text-textMuted">/ <span id="calTarget">2335</span> ккал</span>
                         </div>
                     </div>
                     <div class="w-full h-3 bg-bgElevated rounded-full overflow-hidden">
                         <div id="calBar" class="h-full bg-accentGreen transition-all duration-300" style="width: 0%"></div>
                     </div>
                     <div class="flex justify-between items-center mt-1.5 text-xs font-mono">
-                        <span id="calStatusText" class="text-textMuted">Осталось: 2350 ккал</span>
+                        <span id="calStatusText" class="text-textMuted">Осталось: 2335 ккал</span>
                         <span id="calPercentText" class="text-accentGreen font-bold">0%</span>
                     </div>
                 </div>
 
-                <!-- Статус зачета белка от 100 г и остаток БЖУ -->
+                <!-- Статус зачета белка от 125 г и остаток БЖУ до 150 г -->
                 <div class="bg-bgMain px-3.5 py-2.5 rounded-xl border border-borderSubtle flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs font-mono">
-                    <span id="proteinPassBadge" class="text-accentAmber font-bold">До зачета дня по белку (100г): ещё 100г</span>
-                    <span id="macroRemainHint" class="text-textMuted">До ориентира: Б:125г • Ж:70г • У:305г</span>
+                    <span id="proteinPassBadge" class="text-accentAmber font-bold">До минимума белка (125г): ещё 125г</span>
+                    <span id="macroRemainHint" class="text-textMuted">До цели: Б:150г • Ж:69г • У:279г</span>
                 </div>
 
                 <!-- Белки / Жиры / Углеводы -->
@@ -346,10 +364,10 @@
                     <div class="bg-bgMain p-3 rounded-xl border border-borderSubtle">
                         <div class="flex justify-between items-center text-xs text-textMuted font-mono mb-1">
                             <span>БЕЛКИ</span>
-                            <span class="text-[10px] text-accentGreen">100г+</span>
+                            <span class="text-[10px] text-accentGreen">125г+</span>
                         </div>
                         <div class="font-mono font-bold text-base text-white mb-1.5">
-                            <span id="protCurrent">0</span><span class="text-xs text-textMuted font-normal"> / <span id="protTarget">125</span>г</span>
+                            <span id="protCurrent">0</span><span class="text-xs text-textMuted font-normal"> / <span id="protTarget">150</span>г</span>
                         </div>
                         <div class="w-full h-2 bg-bgElevated rounded-full overflow-hidden">
                             <div id="protBar" class="h-full bg-emerald-400 transition-all duration-300" style="width: 0%"></div>
@@ -358,10 +376,10 @@
                     <div class="bg-bgMain p-3 rounded-xl border border-borderSubtle">
                         <div class="flex justify-between items-center text-xs text-textMuted font-mono mb-1">
                             <span>ЖИРЫ</span>
-                            <span class="text-[10px]">Норма</span>
+                            <span class="text-[10px]">55–80г</span>
                         </div>
                         <div class="font-mono font-bold text-base text-white mb-1.5">
-                            <span id="fatCurrent">0</span><span class="text-xs text-textMuted font-normal"> / <span id="fatTarget">70</span>г</span>
+                            <span id="fatCurrent">0</span><span class="text-xs text-textMuted font-normal"> / <span id="fatTarget">69</span>г</span>
                         </div>
                         <div class="w-full h-2 bg-bgElevated rounded-full overflow-hidden">
                             <div id="fatBar" class="h-full bg-amber-400 transition-all duration-300" style="width: 0%"></div>
@@ -373,7 +391,7 @@
                             <span id="carbBadgeMode" class="text-[10px] text-accentAmber">Энергия</span>
                         </div>
                         <div class="font-mono font-bold text-base text-white mb-1.5">
-                            <span id="carbCurrent">0</span><span class="text-xs text-textMuted font-normal"> / <span id="carbTarget">305</span>г</span>
+                            <span id="carbCurrent">0</span><span class="text-xs text-textMuted font-normal"> / <span id="carbTarget">279</span>г</span>
                         </div>
                         <div class="w-full h-2 bg-bgElevated rounded-full overflow-hidden">
                             <div id="carbBar" class="h-full bg-sky-400 transition-all duration-300" style="width: 0%"></div>
@@ -424,7 +442,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-sm font-bold uppercase tracking-wide text-white">Недельный архив (7 дней)</h2>
-                        <p class="text-xs text-textMuted">Зачет дня по белку от 100 г</p>
+                        <p class="text-xs text-textMuted">Зачет дня по белку от 125 г (цель 150 г)</p>
                     </div>
                     <span class="text-xs font-mono bg-bgElevated px-2.5 py-1 rounded border border-borderSubtle text-accentGreen">Сводка</span>
                 </div>
@@ -442,7 +460,7 @@
                                 <th class="py-2">Дата</th>
                                 <th class="py-2">Режим</th>
                                 <th class="py-2">Ккал</th>
-                                <th class="py-2">Белок (100г+)</th>
+                                <th class="py-2">Белок (125г+)</th>
                             </tr>
                         </thead>
                         <tbody id="weeklyArchiveTableBody"></tbody>
@@ -463,7 +481,7 @@
                 <div class="flex space-x-2">
                     <input type="date" id="weightDateInput" class="bg-bgMain border border-borderSubtle rounded-xl px-2.5 py-3 text-xs font-mono text-white focus:outline-none focus:border-accentGreen w-36 shrink-0">
                     <div class="relative flex-1 min-w-0">
-                        <input type="text" inputmode="decimal" id="weightInput" placeholder="79.6" class="w-full bg-bgMain border border-borderSubtle rounded-xl px-3 py-3 text-base font-mono font-bold text-white focus:outline-none focus:border-accentGreen">
+                        <input type="text" inputmode="decimal" id="weightInput" placeholder="78.5" class="w-full bg-bgMain border border-borderSubtle rounded-xl px-3 py-3 text-base font-mono font-bold text-white focus:outline-none focus:border-accentGreen">
                         <span class="absolute right-2.5 top-3.5 text-xs font-mono text-textMuted">кг</span>
                     </div>
                     <button onclick="logNewWeight()" class="tactical-btn bg-accentGreen text-black font-mono font-bold px-3.5 rounded-xl text-xs uppercase shrink-0">
@@ -475,15 +493,15 @@
                 <div class="grid grid-cols-3 gap-2.5">
                     <div class="bg-bgMain p-3 rounded-xl border border-borderSubtle">
                         <span class="text-[11px] font-mono uppercase text-textMuted block">Текущий</span>
-                        <span id="statCurrWeight" class="font-mono font-extrabold text-lg text-white mt-0.5 block">79.6 кг</span>
+                        <span id="statCurrWeight" class="font-mono font-extrabold text-lg text-white mt-0.5 block">78.5 кг</span>
                     </div>
                     <div class="bg-bgMain p-3 rounded-xl border border-borderSubtle">
-                        <span class="text-[11px] font-mono uppercase text-textMuted block">Средний (7 дн)</span>
-                        <span id="statAvgWeight" class="font-mono font-extrabold text-lg text-accentAmber mt-0.5 block">79.6 кг</span>
+                        <span id="statAvgWeightLabel" class="text-[10px] font-mono uppercase text-textMuted block truncate">Средний (7 дн)</span>
+                        <span id="statAvgWeight" class="font-mono font-extrabold text-lg text-accentAmber mt-0.5 block">78.5 кг</span>
                     </div>
                     <div class="bg-bgMain p-3 rounded-xl border border-borderSubtle">
                         <span class="text-[11px] font-mono uppercase text-textMuted block">Общая дельта</span>
-                        <span id="statDeltaWeight" class="font-mono font-extrabold text-lg text-accentGreen mt-0.5 block">0.0 кг</span>
+                        <span id="statDeltaWeight" class="font-mono font-extrabold text-lg text-accentGreen mt-0.5 block">-1.1 кг</span>
                     </div>
                 </div>
 
@@ -555,35 +573,57 @@
     </main>
 
     <!-- ========================================================================= -->
-    <!-- МОДАЛЬНОЕ ОКНО БЭКАПА                                                     -->
+    <!-- МОДАЛЬНОЕ ОКНО БЭКАПА (ОСНОВНОЙ СПОСОБ: ФАЙЛ .JSON + ЗАПАСНОЙ: КОД)       -->
     <!-- ========================================================================= -->
     <div id="backupModal" onclick="if(event.target===this)closeBackupModal()" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-bgCard border border-borderSubtle w-full max-w-md rounded-2xl p-4 space-y-4 shadow-2xl">
+        <div class="bg-bgCard border border-borderSubtle w-full max-w-md rounded-2xl p-4 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-borderSubtle pb-3">
                 <div>
-                    <h3 class="text-sm font-bold text-white uppercase tracking-wide">Резервная копия базы (Код)</h3>
-                    <p id="persistentStorageStatus" class="text-xs text-textMuted font-mono">Мгновенный перенос и восстановление</p>
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wide">Резервная копия базы</h3>
+                    <p id="persistentStorageStatus" class="text-xs text-textMuted font-mono">Локальная защита и перенос данных</p>
                 </div>
                 <button onclick="closeBackupModal()" class="w-8 h-8 rounded-lg bg-bgElevated text-textMuted hover:text-white font-mono font-bold">✕</button>
             </div>
-            <p class="text-xs text-textMuted leading-relaxed">
-                Нажми <strong class="text-white">«Скопировать код-бэкап»</strong> и сохрани строку в «Избранное» Telegram. Для восстановления базы вставь сохраненный код ниже:
-            </p>
-            <button onclick="copyBackupCodeToClipboard()" class="tactical-btn w-full bg-accentGreen text-black py-3 px-3 rounded-xl text-xs font-mono font-extrabold uppercase">
-                📋 Скопировать код-бэкап в буфер
-            </button>
-            <div class="bg-bgMain p-3 rounded-xl border border-borderSubtle space-y-2.5">
-                <span class="text-xs font-mono uppercase text-white font-bold block">Вставь скопированный код-бэкап:</span>
-                <textarea id="restoreCodeInput" rows="3" placeholder="Вставь сюда строку TACTICAL_BACKUP_..." class="w-full bg-bgCard border border-borderSubtle rounded-lg p-2.5 text-xs font-mono text-white focus:outline-none focus:border-accentGreen"></textarea>
-                <div class="flex gap-2">
-                    <button onclick="restoreFromTextCode()" class="tactical-btn flex-1 bg-bgElevated hover:bg-accentGreen hover:text-black border border-accentGreen/40 text-accentGreen font-mono font-bold text-xs py-2.5 rounded-lg uppercase">
-                        📥 Восстановить из кода
+
+            <!-- 1. Основной способ: Скачать и загрузить файл .JSON -->
+            <div class="bg-bgMain p-3.5 rounded-xl border border-accentGreen/40 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-mono uppercase text-accentGreen font-extrabold">1. Основной способ (Файл .JSON)</span>
+                    <span class="text-[10px] font-mono bg-accentGreen/15 text-accentGreen px-2 py-0.5 rounded">Надёжно</span>
+                </div>
+                <p class="text-xs text-textMuted leading-relaxed">
+                    Скачай файл резервной копии на устройство. Внутри вся база: тренировки, питание, вес и шаблоны продуктов.
+                </p>
+                <button onclick="downloadBackupJsonFile()" class="tactical-btn w-full bg-accentGreen text-black py-3 px-3 rounded-xl text-xs font-mono font-extrabold uppercase">
+                    💾 Скачать резервную копию (.JSON)
+                </button>
+
+                <div class="pt-2 border-t border-borderSubtle flex items-center justify-between gap-2">
+                    <input type="file" id="backupFileInput" accept=".json,application/json" onchange="handleBackupFileUpload(event)" class="hidden">
+                    <button onclick="document.getElementById('backupFileInput').click()" class="tactical-btn flex-1 bg-bgElevated hover:bg-borderSubtle border border-borderSubtle text-white font-mono font-bold text-xs py-2.5 px-3 rounded-lg uppercase">
+                        📂 Восстановить из файла .JSON
                     </button>
-                    <button onclick="undoLastRestoreBackup()" id="undoRestoreBtn" class="hidden tactical-btn bg-bgElevated border border-accentAmber/50 text-accentAmber font-mono font-bold text-xs px-3 py-2.5 rounded-lg">
+                    <button onclick="undoLastRestoreBackup()" id="undoRestoreBtn" class="hidden tactical-btn bg-bgElevated border border-accentAmber/50 text-accentAmber font-mono font-bold text-xs px-3 py-2.5 rounded-lg shrink-0">
                         ↶ Откат
                     </button>
                 </div>
             </div>
+
+            <!-- 2. Запасной способ: Текстовый код для буфера обмена -->
+            <div class="bg-bgMain p-3.5 rounded-xl border border-borderSubtle space-y-2.5">
+                <span class="text-xs font-mono uppercase text-textMuted font-bold block">2. Запасной способ (Текстовый код)</span>
+                <button onclick="copyBackupCodeToClipboard()" class="tactical-btn w-full bg-bgElevated hover:bg-borderSubtle border border-accentGreen/40 text-accentGreen py-2.5 px-3 rounded-xl text-xs font-mono font-bold uppercase">
+                    📋 Скопировать код-бэкап в буфер
+                </button>
+                <textarea id="restoreCodeInput" rows="2" placeholder="Или вставь сюда строку TACTICAL_BACKUP_..." class="w-full bg-bgCard border border-borderSubtle rounded-lg p-2.5 text-xs font-mono text-white focus:outline-none focus:border-accentGreen"></textarea>
+                <button onclick="restoreFromTextCode()" class="tactical-btn w-full bg-bgElevated hover:bg-accentGreen hover:text-black border border-borderSubtle text-white font-mono font-bold text-xs py-2.5 rounded-lg uppercase">
+                    📥 Восстановить из текстового кода
+                </button>
+            </div>
+
+            <p class="text-[11px] text-textMuted font-mono leading-tight">
+                🔒 JSON-файл содержит твои данные в читаемом виде. Храни его локально или в «Избранном» и не выкладывай в публичный доступ.
+            </p>
         </div>
     </div>
 
@@ -633,8 +673,8 @@
                     </label>
                 </div>
                 <div class="grid grid-cols-12 gap-2">
-                    <input type="text" id="newFoodName" placeholder="Название (напр. Овсянка / Шаурма)" class="col-span-8 bg-bgCard border border-borderSubtle rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-accentGreen">
-                    <input type="text" inputmode="decimal" id="newFoodBaseGrams" placeholder="Порция 100г" class="col-span-4 bg-bgCard border border-borderSubtle rounded-lg px-2 py-2 text-xs font-mono text-white text-center focus:outline-none focus:border-accentGreen">
+                    <input type="text" id="newFoodName" placeholder="Название (напр. Курица 150г)" class="col-span-8 bg-bgCard border border-borderSubtle rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-accentGreen">
+                    <input type="text" inputmode="decimal" id="newFoodBaseGrams" placeholder="Вес (100г)" class="col-span-4 bg-bgCard border border-borderSubtle rounded-lg px-2 py-2 text-xs font-mono text-white text-center focus:outline-none focus:border-accentGreen">
                 </div>
                 <div class="grid grid-cols-4 gap-2">
                     <div>
@@ -1008,14 +1048,14 @@
         };
 
         const ALL_EXERCISES_MAP = {
-            d2_ex6: { id: 'd2_ex6', name: 'Подъемы коленей в висе (архив)', isPlank: false, isAssisted: false, isActivation: false, blockName: 'Блок 2: Спина + Биц' }
+            d2_ex6: { id: 'd2_ex6', name: 'Подъемы коленей в висе (архив)', isPlank: false, isAssisted: false, isActivation: false, minReps: 10, blockName: 'Блок 2: Спина + Биц' }
         };
         Object.values(WORKOUT_PROGRAM).forEach(block => {
             block.exercises.forEach(ex => {
-                ALL_EXERCISES_MAP[ex.id] = { id: ex.id, name: ex.name, isPlank: !!ex.isPlank, isAssisted: !!ex.isAssisted, isActivation: !!ex.isActivation, blockName: block.shortName };
+                ALL_EXERCISES_MAP[ex.id] = { id: ex.id, name: ex.name, isPlank: !!ex.isPlank, isAssisted: !!ex.isAssisted, isActivation: !!ex.isActivation, minReps: ex.minReps || 8, blockName: block.shortName };
                 if (ex.hasVariantToggle && ex.variants) {
                     Object.values(ex.variants).forEach(v => {
-                        ALL_EXERCISES_MAP[v.id] = { id: v.id, name: v.name, isPlank: !!ex.isPlank, isAssisted: !!v.isAssisted, isActivation: false, blockName: block.shortName };
+                        ALL_EXERCISES_MAP[v.id] = { id: v.id, name: v.name, isPlank: !!ex.isPlank, isAssisted: !!v.isAssisted, isActivation: false, minReps: v.minReps || 8, blockName: block.shortName };
                     });
                 }
             });
@@ -1031,6 +1071,9 @@
             { id: 'f_oats', name: 'Овсянка сухая (60г)', baseGrams: 60, cal: 210, p: 7.5, f: 3.8, c: 37, pinned: false },
             { id: 'f_banana', name: 'Банан средний (120г)', baseGrams: 120, cal: 105, p: 1.3, f: 0.4, c: 27, pinned: false }
         ];
+
+        const PROTEIN_MIN_PASS = 125;
+        const PROTEIN_DAILY_TARGET = 150;
 
         // =========================================================================
         // 2. УТИЛИТЫ БЕЗОПАСНОСТИ, ДРОБЕЙ, ДАТ, ЗВУКА И ХРАНИЛИЩА
@@ -1091,16 +1134,24 @@
         }
 
         function formatShortDate(dateKey) {
-            if (!dateKey || dateKey.length < 10) return dateKey || '';
+            if (!dateKey || typeof dateKey !== 'string' || dateKey.length < 10) return dateKey || '';
             const parts = dateKey.split('-');
             return `${parts[2]}.${parts[1]}`;
         }
 
+        function extractGramsFromTitle(titleStr) {
+            const match = String(titleStr || '').match(/(\d+(?:[.,]\d+)?)\s*(?:г|гр|мл)\b/i);
+            if (match) {
+                const parsed = parseDecimalInput(match[1]);
+                if (parsed > 0) return Math.round(parsed);
+            }
+            return null;
+        }
+
         function getFoodItemBaseGrams(item) {
-            if (item.baseGrams && Number(item.baseGrams) > 0) return Number(item.baseGrams);
-            const match = String(item.name || '').match(/(\d+)\s*(?:г|гр|мл)/i);
-            if (match && Number(match[1]) > 0) return Number(match[1]);
-            return 100;
+            if (item && item.baseGrams && Number(item.baseGrams) > 0) return Number(item.baseGrams);
+            const fromTitle = extractGramsFromTitle(item ? item.name : '');
+            return fromTitle || 100;
         }
 
         let appState = {
@@ -1109,6 +1160,11 @@
             d2Ex1Variant: 'pullups',
             d3Ex2Variant: 'legpress',
             manualQueueNext: null,
+            userProfile: {
+                heightCm: 178,
+                age: 25,
+                anchorWeight: 78.5
+            },
             exerciseNotes: {},
             activeExerciseRir: {},
             editingWorkoutId: null,
@@ -1199,6 +1255,31 @@
             return ex;
         }
 
+        // Автоочистка детальных записей еды старше maxAgeDays (защита памяти localStorage на годы вперёд)
+        function pruneOldDailyFoodRecords(maxAgeDays = 45) {
+            if (!appState.dailyRecords || typeof appState.dailyRecords !== 'object') return;
+            const cutoff = new Date();
+            cutoff.setDate(cutoff.getDate() - maxAgeDays);
+            const cutoffISO = toDateKey(cutoff);
+
+            const emptyCutoff = new Date();
+            emptyCutoff.setDate(emptyCutoff.getDate() - 14);
+            const emptyCutoffISO = toDateKey(emptyCutoff);
+
+            Object.keys(appState.dailyRecords).forEach(dateKey => {
+                const rec = appState.dailyRecords[dateKey];
+                if (!rec || typeof rec !== 'object') {
+                    delete appState.dailyRecords[dateKey];
+                    return;
+                }
+                if (dateKey < cutoffISO) {
+                    delete appState.dailyRecords[dateKey];
+                } else if (dateKey < emptyCutoffISO && (!Array.isArray(rec.foods) || rec.foods.length === 0)) {
+                    delete appState.dailyRecords[dateKey];
+                }
+            });
+        }
+
         function loadState() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
@@ -1223,6 +1304,23 @@
             if (!appState.activeExerciseRir || typeof appState.activeExerciseRir !== 'object') appState.activeExerciseRir = {};
             if (!appState.activeSessionSets || typeof appState.activeSessionSets !== 'object') appState.activeSessionSets = {};
 
+            // Безопасная миграция профиля антропометрии и опорного веса (v6.0)
+            const latestW = parseDecimalInput(appState.weightLogs[appState.weightLogs.length - 1].weight) || 78.5;
+            if (!appState.userProfile || typeof appState.userProfile !== 'object') {
+                appState.userProfile = {
+                    heightCm: 178,
+                    age: 25,
+                    anchorWeight: latestW
+                };
+            } else {
+                appState.userProfile.heightCm = Number(appState.userProfile.heightCm) || 178;
+                appState.userProfile.age = Number(appState.userProfile.age) || 25;
+                if (!appState.userProfile.anchorWeight || isNaN(Number(appState.userProfile.anchorWeight))) {
+                    appState.userProfile.anchorWeight = latestW;
+                }
+            }
+
+            pruneOldDailyFoodRecords(45);
             getTodayRecord();
 
             if (!['workout', 'food', 'progress'].includes(appState.currentTab)) {
@@ -1234,8 +1332,11 @@
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
                 flashAutoSaveIndicator();
+                return true;
             } catch (e) {
                 console.error('Ошибка записи localStorage:', e);
+                showToast('Внимание: память браузера переполнена');
+                return false;
             }
         }
 
@@ -1271,7 +1372,7 @@
             toastTimeoutId = setTimeout(() => {
                 toast.classList.remove('opacity-100');
                 toast.classList.add('opacity-0');
-            }, 2300);
+            }, 2500);
         }
 
         function playTacticalBeep(type = 'finish') {
@@ -1336,21 +1437,60 @@
         });
 
         // =========================================================================
-        // 3. ПИТАНИЕ: КБЖУ, ВЫБОР СЕГОДНЯ/ВЧЕРА, ДЕСЯТЫЕ ДОЛИ И ПОЛНОЕ БЖУ В ЧИПСАХ
+        // 3. ПИТАНИЕ: КБЖУ ПО МИФФЛИНУ — САН-ЖЕОРУ, УСТОЙЧИВЫЙ ВЕС И БЕЛОК 125/150
         // =========================================================================
         function getCurrentUserWeight() {
-            if (!appState.weightLogs || appState.weightLogs.length === 0) return 79.6;
-            return parseDecimalInput(appState.weightLogs[appState.weightLogs.length - 1].weight) || 79.6;
+            if (!appState.weightLogs || appState.weightLogs.length === 0) return 78.5;
+            return parseDecimalInput(appState.weightLogs[appState.weightLogs.length - 1].weight) || 78.5;
         }
 
-        function calculateDynamicMacros(weight, mode) {
-            const weightDiff = weight - 79.6;
-            const protein = 125;
-            const fat = Math.round(70 + weightDiff * 0.8);
+        // Вычисляет устойчивый вес: не реагирует на колебания воды < 1.0 кг
+        function getStableAnchorWeight() {
+            const logs = appState.weightLogs || [];
+            if (logs.length === 0) return 78.5;
+
+            const d7 = new Date();
+            d7.setDate(d7.getDate() - 7);
+            const cutoff7 = toDateKey(d7);
+            const recent7 = logs.filter(l => l.date >= cutoff7);
+            const pool = recent7.length >= 2 ? recent7 : logs.slice(-3);
+            const rollingAvg = +(pool.reduce((acc, item) => acc + (parseDecimalInput(item.weight) || 78.5), 0) / pool.length).toFixed(1);
+
+            if (!appState.userProfile) {
+                appState.userProfile = { heightCm: 178, age: 25, anchorWeight: rollingAvg };
+            }
+            let anchor = Number(appState.userProfile.anchorWeight) || rollingAvg;
+
+            // Обновляем опорный вес только при устойчивом сдвиге среднего веса >= 1.0 кг
+            if (Math.abs(rollingAvg - anchor) >= 1.0) {
+                anchor = rollingAvg;
+                appState.userProfile.anchorWeight = anchor;
+                saveState();
+            }
+            return anchor;
+        }
+
+        // Индивидуальный расчет рекомпозиции (Миффлин — Сан-Жеор: 178 см, 25 лет, устойчивый вес)
+        function calculateDynamicMacros(weightForCalc, mode) {
+            const h = (appState.userProfile && Number(appState.userProfile.heightCm)) || 178;
+            const age = (appState.userProfile && Number(appState.userProfile.age)) || 25;
+            const w = Number(weightForCalc) || 78.5;
+
+            // BMR (мужской) = 10 * вес + 6.25 * рост - 5 * возраст + 5
+            const bmr = 10 * w + 6.25 * h - 5 * age + 5;
             const isWorkout = mode !== 'rest';
-            const calories = isWorkout ? Math.round(2350 + weightDiff * 24) : Math.round(2050 + weightDiff * 24);
-            const carbs = Math.max(150, Math.round((calories - (protein * 4 + fat * 9)) / 4));
-            return { calories, protein, fat, carbs, isWorkout };
+
+            // Коэффициент рекомпозиции: ~2335 ккал в силовой день и ~2035 ккал в день отдыха при 78.5 кг
+            const calories = isWorkout
+                ? Math.round(bmr * 1.145 + 300)
+                : Math.round(bmr * 1.145);
+
+            const protein = PROTEIN_DAILY_TARGET; // 150 г (ориентир), зачет от 125 г
+            // Жиры ~0.88 г/кг, строго внутри безопасного коридора 55–80 г
+            const fat = Math.min(80, Math.max(55, Math.round(w * 0.88)));
+            const carbs = Math.max(130, Math.round((calories - (protein * 4 + fat * 9)) / 4));
+
+            return { calories, protein, fat, carbs, isWorkout, anchorWeight: w };
         }
 
         function shiftQueueManually() {
@@ -1596,7 +1736,7 @@
             if (!forceStandard && currentCustomGrams && currentCustomGrams > 0) {
                 ratio = currentCustomGrams / baseG;
                 finalGrams = Math.round(currentCustomGrams);
-                const cleanTitle = item.name.replace(/\s*\(\d+\s*(?:г|гр|мл).*?\)/i, '').trim();
+                const cleanTitle = item.name.replace(/\s*\(\d+(?:[.,]\d+)?\s*(?:г|гр|мл).*?\)/i, '').trim();
                 label = `${cleanTitle} (${finalGrams}г)`;
             } else if (!forceStandard && currentFoodMultiplier !== 1) {
                 ratio = currentFoodMultiplier;
@@ -1624,6 +1764,7 @@
             showToast('Продукт удален из базы');
         }
 
+        // Исправлено (Пункт 3 аудита): если поле базового веса пустое, берем граммы из названия продукта
         function saveNewFoodTemplate(andEatNow = false) {
             const rawName = document.getElementById('newFoodName').value.trim();
             if (!rawName) {
@@ -1631,7 +1772,10 @@
                 return;
             }
             const baseGInput = parseDecimalInput(document.getElementById('newFoodBaseGrams').value);
-            const baseGrams = (baseGInput && baseGInput > 0) ? Math.round(baseGInput) : 100;
+            const parsedFromTitle = extractGramsFromTitle(rawName);
+            const baseGrams = (baseGInput && baseGInput > 0)
+                ? Math.round(baseGInput)
+                : (parsedFromTitle ? parsedFromTitle : 100);
 
             const p = parseDecimalInput(document.getElementById('newFoodP').value);
             const f = parseDecimalInput(document.getElementById('newFoodF').value);
@@ -1644,8 +1788,9 @@
                 return;
             }
 
-            const hasGramsInTitle = /\(\d+\s*(?:г|гр|мл|шт)/i.test(rawName);
-            const finalName = hasGramsInTitle ? rawName : `${rawName} (${baseGrams}г)`;
+            const cleanBaseTitle = rawName.replace(/\s*\(\d+(?:[.,]\d+)?\s*(?:г|гр|мл)\)/i, '').trim();
+            const hasUnitInTitle = /\d+(?:[.,]\d+)?\s*(?:г|гр|мл|шт)\b/i.test(rawName);
+            const finalName = hasUnitInTitle ? rawName : `${cleanBaseTitle} (${baseGrams}г)`;
 
             const pinned = document.getElementById('newFoodPinCheck').checked;
             const newItem = {
@@ -1731,9 +1876,10 @@
             const activeDateKey = getActiveFoodDateKey();
             const isYesterday = (selectedFoodDayOffset === -1);
             const rec = getActiveFoodRecord();
-            const weight = getCurrentUserWeight();
+            const currentWeight = getCurrentUserWeight();
+            const stableWeight = getStableAnchorWeight();
 
-            document.getElementById('headerWeightVal').textContent = weight.toFixed(1);
+            document.getElementById('headerWeightVal').textContent = currentWeight.toFixed(1);
 
             const todayBtn = document.getElementById('foodDayBtn-today');
             const yestBtn = document.getElementById('foodDayBtn-yesterday');
@@ -1768,9 +1914,9 @@
                 ? `Съедено за вчера (${formatShortDate(activeDateKey)}) (✎ — изменить):`
                 : `Съедено за сегодня (✎ — изменить):`;
 
-            const targets = calculateDynamicMacros(weight, rec.mode);
+            const targets = calculateDynamicMacros(stableWeight, rec.mode);
             document.getElementById('macroFormulaCaption').textContent =
-                `Вес ${weight.toFixed(1)} кг • ${targets.isWorkout ? 'Силовой день (+300 ккал)' : 'День отдыха (дефицит)'}`;
+                `178см • 25л • База ${stableWeight.toFixed(1)}кг • ${targets.isWorkout ? 'Силовой (+300 ккал)' : 'Отдых (дефицит)'}`;
 
             let curCal = 0, curP = 0, curF = 0, curC = 0;
             rec.foods.forEach(item => {
@@ -1808,21 +1954,24 @@
                 remCal >= 0 ? `Осталось: ${remCal} ккал` : `Перебор: +${Math.abs(remCal)} ккал`;
             document.getElementById('calPercentText').textContent = `${calPct}%`;
 
+            // Зачет дня от 125 г белка, цель 150 г
             const passBadge = document.getElementById('proteinPassBadge');
-            if (curP >= 100) {
+            if (curP >= PROTEIN_DAILY_TARGET) {
+                passBadge.className = 'text-accentGreen font-extrabold';
+                passBadge.textContent = `🔥 ЦЕЛЬ ПО БЕЛКУ ЗАКРЫТА (${formatMacroVal(curP)}г / ${PROTEIN_DAILY_TARGET}г)`;
+            } else if (curP >= PROTEIN_MIN_PASS) {
                 passBadge.className = 'text-accentGreen font-bold';
-                passBadge.textContent = `✅ ЗАЧЕТ ПО БЕЛКУ ВЫПОЛНЕН (${formatMacroVal(curP)}г >= 100г)`;
+                passBadge.textContent = `✅ ЗАЧЕТ ДНЯ ВЫПОЛНЕН (${formatMacroVal(curP)}г >= ${PROTEIN_MIN_PASS}г)`;
             } else {
                 passBadge.className = 'text-accentAmber font-bold';
-                passBadge.textContent = `До зачета дня по белку (100г): ещё ${formatMacroVal(Math.max(0, 100 - curP))}г`;
+                passBadge.textContent = `До зачета дня по белку (${PROTEIN_MIN_PASS}г): ещё ${formatMacroVal(Math.max(0, PROTEIN_MIN_PASS - curP))}г`;
             }
 
             const remP = formatMacroVal(Math.max(0, targets.protein - curP));
             const remF = formatMacroVal(Math.max(0, targets.fat - curF));
             const remC = formatMacroVal(Math.max(0, targets.carbs - curC));
-            document.getElementById('macroRemainHint').textContent = `До ориентира: Б:${remP}г • Ж:${remF}г • У:${remC}г`;
+            document.getElementById('macroRemainHint').textContent = `До цели (150Б): Б:${remP}г • Ж:${remF}г • У:${remC}г`;
 
-            // Полный вывод КБЖУ с десятыми долями на закрепленных продуктах
             const pinnedBar = document.getElementById('pinnedFoodsBar');
             const pinnedItems = (appState.foodDatabase || []).filter(f => f.pinned);
             if (pinnedItems.length === 0) {
@@ -1891,7 +2040,7 @@
         }
 
         // =========================================================================
-        // 4. ВКЛАДКА ТРЕНИРОВКА (ПРОГРАММНЫЙ ГРАВИТРОН, RIR, СЕКУНДОМЕР ПЛАНКИ)
+        // 4. ВКЛАДКА ТРЕНИРОВКА (ЧЕСТНАЯ ПРОГРЕССИЯ, ГРАВИТРОН ПО MAX ПОМОЩИ)
         // =========================================================================
         function selectWorkoutDay(dayKey) {
             appState.workoutDay = dayKey;
@@ -1922,10 +2071,11 @@
             renderWorkoutTab();
         }
 
-        // Анализирует историю упражнения (включая обратную прогрессию Гравитрона)
+        // Строгий анализ истории упражнения (исправлены пункты 4 и 5 аудита)
         function getExerciseHistoryInfo(ex) {
             const exId = ex.id;
             const targetSetsCount = ex.sets;
+            const minTargetReps = ex.minReps || 8;
             const maxTargetReps = ex.maxReps;
             const isPlank = !!ex.isPlank;
             const isActivation = !!ex.isActivation;
@@ -1972,23 +2122,24 @@
             const lastTotalReps = last.sets.reduce((acc, s) => acc + (Number(s.reps) || 0), 0);
             const allSetsCompleted = last.sets.length >= targetSetsCount;
             const allHitMax = allSetsCompleted && last.sets.every(s => (Number(s.reps) || 0) >= maxTargetReps);
+            const allHitMin = allSetsCompleted && last.sets.every(s => (Number(s.reps) || 0) >= minTargetReps);
 
-            // Специальная обратная математика для Гравитрона (чем меньше противовес, тем выше сила)
+            // Обратная математика для Гравитрона: оцениваем по МАКСИМАЛЬНОЙ использованной помощи (Math.max)
             if (isAssisted) {
-                const lastMinAssist = Math.min(...last.sets.map(s => Number(s.weight) || 0));
+                const lastMaxAssist = Math.max(...last.sets.map(s => Number(s.weight) || 0));
                 let statusType = 'working';
                 let statusText = '';
-                let dynamicWeightLabel = lastMinAssist > 0 ? `Противовес ${lastMinAssist} кг (рабочий)` : `Свой вес (0 кг помощи)`;
-                let recommendedDefaultWeight = lastMinAssist;
+                let dynamicWeightLabel = lastMaxAssist > 0 ? `Противовес ${lastMaxAssist} кг (рабочий)` : `Свой вес (0 кг помощи)`;
+                let recommendedDefaultWeight = lastMaxAssist;
 
                 if (allHitMax) {
                     if (last.rir === 0) {
                         statusType = 'consolidate_rir0';
-                        statusText = `⚡ Все ${targetSetsCount}×${maxTargetReps} закрыты, но в отказ (RIR 0). Закрепи противовес ${lastMinAssist} кг ещё на 1 тренировке.`;
-                        dynamicWeightLabel = lastMinAssist > 0 ? `Противовес ${lastMinAssist} кг (закрепить)` : `Свой вес (закрепить)`;
-                    } else if (lastMinAssist > 0) {
+                        statusText = `⚡ Все ${targetSetsCount}×${maxTargetReps} закрыты, но в отказ (RIR 0). Закрепи противовес ${lastMaxAssist} кг ещё на 1 тренировке.`;
+                        dynamicWeightLabel = lastMaxAssist > 0 ? `Противовес ${lastMaxAssist} кг (закрепить)` : `Свой вес (закрепить)`;
+                    } else if (lastMaxAssist > 0) {
                         statusType = 'progression_ready';
-                        const nextAssist = Math.max(0, +(lastMinAssist - stepKg).toFixed(1));
+                        const nextAssist = Math.max(0, +(lastMaxAssist - stepKg).toFixed(1));
                         statusText = `🔥 ПРОГРЕССИЯ ГРАВИТРОНА: все ${targetSetsCount}×${maxTargetReps} закрыты! Убавь помощь тренажера на ${stepKg} кг (до ${nextAssist} кг).`;
                         dynamicWeightLabel = nextAssist > 0
                             ? `Противовес ${nextAssist} кг (рекомендация -${stepKg} кг)`
@@ -2000,35 +2151,39 @@
                         dynamicWeightLabel = `Свой вес (норматив выполнен!)`;
                         recommendedDefaultWeight = 0;
                     }
+                } else if (!allHitMin && allSetsCompleted) {
+                    statusType = 'consolidate_rir0';
+                    statusText = `⚠️ Повторы просели ниже целевого минимума (${minTargetReps}). Не убавляй противовес (${lastMaxAssist} кг), пока не вернешь повторы в коридор ${ex.repsText}.`;
+                    dynamicWeightLabel = `Противовес ${lastMaxAssist} кг (вернуть повторы)`;
                 } else if (prev) {
-                    const prevMinAssist = Math.min(...prev.sets.map(s => Number(s.weight) || 0));
+                    const prevMaxAssist = Math.max(...prev.sets.map(s => Number(s.weight) || 0));
                     const prevTotalReps = prev.sets.reduce((acc, s) => acc + (Number(s.reps) || 0), 0);
 
-                    if (lastMinAssist < prevMinAssist) {
+                    if (lastMaxAssist < prevMaxAssist && allHitMin) {
                         statusType = 'working_up';
-                        statusText = `📈 Противовес снижен до ${lastMinAssist} кг (нагрузка выросла!). Наращивай повторы до ${targetSetsCount}×${maxTargetReps}.`;
-                        dynamicWeightLabel = lastMinAssist > 0 ? `Противовес ${lastMinAssist} кг (новый рабочий)` : `Свой вес (новый уровень)`;
-                    } else if (lastMinAssist === prevMinAssist && lastTotalReps > prevTotalReps) {
+                        statusText = `📈 Противовес успешно снижен до ${lastMaxAssist} кг в рамках рабочих повторов. Дожимай до ${targetSetsCount}×${maxTargetReps}.`;
+                        dynamicWeightLabel = lastMaxAssist > 0 ? `Противовес ${lastMaxAssist} кг (новый рабочий)` : `Свой вес (новый уровень)`;
+                    } else if (lastMaxAssist === prevMaxAssist && lastTotalReps > prevTotalReps) {
                         const diff = lastTotalReps - prevTotalReps;
                         statusType = 'working_up';
-                        statusText = `📈 Двойная прогрессия: +${diff} повт. к прошлому разу (${prevTotalReps} → ${lastTotalReps}) на противовесе ${lastMinAssist} кг.`;
-                        dynamicWeightLabel = lastMinAssist > 0 ? `Противовес ${lastMinAssist} кг (дожимаем повторы)` : `Свой вес (+повторы)`;
-                    } else if (lastMinAssist >= prevMinAssist && lastTotalReps <= prevTotalReps) {
+                        statusText = `📈 Двойная прогрессия: +${diff} повт. к прошлому разу (${prevTotalReps} → ${lastTotalReps}) на противовесе ${lastMaxAssist} кг.`;
+                        dynamicWeightLabel = lastMaxAssist > 0 ? `Противовес ${lastMaxAssist} кг (дожимаем повторы)` : `Свой вес (+повторы)`;
+                    } else if (lastMaxAssist >= prevMaxAssist && lastTotalReps <= prevTotalReps) {
                         statusType = 'plateau';
-                        const deloadAssist = +(Math.round(((lastMinAssist + Math.max(2.5, lastMinAssist * 0.1)) / 2.5)) * 2.5).toFixed(1);
+                        const deloadAssist = +(Math.round(((lastMaxAssist + Math.max(2.5, lastMaxAssist * 0.1)) / 2.5)) * 2.5).toFixed(1);
                         statusText = `⚠️ ПЛАТО (2 трен. без роста): проверь восстановление или временно добавь противовес до ${deloadAssist} кг для разгрузки.`;
-                        dynamicWeightLabel = `Противовес ${lastMinAssist} кг (или разгрузка ${deloadAssist} кг)`;
+                        dynamicWeightLabel = `Противовес ${lastMaxAssist} кг (или разгрузка ${deloadAssist} кг)`;
                     }
                 } else {
                     statusType = 'working';
-                    statusText = `🎯 Рабочая фаза: держи противовес ${lastMinAssist} кг и добавляй по 1 повтору до закрытия ${targetSetsCount}×${maxTargetReps}.`;
+                    statusText = `🎯 Рабочая фаза: держи противовес ${lastMaxAssist} кг и добавляй по 1 повтору до закрытия ${targetSetsCount}×${maxTargetReps}.`;
                 }
 
                 return {
                     found: true,
                     date: last.date,
                     badgesList,
-                    lastWeight: lastMinAssist,
+                    lastWeight: lastMaxAssist,
                     lastSets: last.sets,
                     lastRir: last.rir,
                     statusType,
@@ -2038,14 +2193,15 @@
                 };
             }
 
-            // Стандартная прямая логика для всех остальных упражнений
+            // Обычные упражнения: проверяем минимальный рабочий вес и удержание коридора повторений (Пункт 4 аудита)
             const lastMaxW = Math.max(...last.sets.map(s => Number(s.weight) || 0));
+            const lastMinW = Math.min(...last.sets.map(s => Number(s.weight) || 0));
             let statusType = 'working';
             let statusText = '';
             let dynamicWeightLabel = lastMaxW > 0 ? `${lastMaxW} кг (рабочий)` : ex.weightHint;
             let recommendedDefaultWeight = lastWeight;
 
-            if (allHitMax) {
+            if (allHitMax && lastMinW === lastMaxW) {
                 if (isPlank || isActivation) {
                     statusType = 'norm_stable';
                     statusText = `✅ Целевой норматив (${targetSetsCount}×${ex.repsText}) стабилен!`;
@@ -2065,13 +2221,17 @@
                         dynamicWeightLabel = `Повышай нагрузку (${ex.progressionStep})`;
                     }
                 }
+            } else if (!isPlank && !isActivation && allSetsCompleted && !allHitMin) {
+                statusType = 'consolidate_rir0';
+                statusText = `⚠️ Внимание: вес ${lastMaxW} кг взят, но повторы упали ниже целевого минимума (${minTargetReps}). Не повышай вес — сначала верни повторы в коридор ${ex.repsText}.`;
+                dynamicWeightLabel = `${lastMaxW} кг (вернуть повторы в ${ex.repsText})`;
             } else if (prev && !isPlank && !isActivation) {
                 const prevMaxW = Math.max(...prev.sets.map(s => Number(s.weight) || 0));
                 const prevTotalReps = prev.sets.reduce((acc, s) => acc + (Number(s.reps) || 0), 0);
 
-                if (lastMaxW > prevMaxW) {
+                if (lastMaxW > prevMaxW && allHitMin) {
                     statusType = 'working_up';
-                    statusText = `📈 Рабочий вес повышен до ${lastMaxW} кг. Наращивай повторы до ${targetSetsCount}×${maxTargetReps}.`;
+                    statusText = `📈 Рабочий вес повышен до ${lastMaxW} кг с удержанием рабочих повторов. Наращивай до ${targetSetsCount}×${maxTargetReps}.`;
                     dynamicWeightLabel = `${lastMaxW} кг (новый рабочий)`;
                 } else if (lastMaxW === prevMaxW && lastTotalReps > prevTotalReps) {
                     const diff = lastTotalReps - prevTotalReps;
@@ -2083,6 +2243,9 @@
                     const deloadW = Math.max(0, +(Math.round((lastMaxW * 0.9) / 2.5) * 2.5).toFixed(1));
                     statusText = `⚠️ ПЛАТО (2 трен. без роста на ${lastMaxW} кг): проверь сон/калории или сделай разгрузку (-10% веса).`;
                     dynamicWeightLabel = lastMaxW > 0 ? `${lastMaxW} кг (или разгрузка ${deloadW} кг)` : 'Плато (проверь восстановление)';
+                } else {
+                    statusType = 'working';
+                    statusText = `🎯 Рабочая фаза: зафиксируй ${lastMaxW} кг во всех подходах и добавляй по 1 повтору до ${targetSetsCount}×${maxTargetReps}.`;
                 }
             } else {
                 statusType = 'working';
@@ -2117,7 +2280,7 @@
 
                     if (historyInfo.found && historyInfo.statusType === 'progression_ready' && activeEx.stepKg > 0 && prevSet && prevSet.weight > 0) {
                         if (activeEx.isAssisted) {
-                            useWeight = Math.max(0, +(Number(prevSet.weight) - Number(activeEx.stepKg)).toFixed(1));
+                            useWeight = Math.max(0, +(Number(historyInfo.lastWeight) - Number(activeEx.stepKg)).toFixed(1));
                         } else {
                             useWeight = +(Number(prevSet.weight) + Number(activeEx.stepKg)).toFixed(1);
                         }
@@ -2460,7 +2623,7 @@
                     </div>
                 ` : '';
 
-                const weightLabelColor = historyInfo.statusType === 'plateau'
+                const weightLabelColor = (historyInfo.statusType === 'plateau' || historyInfo.statusType === 'consolidate_rir0')
                     ? 'text-accentAmber font-bold'
                     : 'text-accentGreen font-bold';
 
@@ -2642,7 +2805,6 @@
                     appState.workoutHistory[idx].setsDone = totalSetsDone;
                     appState.workoutHistory[idx].exercises = savedExercises;
                     appState.workoutHistory[idx].rirs = savedRirs;
-                    // Сортируем историю по дате на случай переноса в другой день
                     appState.workoutHistory.sort((a, b) => a.date.localeCompare(b.date) || (a.id - b.id));
                 }
                 appState.editingWorkoutId = null;
@@ -2808,7 +2970,7 @@
         }
 
         // =========================================================================
-        // 6. ПРОГРЕСС: СРЕДНЕЕ КБЖУ, ГРАФИК СИЛЫ (С УЧЕТОМ ГРАВИТРОНА) И ЖУРНАЛ
+        // 6. ПРОГРЕСС: СРЕДНЕЕ КБЖУ, ЧЕСТНЫЙ ГРАФИК СИЛЫ И ЖУРНАЛ
         // =========================================================================
         function logNewWeight() {
             const inp = document.getElementById('weightInput');
@@ -2827,6 +2989,7 @@
                 appState.weightLogs.sort((a, b) => a.date.localeCompare(b.date));
             }
             inp.value = '';
+            getStableAnchorWeight();
             saveState();
             renderProgressTab();
             showToast(`Вес ${val.toFixed(1)} кг (${formatShortDate(targetDate)}) записан!`);
@@ -2838,6 +3001,7 @@
                 return;
             }
             appState.weightLogs.splice(idx, 1);
+            getStableAnchorWeight();
             saveState();
             renderProgressTab();
             showToast('Замер веса удален');
@@ -2876,13 +3040,14 @@
                 `).join('');
         }
 
+        // Исправлено (Пункт 5 аудита): в гравитроне лучший подход выбирается по минимальному противовесу, а не завышенным повторам
         function renderStrengthProgressChart() {
             const box = document.getElementById('strengthChartBox');
             const badge = document.getElementById('strengthProgressDeltaBadge');
             const sub = document.getElementById('strengthChartSubtitle');
             if (!box) return;
 
-            const exMeta = ALL_EXERCISES_MAP[selectedStrengthExId] || { name: '', isPlank: false, isAssisted: false };
+            const exMeta = ALL_EXERCISES_MAP[selectedStrengthExId] || { name: '', isPlank: false, isAssisted: false, minReps: 8 };
             const userW = getCurrentUserWeight();
             const pointsData = [];
 
@@ -2894,15 +3059,23 @@
                     const totalReps = sets.reduce((a, s) => a + (Number(s.reps) || 0), 0);
 
                     if (exMeta.isAssisted) {
-                        // В гравитроне лучший сет — с минимальным противовесом и максимальными повторами
-                        let bestSet = sets[0];
-                        sets.forEach(s => {
-                            const effLoadS = Math.max(5, userW - (Number(s.weight) || 0)) + (Number(s.reps) || 0) * 0.25;
-                            const effLoadBest = Math.max(5, userW - (Number(bestSet.weight) || 0)) + (Number(bestSet.reps) || 0) * 0.25;
-                            if (effLoadS >= effLoadBest) bestSet = s;
+                        // Выбираем только те подходы, где выполнено хотя бы minReps (если такие есть), и среди них ищем минимальный противовес
+                        const validSets = sets.filter(s => (Number(s.reps) || 0) >= (exMeta.minReps || 6));
+                        const pool = validSets.length > 0 ? validSets : sets;
+
+                        let bestSet = pool[0];
+                        pool.forEach(s => {
+                            const wS = Number(s.weight) || 0;
+                            const wBest = Number(bestSet.weight) || 0;
+                            const rS = Number(s.reps) || 0;
+                            const rBest = Number(bestSet.reps) || 0;
+                            if (wS < wBest || (wS === wBest && rS > rBest)) {
+                                bestSet = s;
+                            }
                         });
+
                         const assistVal = Number(bestSet.weight) || 0;
-                        const plotMetric = +(Math.max(5, userW - assistVal) + (Number(bestSet.reps) || 0) * 0.15).toFixed(2);
+                        const plotMetric = +(Math.max(5, userW - assistVal) + (Number(bestSet.reps) || 0) * 0.1).toFixed(2);
                         const labelText = assistVal > 0 ? `-${assistVal}×${bestSet.reps}` : `Свой×${bestSet.reps}`;
 
                         pointsData.push({
@@ -2918,17 +3091,24 @@
                             isAssisted: true
                         });
                     } else {
-                        let bestSet = sets[0];
-                        sets.forEach(s => {
-                            const scoreS = (Number(s.weight) || 0) * (1 + (Number(s.reps) || 0) / 30) + (Number(s.reps) || 0) * 0.1;
-                            const scoreBest = (Number(bestSet.weight) || 0) * (1 + (Number(bestSet.reps) || 0) / 30) + (Number(bestSet.reps) || 0) * 0.1;
-                            if (scoreS >= scoreBest) bestSet = s;
+                        const validSets = sets.filter(s => (Number(s.reps) || 0) >= (exMeta.minReps || 6));
+                        const pool = validSets.length > 0 ? validSets : sets;
+
+                        let bestSet = pool[0];
+                        pool.forEach(s => {
+                            const wS = Number(s.weight) || 0;
+                            const wBest = Number(bestSet.weight) || 0;
+                            const rS = Number(s.reps) || 0;
+                            const rBest = Number(bestSet.reps) || 0;
+                            if (wS > wBest || (wS === wBest && rS > rBest)) {
+                                bestSet = s;
+                            }
                         });
 
                         const isBodyweightOnly = maxW === 0;
                         const plotMetric = isBodyweightOnly
                             ? totalReps
-                            : +(Number(bestSet.weight) + Number(bestSet.reps) * 0.15).toFixed(2);
+                            : +(Number(bestSet.weight) + Number(bestSet.reps) * 0.1).toFixed(2);
                         const labelText = exMeta.isPlank
                             ? `${bestSet.reps}с`
                             : (isBodyweightOnly ? `Σ${totalReps}` : `${bestSet.weight}×${bestSet.reps}`);
@@ -2975,7 +3155,7 @@
                 const diffReps = last.totalReps - first.totalReps;
                 badge.textContent = `${diffReps >= 0 ? '+' : ''}${diffReps} ${exMeta.isPlank ? 'сек сумм.' : 'повт. к старту'}`;
             } else {
-                sub.textContent = 'РАБОЧИЙ ВЕС × ПОВТОРЫ (С УЧЕТОМ ПРОГРЕССИИ ПОВТОРОВ)';
+                sub.textContent = 'ЛУЧШИЙ РАБОЧИЙ ПОДХОД (ВЕС × ПОВТОРЫ)';
                 const diffW = +(last.bestWeight - first.bestWeight).toFixed(1);
                 if (diffW !== 0) {
                     badge.textContent = `${diffW > 0 ? '+' : ''}${diffW} кг к старту`;
@@ -3106,7 +3286,7 @@
                 f = +(f.toFixed(1));
                 c = +(c.toFixed(1));
 
-                const isTodayIncomplete = (iso === todayIso) && (cal < 1000 && p < 100);
+                const isTodayIncomplete = (iso === todayIso) && (cal < 1000 && p < PROTEIN_MIN_PASS);
                 if (cal > 0 && !isTodayIncomplete) {
                     sumCal += cal;
                     sumP += p;
@@ -3115,7 +3295,7 @@
                     validMacroDays++;
                 }
 
-                const pBadge = p >= 100
+                const pBadge = p >= PROTEIN_MIN_PASS
                     ? `<span class="text-accentGreen font-bold">✅ ${formatMacroVal(p)}г</span>`
                     : `<span class="text-textMuted">${formatMacroVal(p)}г</span>`;
 
@@ -3152,6 +3332,16 @@
             const poolForAvg = logsLast7Days.length > 0 ? logsLast7Days : logs.slice(-7);
             const avg7 = poolForAvg.reduce((acc, item) => acc + Number(item.weight), 0) / poolForAvg.length;
             const delta = currentW - startW;
+
+            // Исправлено (Пункт 8 аудита): честная подпись количества замеров для среднего веса
+            const avgLabelEl = document.getElementById('statAvgWeightLabel');
+            if (avgLabelEl) {
+                if (logsLast7Days.length <= 1) {
+                    avgLabelEl.textContent = 'Средний (1 замер)';
+                } else {
+                    avgLabelEl.textContent = `Средний (${logsLast7Days.length} зам.)`;
+                }
+            }
 
             document.getElementById('statCurrWeight').textContent = `${currentW.toFixed(1)} кг`;
             document.getElementById('statAvgWeight').textContent = `${avg7.toFixed(1)} кг`;
@@ -3262,7 +3452,7 @@
         }
 
         // =========================================================================
-        // 7. БЭКАП С ПРОВЕРКОЙ ЦЕЛОСТНОСТИ И ОТКАТОМ + НАВИГАЦИЯ
+        // 7. НАДЁЖНЫЙ БЭКАП (ФАЙЛ .JSON + КОД) С ГЛУБОКОЙ ВАЛИДАЦИЕЙ И ОТКАТОМ
         // =========================================================================
         function updateUndoRestoreButtonVisibility() {
             const btn = document.getElementById('undoRestoreBtn');
@@ -3312,8 +3502,7 @@
             document.body.appendChild(ta);
             ta.select();
             try {
-                document.execCommand('copy');
-                return true;
+                return Boolean(document.execCommand('copy'));
             } catch (e) {
                 return false;
             } finally {
@@ -3321,70 +3510,188 @@
             }
         }
 
-        function copyBackupCodeToClipboard() {
+        // 1. Основной способ: Скачивание файла TACTICAL_BACKUP_YYYY-MM-DD.json
+        function downloadBackupJsonFile() {
             try {
-                const cutoffDate = new Date();
-                cutoffDate.setDate(cutoffDate.getDate() - 14);
-                const cutoffISO = toDateKey(cutoffDate);
-                Object.keys(appState.dailyRecords || {}).forEach(dateKey => {
-                    const r = appState.dailyRecords[dateKey];
-                    if (dateKey < cutoffISO && (!r.foods || r.foods.length === 0)) {
-                        delete appState.dailyRecords[dateKey];
-                    }
-                });
+                pruneOldDailyFoodRecords(45);
+                const exportPayload = {
+                    ...appState,
+                    backupVersion: '6.0',
+                    exportedAt: new Date().toISOString()
+                };
+                const jsonStr = JSON.stringify(exportPayload, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const fileName = `TACTICAL_BACKUP_${getTodayKey()}.json`;
 
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 3000);
+
+                appState.workoutsSinceLastBackup = 0;
+                appState.lastBackupDate = getTodayKey();
+                saveState();
+                renderActiveTabOnly();
+                showToast(`Файл ${fileName} скачан!`);
+            } catch (e) {
+                console.error('Ошибка скачивания JSON:', e);
+                showToast('Не удалось скачать файл. Используй копирование кода.');
+            }
+        }
+
+        // 2. Запасной способ: Честное асинхронное копирование кода (Исправлен пункт 1 аудита)
+        async function copyBackupCodeToClipboard() {
+            try {
+                pruneOldDailyFoodRecords(45);
                 const jsonStr = JSON.stringify(appState);
                 const encoded = 'TACTICAL_BACKUP_' + encodeUtf8Base64(jsonStr);
+
+                let copiedOk = false;
                 if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(encoded).catch(() => copyTextFallback(encoded));
+                    try {
+                        await navigator.clipboard.writeText(encoded);
+                        copiedOk = true;
+                    } catch (clipErr) {
+                        copiedOk = copyTextFallback(encoded);
+                    }
                 } else {
-                    copyTextFallback(encoded);
+                    copiedOk = copyTextFallback(encoded);
                 }
+
+                if (!copiedOk) {
+                    showToast('Ошибка: браузер запретил доступ к буферу. Скачай .JSON файл!');
+                    return;
+                }
+
                 appState.workoutsSinceLastBackup = 0;
                 appState.lastBackupDate = getTodayKey();
                 saveState();
                 renderActiveTabOnly();
                 showToast('Код-бэкап скопирован! Вставь его в Избранное Telegram.');
             } catch (e) {
-                showToast('Ошибка генерации кода');
+                showToast('Ошибка генерации резервного кода');
             }
+        }
+
+        // Глубокая валидация структуры и содержимого бэкапа перед восстановлением (Исправлен пункт 2 аудита)
+        function validateAndSanitizeBackupPayload(parsed) {
+            if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+                return { ok: false, reason: 'Корневой объект базы поврежден' };
+            }
+
+            if (!Array.isArray(parsed.weightLogs) || parsed.weightLogs.length === 0) {
+                return { ok: false, reason: 'Отсутствует или пуст массив замеров веса (weightLogs)' };
+            }
+            for (const item of parsed.weightLogs) {
+                const w = Number(item && item.weight);
+                if (!item || typeof item.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(item.date) || isNaN(w) || w < 35 || w > 250) {
+                    return { ok: false, reason: 'Повреждены записи в истории веса (weightLogs)' };
+                }
+            }
+
+            if (!Array.isArray(parsed.workoutHistory)) {
+                return { ok: false, reason: 'Отсутствует массив тренировок (workoutHistory)' };
+            }
+            for (const w of parsed.workoutHistory) {
+                if (!w || typeof w !== 'object' || typeof w.date !== 'string' || !['d1', 'd2', 'd3'].includes(w.dayId) || !w.exercises || typeof w.exercises !== 'object') {
+                    return { ok: false, reason: 'Повреждена структура записей тренировок (workoutHistory)' };
+                }
+            }
+
+            if (!parsed.dailyRecords || typeof parsed.dailyRecords !== 'object' || Array.isArray(parsed.dailyRecords)) {
+                return { ok: false, reason: 'Поврежден архив дневного питания (dailyRecords)' };
+            }
+
+            if (parsed.foodDatabase !== undefined) {
+                if (!Array.isArray(parsed.foodDatabase)) {
+                    return { ok: false, reason: 'Поврежден формат базы продуктов (foodDatabase)' };
+                }
+                for (const fd of parsed.foodDatabase) {
+                    if (!fd || typeof fd.name !== 'string' || isNaN(Number(fd.cal)) || isNaN(Number(fd.p))) {
+                        return { ok: false, reason: 'Некорректные записи внутри базы продуктов' };
+                    }
+                }
+            }
+
+            return { ok: true };
+        }
+
+        function applyValidatedBackupState(parsed) {
+            const check = validateAndSanitizeBackupPayload(parsed);
+            if (!check.ok) {
+                showToast(`Ошибка проверки: ${check.reason}`);
+                return false;
+            }
+
+            const wCount = parsed.workoutHistory.length;
+            const wtCount = parsed.weightLogs.length;
+            if (!confirm(`Проверка прошла успешно!\nВосстановить базу данных?\n• Тренировок: ${wCount}\n• Замеров веса: ${wtCount}\n\n(Текущая база будет сохранена для кнопки «Откат»)`)) {
+                return false;
+            }
+
+            try {
+                localStorage.setItem(PREV_BACKUP_STORAGE_KEY, JSON.stringify(appState));
+            } catch (e) {}
+
+            appState = {
+                ...appState,
+                ...parsed,
+                workoutsSinceLastBackup: 0,
+                editingWorkoutId: null,
+                editingWorkoutDate: null
+            };
+            saveState();
+            closeBackupModal();
+            initApp();
+            showToast('База данных успешно проверена и восстановлена!');
+            return true;
+        }
+
+        function handleBackupFileUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const text = String(e.target.result || '').trim();
+                    const cleanJson = text.startsWith('TACTICAL_BACKUP_')
+                        ? decodeUtf8Base64(text.replace(/^TACTICAL_BACKUP_/, ''))
+                        : text;
+                    const parsed = JSON.parse(cleanJson);
+                    applyValidatedBackupState(parsed);
+                } catch (err) {
+                    console.error('Ошибка чтения файла бэкапа:', err);
+                    showToast('Ошибка: выбранный файл не является корректным JSON бэкапом');
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.onerror = () => {
+                showToast('Не удалось прочитать файл');
+                event.target.value = '';
+            };
+            reader.readAsText(file);
         }
 
         function restoreFromTextCode() {
             const raw = document.getElementById('restoreCodeInput').value.trim();
             if (!raw) {
-                showToast('Вставь строку кода-бэкапа');
+                showToast('Вставь строку кода-бэкапа или JSON');
                 return;
             }
             try {
-                const cleanBase64 = raw.replace(/^TACTICAL_BACKUP_/, '');
-                const jsonStr = decodeUtf8Base64(cleanBase64);
+                const jsonStr = raw.startsWith('{')
+                    ? raw
+                    : decodeUtf8Base64(raw.replace(/^TACTICAL_BACKUP_/, ''));
                 const parsed = JSON.parse(jsonStr);
-
-                const isValid = parsed
-                    && typeof parsed === 'object'
-                    && Array.isArray(parsed.weightLogs)
-                    && Array.isArray(parsed.workoutHistory)
-                    && typeof parsed.dailyRecords === 'object'
-                    && parsed.dailyRecords !== null;
-
-                if (!isValid) {
-                    showToast('Ошибка: структура кода повреждена');
-                    return;
+                if (applyValidatedBackupState(parsed)) {
+                    document.getElementById('restoreCodeInput').value = '';
                 }
-
-                if (!confirm(`Восстановить базу данных? (Тренировок в коде: ${parsed.workoutHistory.length}, замеров веса: ${parsed.weightLogs.length})`)) {
-                    return;
-                }
-
-                localStorage.setItem(PREV_BACKUP_STORAGE_KEY, JSON.stringify(appState));
-
-                appState = { ...appState, ...parsed, workoutsSinceLastBackup: 0 };
-                saveState();
-                document.getElementById('restoreCodeInput').value = '';
-                closeBackupModal();
-                initApp();
-                showToast('База данных успешно восстановлена!');
             } catch (e) {
                 showToast('Ошибка чтения кода. Проверь, что скопировал строку целиком.');
             }
@@ -3396,14 +3703,19 @@
             if (!confirm('Вернуть предыдущую базу данных до восстановления?')) return;
             try {
                 const prev = JSON.parse(prevRaw);
-                if (prev && typeof prev === 'object') {
+                const check = validateAndSanitizeBackupPayload(prev);
+                if (check.ok) {
                     appState = { ...appState, ...prev };
                     saveState();
                     closeBackupModal();
                     initApp();
-                    showToast('Предыдущая база возвращена!');
+                    showToast('Предыдущая база данных возвращена!');
+                } else {
+                    showToast('Резервная копия отката повреждена');
                 }
-            } catch (e) {}
+            } catch (e) {
+                showToast('Ошибка при откате базы');
+            }
         }
 
         function switchTab(tabId) {
