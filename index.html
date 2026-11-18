@@ -7,7 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>TACTICAL FIT // Дневник Рекомпозиции v6.0</title>
+    <title>TACTICAL FIT // Дневник Рекомпозиции v6.1</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230d0f12'/%3E%3Cpath d='M136 176v160M96 208v96M376 176v160M416 208v96M136 256h240' stroke='%2310b981' stroke-width='36' stroke-linecap='round'/%3E%3C/svg%3E">
     <script>
@@ -63,7 +63,6 @@
             user-select: none;
             overflow-x: hidden;
         }
-        /* Offline Fallback Styles (на случай отсутствия сети для CDN) */
         .hidden { display: none !important; }
         input, textarea, select {
             user-select: text;
@@ -133,7 +132,7 @@
                 <div class="min-w-0">
                     <div class="flex items-center space-x-1.5">
                         <span class="font-mono font-extrabold text-sm tracking-wider uppercase text-white truncate">TACTICAL RECOMP</span>
-                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v6.0</span>
+                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v6.1</span>
                     </div>
                     <div class="flex items-center space-x-1.5 mt-0.5">
                         <button onclick="openBackupModal()" id="autoSaveBadge" class="tactical-btn text-[10px] font-mono text-accentGreen bg-accentGreen/10 border border-accentGreen/30 px-2 py-0.5 rounded-full flex items-center shrink-0">
@@ -302,7 +301,7 @@
         </section>
 
         <!-- ========================================================= -->
-        <!-- ВКЛАДКА 2: ПИТАНИЕ (КБЖУ, ВЫБОР СЕГОДНЯ/ВЧЕРА, ГРАММОВКА)  -->
+        <!-- ВКЛАДКА 2: ПИТАНИЕ (КБЖУ, ВЫБОР СЕГОДНЯ/ВЧЕРА, ПОИСК)     -->
         <!-- ========================================================= -->
         <section id="tab-food" class="space-y-5 hidden">
 
@@ -315,6 +314,9 @@
                     <div class="flex items-center space-x-1.5 shrink-0">
                         <button onclick="copyYesterdayFood()" id="copyYesterdayBtn" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-accentGreen px-2.5 py-1.5 rounded-lg border border-accentGreen/30">
                             ⇄ Вчерашний
+                        </button>
+                        <button onclick="toggleActiveFoodDayMode()" id="toggleActiveDayModeBtn" class="hidden tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-accentAmber px-2.5 py-1.5 rounded-lg border border-accentAmber/40">
+                            🔄 Режим дня
                         </button>
                         <button onclick="undoLastFood()" id="undoFoodBtn" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-textMuted px-2 py-1.5 rounded-lg border border-borderSubtle hidden">
                             ↶
@@ -399,11 +401,14 @@
                     </div>
                 </div>
 
-                <!-- КОМПАКТНАЯ ПАНЕЛЬ БЫСТРОГО ДОСТУПА -->
+                <!-- КОМПАКТНАЯ ПАНЕЛЬ БЫСТРОГО ДОСТУПА (ТОП-6 + КНОПКА ЕЩЁ + ЖИВОЙ ПОИСК) -->
                 <div class="space-y-2.5 pt-1">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-mono uppercase tracking-wider text-textMuted">Закрепленные продукты (1 клик)</span>
-                        <span class="text-[11px] font-mono text-textMuted">Настраиваются в базе ↓</span>
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-xs font-mono uppercase tracking-wider text-textMuted shrink-0">Быстрый доступ (1 клик)</span>
+                        <div class="relative flex-1 max-w-[195px]">
+                            <input type="text" id="pinnedFoodsSearchInput" oninput="onPinnedSearchInput(this.value)" placeholder="🔎 Поиск по буквам..." class="w-full bg-bgMain border border-borderSubtle rounded-lg pl-2.5 pr-6 py-1 text-xs font-mono text-white placeholder-textMuted/70 focus:outline-none focus:border-accentGreen">
+                            <button onclick="clearPinnedSearch()" id="clearPinnedSearchBtn" class="hidden absolute right-1.5 top-1 text-xs font-mono text-textMuted hover:text-white px-1">✕</button>
+                        </div>
                     </div>
 
                     <div id="pinnedFoodsBar" class="flex flex-wrap gap-1.5"></div>
@@ -413,7 +418,7 @@
                             <span class="w-6 h-6 rounded-lg bg-accentGreen/20 text-accentGreen font-mono font-bold text-sm flex items-center justify-center shrink-0">+</span>
                             <div>
                                 <div class="text-sm font-bold text-white">База продуктов и Своя еда</div>
-                                <div class="text-xs text-textMuted font-mono">Свой вес (г) • Порции (0.5x–2x) • Шаблоны</div>
+                                <div class="text-xs text-textMuted font-mono">Свой вес (г) • Правка шаблонов (✎) • Порции</div>
                             </div>
                         </div>
                         <span class="font-mono text-xs text-accentGreen font-bold shrink-0">Открыть ▾</span>
@@ -442,7 +447,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-sm font-bold uppercase tracking-wide text-white">Недельный архив (7 дней)</h2>
-                        <p class="text-xs text-textMuted">Зачет дня по белку от 125 г (цель 150 г)</p>
+                        <p class="text-xs text-textMuted">Нажми на режим дня (✎), чтобы переключить Отдых / Блок</p>
                     </div>
                     <span class="text-xs font-mono bg-bgElevated px-2.5 py-1 rounded border border-borderSubtle text-accentGreen">Сводка</span>
                 </div>
@@ -458,7 +463,7 @@
                         <thead>
                             <tr class="border-b border-borderSubtle text-textMuted text-[11px]">
                                 <th class="py-2">Дата</th>
-                                <th class="py-2">Режим</th>
+                                <th class="py-2">Режим (нажми ✎)</th>
                                 <th class="py-2">Ккал</th>
                                 <th class="py-2">Белок (125г+)</th>
                             </tr>
@@ -628,20 +633,20 @@
     </div>
 
     <!-- ========================================================================= -->
-    <!-- МОДАЛЬНОЕ МЕНЮ (DRAWER): БАЗА ПРОДУКТОВ + СВОЙ ВЕС В ГРАММАХ              -->
+    <!-- МОДАЛЬНОЕ МЕНЮ (DRAWER): БАЗА ПРОДУКТОВ + ПОИСК + РЕДАКТИРОВАНИЕ (✎)       -->
     <!-- ========================================================================= -->
     <div id="foodDrawerModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-bgCard border-t sm:border border-borderSubtle w-full max-w-lg rounded-t-2xl sm:rounded-2xl p-4 space-y-3.5 max-h-[90vh] flex flex-col shadow-2xl">
+        <div class="bg-bgCard border-t sm:border border-borderSubtle w-full max-w-lg rounded-t-2xl sm:rounded-2xl p-4 space-y-3 max-h-[92vh] flex flex-col shadow-2xl">
             
             <div class="flex items-center justify-between border-b border-borderSubtle pb-2.5">
                 <div>
                     <h3 class="text-base font-bold text-white uppercase tracking-wide">База продуктов и Своя еда</h3>
-                    <p class="text-xs text-textMuted font-mono">Выбери порцию или укажи точный вес в граммах</p>
+                    <p class="text-xs text-textMuted font-mono">Нажми ✎ у продукта, чтобы исправить его КБЖУ</p>
                 </div>
                 <button onclick="closeFoodDrawer()" class="w-8 h-8 rounded-lg bg-bgElevated text-textMuted hover:text-white font-mono font-bold">✕</button>
             </div>
 
-            <!-- Панель множителя порции + Поле точной граммовки -->
+            <!-- Панель множителя порции + Поле точной граммовки + Поиск в базе -->
             <div class="bg-bgMain p-2.5 rounded-xl border border-borderSubtle space-y-2">
                 <div class="flex items-center justify-between gap-2">
                     <span class="text-xs font-mono text-textMuted shrink-0">Быстрая порция:</span>
@@ -652,25 +657,35 @@
                         <button onclick="setFoodMultiplier(2)" id="multBtn-2" class="px-2.5 py-1.5 rounded-lg font-mono text-xs font-bold bg-bgElevated text-textMuted">2x</button>
                     </div>
                 </div>
-                <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-borderSubtle/60">
-                    <span class="text-xs font-mono text-accentGreen font-bold">⚖️ Свой вес (в граммах):</span>
-                    <div class="flex items-center gap-1.5">
-                        <input type="text" inputmode="decimal" id="customFoodGramsInput" oninput="onCustomGramsInput(this.value)" placeholder="напр. 175" class="w-28 bg-bgCard border border-borderSubtle rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-white text-center focus:outline-none focus:border-accentGreen">
+                <div class="grid grid-cols-12 gap-2 pt-1.5 border-t border-borderSubtle/60 items-center">
+                    <div class="col-span-6 flex items-center gap-1.5">
+                        <span class="text-xs font-mono text-accentGreen font-bold shrink-0">⚖️ Вес:</span>
+                        <input type="text" inputmode="decimal" id="customFoodGramsInput" oninput="onCustomGramsInput(this.value)" placeholder="175" class="w-full bg-bgCard border border-borderSubtle rounded-lg px-2 py-1 text-xs font-mono font-bold text-white text-center focus:outline-none focus:border-accentGreen">
                         <span class="text-xs font-mono text-textMuted">г</span>
-                        <button onclick="clearCustomGrams()" id="clearGramsBtn" class="hidden text-xs font-mono text-textMuted hover:text-white px-1.5">✕</button>
+                        <button onclick="clearCustomGrams()" id="clearGramsBtn" class="hidden text-xs font-mono text-textMuted hover:text-white px-1">✕</button>
+                    </div>
+                    <div class="col-span-6 relative">
+                        <input type="text" id="drawerSearchInput" oninput="onDrawerSearchInput(this.value)" placeholder="🔎 Поиск в базе..." class="w-full bg-bgCard border border-borderSubtle rounded-lg pl-2.5 pr-6 py-1 text-xs font-mono text-white placeholder-textMuted/70 focus:outline-none focus:border-accentGreen">
+                        <button onclick="clearDrawerSearch()" id="clearDrawerSearchBtn" class="hidden absolute right-1.5 top-1 text-xs font-mono text-textMuted hover:text-white px-1">✕</button>
                     </div>
                 </div>
             </div>
 
-            <div id="foodDatabaseList" class="space-y-1.5 overflow-y-auto flex-1 pr-1 min-h-[150px]"></div>
+            <div id="foodDatabaseList" class="space-y-1.5 overflow-y-auto flex-1 pr-1 min-h-[140px]"></div>
 
-            <div class="bg-bgMain p-3.5 rounded-xl border border-borderSubtle space-y-2.5">
+            <!-- Форма создания ИЛИ редактирования продукта в базе -->
+            <div id="foodTemplateFormBox" class="bg-bgMain p-3.5 rounded-xl border border-borderSubtle space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-mono uppercase text-accentGreen font-bold">+ Добавить новое блюдо в базу</span>
-                    <label class="flex items-center space-x-1.5 text-xs font-mono text-textMuted cursor-pointer">
-                        <input type="checkbox" id="newFoodPinCheck" checked class="accent-emerald-500 rounded">
-                        <span>Закрепить</span>
-                    </label>
+                    <span id="foodFormTitle" class="text-xs font-mono uppercase text-accentGreen font-bold">+ Добавить новое блюдо в базу</span>
+                    <div class="flex items-center space-x-2">
+                        <label class="flex items-center space-x-1.5 text-xs font-mono text-textMuted cursor-pointer">
+                            <input type="checkbox" id="newFoodPinCheck" checked class="accent-emerald-500 rounded">
+                            <span>Закрепить</span>
+                        </label>
+                        <button onclick="cancelEditFoodTemplate()" id="cancelEditTemplateBtn" class="hidden text-xs font-mono bg-bgElevated text-white px-2 py-0.5 rounded border border-borderSubtle">
+                            Отмена
+                        </button>
+                    </div>
                 </div>
                 <div class="grid grid-cols-12 gap-2">
                     <input type="text" id="newFoodName" placeholder="Название (напр. Курица 150г)" class="col-span-8 bg-bgCard border border-borderSubtle rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-accentGreen">
@@ -695,10 +710,10 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2 pt-1">
-                    <button onclick="saveNewFoodTemplate(false)" class="tactical-btn bg-bgElevated border border-borderSubtle text-white font-mono font-bold text-xs py-2.5 rounded-lg">
+                    <button onclick="saveNewFoodTemplate(false)" id="saveTemplateOnlyBtn" class="tactical-btn bg-bgElevated border border-borderSubtle text-white font-mono font-bold text-xs py-2.5 rounded-lg">
                         Сохранить в базу
                     </button>
-                    <button onclick="saveNewFoodTemplate(true)" class="tactical-btn bg-accentGreen text-black font-mono font-bold text-xs py-2.5 rounded-lg">
+                    <button onclick="saveNewFoodTemplate(true)" id="saveTemplateAndEatBtn" class="tactical-btn bg-accentGreen text-black font-mono font-bold text-xs py-2.5 rounded-lg">
                         Сохранить и съесть
                     </button>
                 </div>
@@ -1074,6 +1089,7 @@
 
         const PROTEIN_MIN_PASS = 125;
         const PROTEIN_DAILY_TARGET = 150;
+        const PINNED_INITIAL_LIMIT = 6;
 
         // =========================================================================
         // 2. УТИЛИТЫ БЕЗОПАСНОСТИ, ДРОБЕЙ, ДАТ, ЗВУКА И ХРАНИЛИЩА
@@ -1084,6 +1100,10 @@
         let currentFoodMultiplier = 1;
         let currentCustomGrams = null;
         let selectedFoodDayOffset = 0; // 0 = Сегодня, -1 = Вчера
+        let showAllPinnedFoods = false;
+        let pinnedSearchQuery = '';
+        let drawerSearchQuery = '';
+        let editingTemplateFoodId = null;
         let pendingDeleteWorkoutId = null;
         let expandedWorkoutDetails = {};
         let editingFoodUid = null;
@@ -1194,19 +1214,39 @@
             return 'd1';
         }
 
+        // Определяет честный фактический режим дня (исправляет ложный показ D3 в прошлые дни отдыха)
+        function getEffectiveDayMode(dateKey) {
+            const todayIso = getTodayKey();
+            const workoutsOnDay = (appState.workoutHistory || []).filter(w => w.date === dateKey);
+            if (workoutsOnDay.length > 0) {
+                return workoutsOnDay[workoutsOnDay.length - 1].dayId;
+            }
+            const rec = appState.dailyRecords && appState.dailyRecords[dateKey];
+            if (!rec) {
+                return dateKey === todayIso ? getNextRecommendedBlock() : 'rest';
+            }
+            // Если день уже в прошлом, тренировок в журнале за этот день нет и пользователь не фиксировал силовой режим вручную — это Отдых
+            if (dateKey < todayIso && !rec.modeLocked) {
+                return 'rest';
+            }
+            return rec.mode || 'rest';
+        }
+
         function getRecordByDateKey(dateKey) {
             if (!appState.dailyRecords || typeof appState.dailyRecords !== 'object') {
                 appState.dailyRecords = {};
             }
+            const todayIso = getTodayKey();
             if (!appState.dailyRecords[dateKey]) {
-                const suggestedBlock = getNextRecommendedBlock();
                 const wDone = (appState.workoutHistory || []).find(w => w.date === dateKey);
+                const defaultMode = wDone ? wDone.dayId : (dateKey === todayIso ? getNextRecommendedBlock() : 'rest');
                 appState.dailyRecords[dateKey] = {
-                    mode: wDone ? wDone.dayId : suggestedBlock,
+                    mode: defaultMode,
+                    modeLocked: Boolean(wDone),
                     foods: []
                 };
-                if (dateKey === getTodayKey() && !appState.editingWorkoutId) {
-                    appState.workoutDay = suggestedBlock;
+                if (dateKey === todayIso && !appState.editingWorkoutId && defaultMode !== 'rest') {
+                    appState.workoutDay = defaultMode;
                 }
             }
             if (!Array.isArray(appState.dailyRecords[dateKey].foods)) {
@@ -1229,6 +1269,36 @@
             renderFoodTab();
             const targetKey = getActiveFoodDateKey();
             showToast(selectedFoodDayOffset === -1 ? `Открыт вчерашний рацион (${formatShortDate(targetKey)})` : 'Открыт сегодняшний рацион');
+        }
+
+        // Переключение режима дня (Отдых <-> Силовой) прямо из таблицы «Недельный архив»
+        function toggleArchiveDayMode(dateKey) {
+            const workoutsOnDay = (appState.workoutHistory || []).filter(w => w.date === dateKey);
+            if (workoutsOnDay.length > 0) {
+                showToast('В этот день сохранена тренировка в журнале');
+                return;
+            }
+            const rec = getRecordByDateKey(dateKey);
+            const currentEffective = getEffectiveDayMode(dateKey);
+            const nextBlock = getNextRecommendedBlock();
+
+            if (currentEffective === 'rest') {
+                rec.mode = nextBlock;
+                rec.modeLocked = true;
+                showToast(`${formatShortDate(dateKey)}: установлен Силовой режим (${nextBlock.toUpperCase()})`);
+            } else {
+                rec.mode = 'rest';
+                rec.modeLocked = true;
+                showToast(`${formatShortDate(dateKey)}: установлен режим «Отдых»`);
+            }
+            saveState();
+            renderActiveTabOnly();
+        }
+
+        function toggleActiveFoodDayMode() {
+            const activeKey = getActiveFoodDateKey();
+            toggleArchiveDayMode(activeKey);
+            renderFoodTab();
         }
 
         function resolveActiveExerciseConfig(ex) {
@@ -1255,7 +1325,6 @@
             return ex;
         }
 
-        // Автоочистка детальных записей еды старше maxAgeDays (защита памяти localStorage на годы вперёд)
         function pruneOldDailyFoodRecords(maxAgeDays = 45) {
             if (!appState.dailyRecords || typeof appState.dailyRecords !== 'object') return;
             const cutoff = new Date();
@@ -1304,7 +1373,6 @@
             if (!appState.activeExerciseRir || typeof appState.activeExerciseRir !== 'object') appState.activeExerciseRir = {};
             if (!appState.activeSessionSets || typeof appState.activeSessionSets !== 'object') appState.activeSessionSets = {};
 
-            // Безопасная миграция профиля антропометрии и опорного веса (v6.0)
             const latestW = parseDecimalInput(appState.weightLogs[appState.weightLogs.length - 1].weight) || 78.5;
             if (!appState.userProfile || typeof appState.userProfile !== 'object') {
                 appState.userProfile = {
@@ -1437,14 +1505,13 @@
         });
 
         // =========================================================================
-        // 3. ПИТАНИЕ: КБЖУ ПО МИФФЛИНУ — САН-ЖЕОРУ, УСТОЙЧИВЫЙ ВЕС И БЕЛОК 125/150
+        // 3. ПИТАНИЕ: КБЖУ, ПОИСК ПО БУКВАМ, 6 КНОПОК + ЕЩЁ, РЕДАКТИРОВАНИЕ В БАЗЕ
         // =========================================================================
         function getCurrentUserWeight() {
             if (!appState.weightLogs || appState.weightLogs.length === 0) return 78.5;
             return parseDecimalInput(appState.weightLogs[appState.weightLogs.length - 1].weight) || 78.5;
         }
 
-        // Вычисляет устойчивый вес: не реагирует на колебания воды < 1.0 кг
         function getStableAnchorWeight() {
             const logs = appState.weightLogs || [];
             if (logs.length === 0) return 78.5;
@@ -1461,7 +1528,6 @@
             }
             let anchor = Number(appState.userProfile.anchorWeight) || rollingAvg;
 
-            // Обновляем опорный вес только при устойчивом сдвиге среднего веса >= 1.0 кг
             if (Math.abs(rollingAvg - anchor) >= 1.0) {
                 anchor = rollingAvg;
                 appState.userProfile.anchorWeight = anchor;
@@ -1470,23 +1536,19 @@
             return anchor;
         }
 
-        // Индивидуальный расчет рекомпозиции (Миффлин — Сан-Жеор: 178 см, 25 лет, устойчивый вес)
         function calculateDynamicMacros(weightForCalc, mode) {
             const h = (appState.userProfile && Number(appState.userProfile.heightCm)) || 178;
             const age = (appState.userProfile && Number(appState.userProfile.age)) || 25;
             const w = Number(weightForCalc) || 78.5;
 
-            // BMR (мужской) = 10 * вес + 6.25 * рост - 5 * возраст + 5
             const bmr = 10 * w + 6.25 * h - 5 * age + 5;
             const isWorkout = mode !== 'rest';
 
-            // Коэффициент рекомпозиции: ~2335 ккал в силовой день и ~2035 ккал в день отдыха при 78.5 кг
             const calories = isWorkout
                 ? Math.round(bmr * 1.145 + 300)
                 : Math.round(bmr * 1.145);
 
             const protein = PROTEIN_DAILY_TARGET; // 150 г (ориентир), зачет от 125 г
-            // Жиры ~0.88 г/кг, строго внутри безопасного коридора 55–80 г
             const fat = Math.min(80, Math.max(55, Math.round(w * 0.88)));
             const carbs = Math.max(130, Math.round((calories - (protein * 4 + fat * 9)) / 4));
 
@@ -1501,6 +1563,7 @@
             appState.manualQueueNext = newNext;
             const rec = getTodayRecord();
             rec.mode = newNext;
+            rec.modeLocked = true;
             appState.workoutDay = newNext;
             saveState();
             renderActiveTabOnly();
@@ -1510,11 +1573,97 @@
         function setDayMode(mode) {
             const rec = getTodayRecord();
             rec.mode = mode;
+            rec.modeLocked = true;
             if (mode !== 'rest') {
                 appState.workoutDay = mode;
             }
             saveState();
             renderActiveTabOnly();
+        }
+
+        // Живой поиск по закрепленным и всем продуктам на главном экране питания
+        function onPinnedSearchInput(val) {
+            pinnedSearchQuery = String(val || '').trim();
+            const clearBtn = document.getElementById('clearPinnedSearchBtn');
+            if (clearBtn) {
+                if (pinnedSearchQuery.length > 0) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+            renderPinnedFoodsSection();
+        }
+
+        function clearPinnedSearch() {
+            pinnedSearchQuery = '';
+            const inp = document.getElementById('pinnedFoodsSearchInput');
+            if (inp) inp.value = '';
+            const clearBtn = document.getElementById('clearPinnedSearchBtn');
+            if (clearBtn) clearBtn.classList.add('hidden');
+            renderPinnedFoodsSection();
+        }
+
+        function togglePinnedShowAll() {
+            showAllPinnedFoods = !showAllPinnedFoods;
+            renderPinnedFoodsSection();
+        }
+
+        function renderPinnedFoodsSection() {
+            const pinnedBar = document.getElementById('pinnedFoodsBar');
+            if (!pinnedBar) return;
+
+            const allDb = appState.foodDatabase || [];
+            const q = pinnedSearchQuery.toLowerCase();
+
+            // Если введена буква/слово в поиск — ищем по всей базе продуктов
+            if (q.length > 0) {
+                const matched = allDb.filter(item => String(item.name || '').toLowerCase().includes(q));
+                if (matched.length === 0) {
+                    pinnedBar.innerHTML = `<span class="text-xs font-mono text-textMuted py-1">По запросу «${escapeHtml(pinnedSearchQuery)}» ничего не найдено.</span>`;
+                    return;
+                }
+                pinnedBar.innerHTML = matched.map(item => `
+                    <button onclick="eatFromDatabase('${escapeHtml(item.id)}', true)" class="tactical-btn bg-bgMain hover:bg-bgElevated border border-accentGreen/40 rounded-xl px-3 py-2 text-left flex items-center space-x-2">
+                        <span class="text-accentGreen font-mono font-bold text-xs">+</span>
+                        <div>
+                            <div class="text-xs font-bold text-white leading-tight">${escapeHtml(item.name)}</div>
+                            <div class="text-[10px] font-mono text-textMuted mt-0.5">${Math.round(item.cal)} ккал • Б:${formatMacroVal(item.p)} Ж:${formatMacroVal(item.f)} У:${formatMacroVal(item.c)}</div>
+                        </div>
+                    </button>
+                `).join('');
+                return;
+            }
+
+            // Стандартный режим: показываем 6 закрепленных кнопок + кнопку «Ещё (N)»
+            const pinnedItems = allDb.filter(f => f.pinned);
+            if (pinnedItems.length === 0) {
+                pinnedBar.innerHTML = `<span class="text-xs font-mono text-textMuted">Нет закрепленных продуктов. Открой базу ниже и нажми ★</span>`;
+                return;
+            }
+
+            const hasExtra = pinnedItems.length > PINNED_INITIAL_LIMIT;
+            const visibleItems = (hasExtra && !showAllPinnedFoods)
+                ? pinnedItems.slice(0, PINNED_INITIAL_LIMIT)
+                : pinnedItems;
+            const hiddenCount = pinnedItems.length - PINNED_INITIAL_LIMIT;
+
+            let html = visibleItems.map(item => `
+                <button onclick="eatFromDatabase('${escapeHtml(item.id)}', true)" class="tactical-btn bg-bgMain hover:bg-bgElevated border border-borderSubtle rounded-xl px-3 py-2 text-left flex items-center space-x-2">
+                    <span class="text-accentGreen font-mono font-bold text-xs">+</span>
+                    <div>
+                        <div class="text-xs font-bold text-white leading-tight">${escapeHtml(item.name)}</div>
+                        <div class="text-[10px] font-mono text-textMuted mt-0.5">${Math.round(item.cal)} ккал • Б:${formatMacroVal(item.p)} Ж:${formatMacroVal(item.f)} У:${formatMacroVal(item.c)}</div>
+                    </div>
+                </button>
+            `).join('');
+
+            if (hasExtra) {
+                html += `
+                    <button onclick="togglePinnedShowAll()" class="tactical-btn bg-bgElevated hover:bg-borderSubtle border border-accentGreen/40 text-accentGreen rounded-xl px-3.5 py-2 font-mono font-bold text-xs flex items-center justify-center">
+                        ${showAllPinnedFoods ? 'Свернуть ▴' : `+ Ещё (${hiddenCount}) ▾`}
+                    </button>
+                `;
+            }
+
+            pinnedBar.innerHTML = html;
         }
 
         function addQuickFood(name, cal, p, f, c, grams = null) {
@@ -1667,16 +1816,40 @@
         function openFoodDrawer() {
             currentFoodMultiplier = 1;
             currentCustomGrams = null;
+            drawerSearchQuery = '';
+            cancelEditFoodTemplate();
             const gInp = document.getElementById('customFoodGramsInput');
             if (gInp) gInp.value = '';
+            const sInp = document.getElementById('drawerSearchInput');
+            if (sInp) sInp.value = '';
             document.getElementById('clearGramsBtn').classList.add('hidden');
+            document.getElementById('clearDrawerSearchBtn').classList.add('hidden');
             updateMultiplierButtonsUI();
             renderFoodDatabaseDrawer();
             document.getElementById('foodDrawerModal').classList.remove('hidden');
         }
 
         function closeFoodDrawer() {
+            cancelEditFoodTemplate();
             document.getElementById('foodDrawerModal').classList.add('hidden');
+        }
+
+        function onDrawerSearchInput(val) {
+            drawerSearchQuery = String(val || '').trim();
+            const clearBtn = document.getElementById('clearDrawerSearchBtn');
+            if (clearBtn) {
+                if (drawerSearchQuery.length > 0) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+            renderFoodDatabaseDrawer();
+        }
+
+        function clearDrawerSearch() {
+            drawerSearchQuery = '';
+            const inp = document.getElementById('drawerSearchInput');
+            if (inp) inp.value = '';
+            document.getElementById('clearDrawerSearchBtn').classList.add('hidden');
+            renderFoodDatabaseDrawer();
         }
 
         function setFoodMultiplier(mult) {
@@ -1757,6 +1930,7 @@
         }
 
         function deleteFoodFromDatabase(foodId) {
+            if (editingTemplateFoodId === foodId) cancelEditFoodTemplate();
             appState.foodDatabase = appState.foodDatabase.filter(f => f.id !== foodId);
             saveState();
             renderFoodDatabaseDrawer();
@@ -1764,7 +1938,58 @@
             showToast('Продукт удален из базы');
         }
 
-        // Исправлено (Пункт 3 аудита): если поле базового веса пустое, берем граммы из названия продукта
+        // Редактирование существующего шаблона продукта прямо в базе (кнопка ✎)
+        function startEditFoodTemplate(foodId) {
+            const item = appState.foodDatabase.find(f => f.id === foodId);
+            if (!item) return;
+
+            editingTemplateFoodId = foodId;
+            const baseG = getFoodItemBaseGrams(item);
+
+            document.getElementById('newFoodName').value = item.name;
+            document.getElementById('newFoodBaseGrams').value = baseG;
+            document.getElementById('newFoodCal').value = item.cal;
+            document.getElementById('newFoodP').value = item.p;
+            document.getElementById('newFoodF').value = item.f;
+            document.getElementById('newFoodC').value = item.c;
+            document.getElementById('newFoodPinCheck').checked = Boolean(item.pinned);
+
+            const titleEl = document.getElementById('foodFormTitle');
+            titleEl.textContent = '✎ Редактирование продукта в базе';
+            titleEl.className = 'text-xs font-mono uppercase text-accentAmber font-bold';
+
+            document.getElementById('foodTemplateFormBox').className = 'bg-bgMain p-3.5 rounded-xl border border-accentAmber space-y-2.5';
+            document.getElementById('cancelEditTemplateBtn').classList.remove('hidden');
+            document.getElementById('saveTemplateOnlyBtn').textContent = '💾 Сохранить правки';
+            document.getElementById('saveTemplateAndEatBtn').textContent = '💾 Сохранить и съесть';
+
+            renderFoodDatabaseDrawer();
+        }
+
+        function cancelEditFoodTemplate() {
+            editingTemplateFoodId = null;
+            const nameEl = document.getElementById('newFoodName');
+            if (!nameEl) return;
+            nameEl.value = '';
+            document.getElementById('newFoodBaseGrams').value = '';
+            document.getElementById('newFoodCal').value = '';
+            document.getElementById('newFoodP').value = '';
+            document.getElementById('newFoodF').value = '';
+            document.getElementById('newFoodC').value = '';
+            document.getElementById('newFoodPinCheck').checked = true;
+
+            const titleEl = document.getElementById('foodFormTitle');
+            titleEl.textContent = '+ Добавить новое блюдо в базу';
+            titleEl.className = 'text-xs font-mono uppercase text-accentGreen font-bold';
+
+            document.getElementById('foodTemplateFormBox').className = 'bg-bgMain p-3.5 rounded-xl border border-borderSubtle space-y-2.5';
+            document.getElementById('cancelEditTemplateBtn').classList.add('hidden');
+            document.getElementById('saveTemplateOnlyBtn').textContent = 'Сохранить в базу';
+            document.getElementById('saveTemplateAndEatBtn').textContent = 'Сохранить и съесть';
+
+            renderFoodDatabaseDrawer();
+        }
+
         function saveNewFoodTemplate(andEatNow = false) {
             const rawName = document.getElementById('newFoodName').value.trim();
             if (!rawName) {
@@ -1790,9 +2015,39 @@
 
             const cleanBaseTitle = rawName.replace(/\s*\(\d+(?:[.,]\d+)?\s*(?:г|гр|мл)\)/i, '').trim();
             const hasUnitInTitle = /\d+(?:[.,]\d+)?\s*(?:г|гр|мл|шт)\b/i.test(rawName);
-            const finalName = hasUnitInTitle ? rawName : `${cleanBaseTitle} (${baseGrams}г)`;
+            const finalName = hasUnitInTitle && !/\(\d+(?:[.,]\d+)?\s*(?:г|гр|мл)\)/i.test(rawName)
+                ? rawName
+                : `${cleanBaseTitle} (${baseGrams}г)`;
 
             const pinned = document.getElementById('newFoodPinCheck').checked;
+
+            if (editingTemplateFoodId) {
+                const idx = appState.foodDatabase.findIndex(item => item.id === editingTemplateFoodId);
+                if (idx >= 0) {
+                    appState.foodDatabase[idx] = {
+                        ...appState.foodDatabase[idx],
+                        name: finalName,
+                        baseGrams,
+                        cal: +(cal.toFixed(1)),
+                        p: +(p.toFixed(1)),
+                        f: +(f.toFixed(1)),
+                        c: +(c.toFixed(1)),
+                        pinned
+                    };
+                    const editedId = editingTemplateFoodId;
+                    saveState();
+                    cancelEditFoodTemplate();
+                    if (andEatNow) {
+                        eatFromDatabase(editedId, false);
+                        closeFoodDrawer();
+                    } else {
+                        showToast(`Обновлено в базе: ${finalName}`);
+                    }
+                    if (appState.currentTab === 'food') renderFoodTab();
+                    return;
+                }
+            }
+
             const newItem = {
                 id: 'cust_' + Date.now(),
                 name: finalName,
@@ -1814,25 +2069,29 @@
                 showToast(`Добавлено в базу: ${newItem.name}`);
             }
 
-            document.getElementById('newFoodName').value = '';
-            document.getElementById('newFoodBaseGrams').value = '';
-            document.getElementById('newFoodCal').value = '';
-            document.getElementById('newFoodP').value = '';
-            document.getElementById('newFoodF').value = '';
-            document.getElementById('newFoodC').value = '';
-
-            renderFoodDatabaseDrawer();
+            cancelEditFoodTemplate();
             if (appState.currentTab === 'food') renderFoodTab();
         }
 
         function renderFoodDatabaseDrawer() {
             const list = document.getElementById('foodDatabaseList');
+            if (!list) return;
             if (!appState.foodDatabase || appState.foodDatabase.length === 0) {
                 list.innerHTML = `<div class="text-xs font-mono text-textMuted py-4 text-center">База пуста. Добавь свой продукт ниже.</div>`;
                 return;
             }
 
-            list.innerHTML = appState.foodDatabase.map(item => {
+            const q = drawerSearchQuery.toLowerCase();
+            const filtered = q.length > 0
+                ? appState.foodDatabase.filter(item => String(item.name || '').toLowerCase().includes(q))
+                : appState.foodDatabase;
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="text-xs font-mono text-textMuted py-4 text-center">По запросу «${escapeHtml(drawerSearchQuery)}» продуктов не найдено.</div>`;
+                return;
+            }
+
+            list.innerHTML = filtered.map(item => {
                 const baseG = getFoodItemBaseGrams(item);
                 const ratio = (currentCustomGrams && currentCustomGrams > 0)
                     ? (currentCustomGrams / baseG)
@@ -1843,9 +2102,10 @@
                 const f = formatMacroVal(item.f * ratio);
                 const c = formatMacroVal(item.c * ratio);
                 const dispGrams = Math.round(baseG * ratio);
+                const isBeingEdited = (editingTemplateFoodId === item.id);
 
                 return `
-                    <div class="flex items-center justify-between bg-bgMain p-2.5 rounded-xl border border-borderSubtle gap-2">
+                    <div class="flex items-center justify-between bg-bgMain p-2.5 rounded-xl border ${isBeingEdited ? 'border-accentAmber' : 'border-borderSubtle'} gap-2">
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center space-x-1.5">
                                 <button onclick="togglePinFood('${escapeHtml(item.id)}')" title="Закрепить" class="text-xs font-mono ${item.pinned ? 'text-accentAmber' : 'text-textMuted opacity-40'}">★</button>
@@ -1859,11 +2119,14 @@
                                 <span class="text-sky-400">У:${c}</span>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-1.5 shrink-0">
-                            <button onclick="eatFromDatabase('${escapeHtml(item.id)}', false)" class="tactical-btn bg-accentGreen text-black font-mono font-extrabold text-xs px-3 py-2 rounded-lg">
+                        <div class="flex items-center space-x-1 shrink-0">
+                            <button onclick="eatFromDatabase('${escapeHtml(item.id)}', false)" class="tactical-btn bg-accentGreen text-black font-mono font-extrabold text-xs px-2.5 py-2 rounded-lg">
                                 + Съесть
                             </button>
-                            <button onclick="deleteFoodFromDatabase('${escapeHtml(item.id)}')" class="tactical-btn bg-bgElevated hover:bg-accentRed/20 text-textMuted hover:text-accentRed font-mono text-xs px-2.5 py-2 rounded-lg">
+                            <button onclick="startEditFoodTemplate('${escapeHtml(item.id)}')" title="Редактировать КБЖУ шаблона" class="tactical-btn bg-bgElevated hover:bg-borderSubtle text-textMuted hover:text-white font-mono text-xs px-2 py-2 rounded-lg">
+                                ✎
+                            </button>
+                            <button onclick="deleteFoodFromDatabase('${escapeHtml(item.id)}')" title="Удалить из базы" class="tactical-btn bg-bgElevated hover:bg-accentRed/20 text-textMuted hover:text-accentRed font-mono text-xs px-2 py-2 rounded-lg">
                                 ✕
                             </button>
                         </div>
@@ -1876,6 +2139,7 @@
             const activeDateKey = getActiveFoodDateKey();
             const isYesterday = (selectedFoodDayOffset === -1);
             const rec = getActiveFoodRecord();
+            const effectiveMode = getEffectiveDayMode(activeDateKey);
             const currentWeight = getCurrentUserWeight();
             const stableWeight = getStableAnchorWeight();
 
@@ -1886,6 +2150,7 @@
             const switcherBox = document.getElementById('foodDaySwitcherBox');
             const mainCalBox = document.getElementById('mainCalorieBox');
             const copyYestBtn = document.getElementById('copyYesterdayBtn');
+            const toggleDayModeBtn = document.getElementById('toggleActiveDayModeBtn');
 
             if (todayBtn && yestBtn) {
                 todayBtn.textContent = `Сегодня (${formatShortDate(getTodayKey())})`;
@@ -1897,12 +2162,17 @@
                     switcherBox.className = 'bg-bgMain p-1.5 rounded-xl border border-accentAmber/60 flex items-center justify-between gap-1.5';
                     mainCalBox.className = 'bg-bgMain p-3.5 rounded-xl border border-accentAmber/50';
                     if (copyYestBtn) copyYestBtn.classList.add('hidden');
+                    if (toggleDayModeBtn) {
+                        toggleDayModeBtn.classList.remove('hidden');
+                        toggleDayModeBtn.textContent = effectiveMode === 'rest' ? '🌙 Режим: Отдых ✎' : `🌙 Режим: ${effectiveMode.toUpperCase()} ✎`;
+                    }
                 } else {
                     todayBtn.className = 'tactical-btn flex-1 py-2 px-2 rounded-lg font-mono text-xs font-extrabold text-center bg-accentGreen text-black';
                     yestBtn.className = 'tactical-btn flex-1 py-2 px-2 rounded-lg font-mono text-xs font-bold text-center text-textMuted hover:text-white';
                     switcherBox.className = 'bg-bgMain p-1.5 rounded-xl border border-borderSubtle flex items-center justify-between gap-1.5';
                     mainCalBox.className = 'bg-bgMain p-3.5 rounded-xl border border-borderSubtle';
                     if (copyYestBtn) copyYestBtn.classList.remove('hidden');
+                    if (toggleDayModeBtn) toggleDayModeBtn.classList.add('hidden');
                 }
             }
 
@@ -1914,7 +2184,7 @@
                 ? `Съедено за вчера (${formatShortDate(activeDateKey)}) (✎ — изменить):`
                 : `Съедено за сегодня (✎ — изменить):`;
 
-            const targets = calculateDynamicMacros(stableWeight, rec.mode);
+            const targets = calculateDynamicMacros(stableWeight, effectiveMode);
             document.getElementById('macroFormulaCaption').textContent =
                 `178см • 25л • База ${stableWeight.toFixed(1)}кг • ${targets.isWorkout ? 'Силовой (+300 ккал)' : 'Отдых (дефицит)'}`;
 
@@ -1954,7 +2224,6 @@
                 remCal >= 0 ? `Осталось: ${remCal} ккал` : `Перебор: +${Math.abs(remCal)} ккал`;
             document.getElementById('calPercentText').textContent = `${calPct}%`;
 
-            // Зачет дня от 125 г белка, цель 150 г
             const passBadge = document.getElementById('proteinPassBadge');
             if (curP >= PROTEIN_DAILY_TARGET) {
                 passBadge.className = 'text-accentGreen font-extrabold';
@@ -1972,21 +2241,7 @@
             const remC = formatMacroVal(Math.max(0, targets.carbs - curC));
             document.getElementById('macroRemainHint').textContent = `До цели (150Б): Б:${remP}г • Ж:${remF}г • У:${remC}г`;
 
-            const pinnedBar = document.getElementById('pinnedFoodsBar');
-            const pinnedItems = (appState.foodDatabase || []).filter(f => f.pinned);
-            if (pinnedItems.length === 0) {
-                pinnedBar.innerHTML = `<span class="text-xs font-mono text-textMuted">Нет закрепленных продуктов. Открой базу ниже и нажми ★</span>`;
-            } else {
-                pinnedBar.innerHTML = pinnedItems.map(item => `
-                    <button onclick="eatFromDatabase('${escapeHtml(item.id)}', true)" class="tactical-btn bg-bgMain hover:bg-bgElevated border border-borderSubtle rounded-xl px-3 py-2 text-left flex items-center space-x-2">
-                        <span class="text-accentGreen font-mono font-bold text-xs">+</span>
-                        <div>
-                            <div class="text-xs font-bold text-white leading-tight">${escapeHtml(item.name)}</div>
-                            <div class="text-[10px] font-mono text-textMuted mt-0.5">${Math.round(item.cal)} ккал • Б:${formatMacroVal(item.p)} Ж:${formatMacroVal(item.f)} У:${formatMacroVal(item.c)}</div>
-                        </div>
-                    </button>
-                `).join('');
-            }
+            renderPinnedFoodsSection();
 
             const undoBtn = document.getElementById('undoFoodBtn');
             if (rec.foods.length > 0) undoBtn.classList.remove('hidden');
@@ -2047,6 +2302,7 @@
             const rec = getTodayRecord();
             if (rec.mode === 'rest' && !appState.editingWorkoutId) {
                 rec.mode = dayKey;
+                rec.modeLocked = true;
             }
             saveState();
             renderWorkoutTab();
@@ -2071,7 +2327,6 @@
             renderWorkoutTab();
         }
 
-        // Строгий анализ истории упражнения (исправлены пункты 4 и 5 аудита)
         function getExerciseHistoryInfo(ex) {
             const exId = ex.id;
             const targetSetsCount = ex.sets;
@@ -2124,7 +2379,6 @@
             const allHitMax = allSetsCompleted && last.sets.every(s => (Number(s.reps) || 0) >= maxTargetReps);
             const allHitMin = allSetsCompleted && last.sets.every(s => (Number(s.reps) || 0) >= minTargetReps);
 
-            // Обратная математика для Гравитрона: оцениваем по МАКСИМАЛЬНОЙ использованной помощи (Math.max)
             if (isAssisted) {
                 const lastMaxAssist = Math.max(...last.sets.map(s => Number(s.weight) || 0));
                 let statusType = 'working';
@@ -2193,7 +2447,6 @@
                 };
             }
 
-            // Обычные упражнения: проверяем минимальный рабочий вес и удержание коридора повторений (Пункт 4 аудита)
             const lastMaxW = Math.max(...last.sets.map(s => Number(s.weight) || 0));
             const lastMinW = Math.min(...last.sets.map(s => Number(s.weight) || 0));
             let statusType = 'working';
@@ -2797,8 +3050,9 @@
             if (appState.editingWorkoutId) {
                 const idx = appState.workoutHistory.findIndex(w => w.id === appState.editingWorkoutId);
                 if (idx >= 0) {
+                    const oldDate = appState.workoutHistory[idx].date;
                     const dateInpEl = document.getElementById('editingWorkoutDateInput');
-                    const newDateVal = (dateInpEl && dateInpEl.value) ? dateInpEl.value : (appState.editingWorkoutDate || appState.workoutHistory[idx].date);
+                    const newDateVal = (dateInpEl && dateInpEl.value) ? dateInpEl.value : (appState.editingWorkoutDate || oldDate);
                     appState.workoutHistory[idx].date = newDateVal;
                     appState.workoutHistory[idx].dayId = appState.workoutDay;
                     appState.workoutHistory[idx].dayName = dayObj.name;
@@ -2806,6 +3060,18 @@
                     appState.workoutHistory[idx].exercises = savedExercises;
                     appState.workoutHistory[idx].rirs = savedRirs;
                     appState.workoutHistory.sort((a, b) => a.date.localeCompare(b.date) || (a.id - b.id));
+
+                    // Если тренировку перенесли со старой даты на другую, освобождаем старую дату под Отдых
+                    if (oldDate !== newDateVal && appState.dailyRecords[oldDate]) {
+                        const remainingOnOld = appState.workoutHistory.filter(w => w.date === oldDate);
+                        if (remainingOnOld.length === 0) {
+                            appState.dailyRecords[oldDate].mode = 'rest';
+                            appState.dailyRecords[oldDate].modeLocked = false;
+                        }
+                    }
+                    const newDayRec = getRecordByDateKey(newDateVal);
+                    newDayRec.mode = appState.workoutDay;
+                    newDayRec.modeLocked = true;
                 }
                 appState.editingWorkoutId = null;
                 appState.editingWorkoutDate = null;
@@ -2815,15 +3081,20 @@
                 }
                 showToast('Изменения и дата тренировки сохранены!');
             } else {
+                const todayIso = getTodayKey();
                 appState.workoutHistory.push({
                     id: Date.now(),
-                    date: getTodayKey(),
+                    date: todayIso,
                     dayId: appState.workoutDay,
                     dayName: dayObj.name,
                     setsDone: totalSetsDone,
                     exercises: savedExercises,
                     rirs: savedRirs
                 });
+                const todayRec = getTodayRecord();
+                todayRec.mode = appState.workoutDay;
+                todayRec.modeLocked = true;
+
                 appState.manualQueueNext = null;
                 appState.workoutsSinceLastBackup = (appState.workoutsSinceLastBackup || 0) + 1;
 
@@ -2862,7 +3133,16 @@
                 return;
             }
 
+            const target = appState.workoutHistory.find(w => w.id === workoutId);
             appState.workoutHistory = appState.workoutHistory.filter(w => w.id !== workoutId);
+            if (target && target.date && appState.dailyRecords[target.date]) {
+                const stillHasWorkout = appState.workoutHistory.some(w => w.date === target.date);
+                if (!stillHasWorkout && target.date < getTodayKey()) {
+                    appState.dailyRecords[target.date].mode = 'rest';
+                    appState.dailyRecords[target.date].modeLocked = false;
+                }
+            }
+
             pendingDeleteWorkoutId = null;
             if (appState.editingWorkoutId === workoutId) {
                 appState.editingWorkoutId = null;
@@ -2970,7 +3250,7 @@
         }
 
         // =========================================================================
-        // 6. ПРОГРЕСС: СРЕДНЕЕ КБЖУ, ЧЕСТНЫЙ ГРАФИК СИЛЫ И ЖУРНАЛ
+        // 6. ПРОГРЕСС: КЛИКАБЕЛЬНЫЙ АРХИВ ДНЕЙ (ОТДЫХ/БЛОК), ГРАФИК СИЛЫ И ЖУРНАЛ
         // =========================================================================
         function logNewWeight() {
             const inp = document.getElementById('weightInput');
@@ -3040,7 +3320,6 @@
                 `).join('');
         }
 
-        // Исправлено (Пункт 5 аудита): в гравитроне лучший подход выбирается по минимальному противовесу, а не завышенным повторам
         function renderStrengthProgressChart() {
             const box = document.getElementById('strengthChartBox');
             const badge = document.getElementById('strengthProgressDeltaBadge');
@@ -3059,7 +3338,6 @@
                     const totalReps = sets.reduce((a, s) => a + (Number(s.reps) || 0), 0);
 
                     if (exMeta.isAssisted) {
-                        // Выбираем только те подходы, где выполнено хотя бы minReps (если такие есть), и среди них ищем минимальный противовес
                         const validSets = sets.filter(s => (Number(s.reps) || 0) >= (exMeta.minReps || 6));
                         const pool = validSets.length > 0 ? validSets : sets;
 
@@ -3264,12 +3542,15 @@
                 const dayRec = appState.dailyRecords[iso];
                 const workoutsOnDay = appState.workoutHistory.filter(w => w.date === iso);
 
-                let modeLabel = '—';
+                let modeCellHTML = '';
                 if (workoutsOnDay.length > 0) {
                     const labels = [...new Set(workoutsOnDay.map(w => w.dayId.toUpperCase()))].join('+');
-                    modeLabel = `<span class="text-accentGreen font-bold">${escapeHtml(labels)} ✓</span>`;
-                } else if (dayRec) {
-                    modeLabel = dayRec.mode === 'rest' ? 'Отдых' : escapeHtml(dayRec.mode.toUpperCase());
+                    modeCellHTML = `<span class="text-accentGreen font-bold">${escapeHtml(labels)} ✓</span>`;
+                } else {
+                    const effectiveMode = getEffectiveDayMode(iso);
+                    const dispText = effectiveMode === 'rest' ? 'Отдых' : effectiveMode.toUpperCase();
+                    const dispColor = effectiveMode === 'rest' ? 'text-textMuted hover:text-white' : 'text-accentAmber font-bold';
+                    modeCellHTML = `<button onclick="toggleArchiveDayMode('${iso}')" title="Нажми, чтобы переключить Отдых / Силовой" class="tactical-btn ${dispColor} bg-bgMain border border-borderSubtle px-2 py-0.5 rounded-lg text-[11px] font-mono">${escapeHtml(dispText)} <span class="opacity-60 text-[10px]">✎</span></button>`;
                 }
 
                 let cal = 0, p = 0, f = 0, c = 0;
@@ -3302,7 +3583,7 @@
                 wkHTML += `
                     <tr class="border-b border-borderSubtle/60">
                         <td class="py-2 text-textMuted">${formatShortDate(iso)}</td>
-                        <td class="py-2 text-white">${modeLabel}</td>
+                        <td class="py-2 text-white">${modeCellHTML}</td>
                         <td class="py-2 text-white">${Math.round(cal)}</td>
                         <td class="py-2">${pBadge}</td>
                     </tr>
@@ -3333,7 +3614,6 @@
             const avg7 = poolForAvg.reduce((acc, item) => acc + Number(item.weight), 0) / poolForAvg.length;
             const delta = currentW - startW;
 
-            // Исправлено (Пункт 8 аудита): честная подпись количества замеров для среднего веса
             const avgLabelEl = document.getElementById('statAvgWeightLabel');
             if (avgLabelEl) {
                 if (logsLast7Days.length <= 1) {
@@ -3510,13 +3790,12 @@
             }
         }
 
-        // 1. Основной способ: Скачивание файла TACTICAL_BACKUP_YYYY-MM-DD.json
         function downloadBackupJsonFile() {
             try {
                 pruneOldDailyFoodRecords(45);
                 const exportPayload = {
                     ...appState,
-                    backupVersion: '6.0',
+                    backupVersion: '6.1',
                     exportedAt: new Date().toISOString()
                 };
                 const jsonStr = JSON.stringify(exportPayload, null, 2);
@@ -3543,7 +3822,6 @@
             }
         }
 
-        // 2. Запасной способ: Честное асинхронное копирование кода (Исправлен пункт 1 аудита)
         async function copyBackupCodeToClipboard() {
             try {
                 pruneOldDailyFoodRecords(45);
@@ -3577,7 +3855,6 @@
             }
         }
 
-        // Глубокая валидация структуры и содержимого бэкапа перед восстановлением (Исправлен пункт 2 аудита)
         function validateAndSanitizeBackupPayload(parsed) {
             if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
                 return { ok: false, reason: 'Корневой объект базы поврежден' };
