@@ -7,7 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>TACTICAL FIT // Дневник Рекомпозиции v6.2</title>
+    <title>TACTICAL FIT // Дневник Рекомпозиции v6.3</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230d0f12'/%3E%3Cpath d='M136 176v160M96 208v96M376 176v160M416 208v96M136 256h240' stroke='%2310b981' stroke-width='36' stroke-linecap='round'/%3E%3C/svg%3E">
     <script>
@@ -132,7 +132,7 @@
                 <div class="min-w-0">
                     <div class="flex items-center space-x-1.5">
                         <span class="font-mono font-extrabold text-sm tracking-wider uppercase text-white truncate">TACTICAL RECOMP</span>
-                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v6.2</span>
+                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v6.3</span>
                     </div>
                     <div class="flex items-center space-x-1.5 mt-0.5">
                         <button onclick="openBackupModal()" id="autoSaveBadge" class="tactical-btn text-[10px] font-mono text-accentGreen bg-accentGreen/10 border border-accentGreen/30 px-2 py-0.5 rounded-full flex items-center shrink-0">
@@ -315,9 +315,6 @@
                         <button onclick="copyYesterdayFood()" id="copyYesterdayBtn" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-accentGreen px-2.5 py-1.5 rounded-lg border border-accentGreen/30">
                             ⇄ Вчерашний
                         </button>
-                        <button onclick="toggleActiveFoodDayMode()" id="toggleActiveDayModeBtn" class="hidden tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-accentAmber px-2.5 py-1.5 rounded-lg border border-accentAmber/40">
-                            🔄 Режим дня
-                        </button>
                         <button onclick="undoLastFood()" id="undoFoodBtn" class="tactical-btn text-xs font-mono bg-bgElevated hover:bg-borderSubtle text-textMuted px-2 py-1.5 rounded-lg border border-borderSubtle hidden">
                             ↶
                         </button>
@@ -447,7 +444,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-sm font-bold uppercase tracking-wide text-white">Недельный архив (7 дней)</h2>
-                        <p class="text-xs text-textMuted">Нажми на режим дня (✎), чтобы переключить Отдых / Блок</p>
+                        <p class="text-xs text-textMuted">Зачет дня по белку от 125 г (цель 150 г)</p>
                     </div>
                     <span class="text-xs font-mono bg-bgElevated px-2.5 py-1 rounded border border-borderSubtle text-accentGreen">Сводка</span>
                 </div>
@@ -463,7 +460,7 @@
                         <thead>
                             <tr class="border-b border-borderSubtle text-textMuted text-[11px]">
                                 <th class="py-2">Дата</th>
-                                <th class="py-2">Режим (нажми ✎)</th>
+                                <th class="py-2">Режим</th>
                                 <th class="py-2">Ккал</th>
                                 <th class="py-2">Белок (125г+)</th>
                             </tr>
@@ -1189,7 +1186,9 @@
             activeExerciseRir: {},
             editingWorkoutId: null,
             editingWorkoutDate: null,
-            savedActiveSessionBackup: null,
+            editingWorkoutDay: null,
+            editingSessionSets: {},
+            editingExerciseRir: {},
             restTimerTargetTs: 0,
             restTimerExLabel: '',
             dailyRecords: {},
@@ -1214,18 +1213,19 @@
             return 'd1';
         }
 
+        // Автоматическое определение режима дня: если день прошёл и нет сохранённой тренировки — всегда Отдых
         function getEffectiveDayMode(dateKey) {
             const todayIso = getTodayKey();
             const workoutsOnDay = (appState.workoutHistory || []).filter(w => w.date === dateKey);
             if (workoutsOnDay.length > 0) {
                 return workoutsOnDay[workoutsOnDay.length - 1].dayId;
             }
+            if (dateKey < todayIso) {
+                return 'rest';
+            }
             const rec = appState.dailyRecords && appState.dailyRecords[dateKey];
             if (!rec) {
-                return dateKey === todayIso ? getNextRecommendedBlock() : 'rest';
-            }
-            if (dateKey < todayIso && !rec.modeLocked) {
-                return 'rest';
+                return getNextRecommendedBlock();
             }
             return rec.mode || 'rest';
         }
@@ -1240,7 +1240,6 @@
                 const defaultMode = wDone ? wDone.dayId : (dateKey === todayIso ? getNextRecommendedBlock() : 'rest');
                 appState.dailyRecords[dateKey] = {
                     mode: defaultMode,
-                    modeLocked: Boolean(wDone),
                     foods: []
                 };
                 if (dateKey === todayIso && !appState.editingWorkoutId && defaultMode !== 'rest') {
@@ -1267,35 +1266,6 @@
             renderFoodTab();
             const targetKey = getActiveFoodDateKey();
             showToast(selectedFoodDayOffset === -1 ? `Открыт вчерашний рацион (${formatShortDate(targetKey)})` : 'Открыт сегодняшний рацион');
-        }
-
-        function toggleArchiveDayMode(dateKey) {
-            const workoutsOnDay = (appState.workoutHistory || []).filter(w => w.date === dateKey);
-            if (workoutsOnDay.length > 0) {
-                showToast('В этот день сохранена тренировка в журнале');
-                return;
-            }
-            const rec = getRecordByDateKey(dateKey);
-            const currentEffective = getEffectiveDayMode(dateKey);
-            const nextBlock = getNextRecommendedBlock();
-
-            if (currentEffective === 'rest') {
-                rec.mode = nextBlock;
-                rec.modeLocked = true;
-                showToast(`${formatShortDate(dateKey)}: установлен Силовой режим (${nextBlock.toUpperCase()})`);
-            } else {
-                rec.mode = 'rest';
-                rec.modeLocked = true;
-                showToast(`${formatShortDate(dateKey)}: установлен режим «Отдых»`);
-            }
-            saveState();
-            renderActiveTabOnly();
-        }
-
-        function toggleActiveFoodDayMode() {
-            const activeKey = getActiveFoodDateKey();
-            toggleArchiveDayMode(activeKey);
-            renderFoodTab();
         }
 
         function resolveActiveExerciseConfig(ex) {
@@ -1363,15 +1333,28 @@
                 appState.foodDatabase = JSON.parse(JSON.stringify(DEFAULT_FOOD_DB));
             }
             if (!Array.isArray(appState.workoutHistory)) appState.workoutHistory = [];
-            if (!Array.isArray(appState.weightLogs) || appState.weightLogs.length === 0) {
-                const fallbackW = (appState.userProfile && Number(appState.userProfile.anchorWeight)) || 78.5;
-                appState.weightLogs = [{ date: getTodayKey(), weight: fallbackW }];
+            // Гарантируем уникальный id у всех архивных тренировок
+            appState.workoutHistory.forEach((w, idx) => {
+                if (!w.id || isNaN(Number(w.id))) {
+                    w.id = Date.now() + idx;
+                }
+            });
+
+            // Разрешаем пустой массив weightLogs: [] без создания фиктивного взвешивания
+            if (!Array.isArray(appState.weightLogs)) {
+                appState.weightLogs = [];
             }
+
             if (!appState.exerciseNotes || typeof appState.exerciseNotes !== 'object') appState.exerciseNotes = {};
             if (!appState.activeExerciseRir || typeof appState.activeExerciseRir !== 'object') appState.activeExerciseRir = {};
             if (!appState.activeSessionSets || typeof appState.activeSessionSets !== 'object') appState.activeSessionSets = {};
+            if (!appState.editingSessionSets || typeof appState.editingSessionSets !== 'object') appState.editingSessionSets = {};
+            if (!appState.editingExerciseRir || typeof appState.editingExerciseRir !== 'object') appState.editingExerciseRir = {};
 
-            const latestW = parseDecimalInput(appState.weightLogs[appState.weightLogs.length - 1].weight) || 78.5;
+            const latestW = appState.weightLogs.length > 0
+                ? (parseDecimalInput(appState.weightLogs[appState.weightLogs.length - 1].weight) || 78.5)
+                : 78.5;
+
             if (!appState.userProfile || typeof appState.userProfile !== 'object') {
                 appState.userProfile = {
                     heightCm: 178,
@@ -1481,9 +1464,10 @@
         }
 
         function renderActiveTabOnly() {
+            const hasLogs = appState.weightLogs && appState.weightLogs.length > 0;
             const weight = getCurrentUserWeight();
             const hw = document.getElementById('headerWeightVal');
-            if (hw) hw.textContent = weight.toFixed(1);
+            if (hw) hw.textContent = hasLogs ? weight.toFixed(1) : '—';
 
             const now = new Date();
             const dateStr = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
@@ -1512,11 +1496,24 @@
             return parseDecimalInput(appState.weightLogs[appState.weightLogs.length - 1].weight) || 78.5;
         }
 
-        // Устойчивый опорный вес: обновляется только при устойчивом сдвиге среднего >= 1.5 кг
+        // Устойчивый опорный вес: синхронизируется с первым замером и обновляется при сдвиге среднего >= 1.5 кг
         function getStableAnchorWeight() {
             const logs = appState.weightLogs || [];
+            if (!appState.userProfile || typeof appState.userProfile !== 'object') {
+                appState.userProfile = { heightCm: 178, age: 25, anchorWeight: 78.5 };
+            }
+
             if (logs.length === 0) {
-                return (appState.userProfile && Number(appState.userProfile.anchorWeight)) || 78.5;
+                return Number(appState.userProfile.anchorWeight) || 78.5;
+            }
+
+            if (logs.length === 1) {
+                const firstW = parseDecimalInput(logs[0].weight) || 78.5;
+                if (appState.userProfile.anchorWeight !== firstW) {
+                    appState.userProfile.anchorWeight = firstW;
+                    saveState();
+                }
+                return firstW;
             }
 
             const d7 = new Date();
@@ -1526,13 +1523,9 @@
             const pool = recent7.length >= 3 ? recent7 : logs.slice(-4);
             const rollingAvg = +(pool.reduce((acc, item) => acc + (parseDecimalInput(item.weight) || 78.5), 0) / pool.length).toFixed(1);
 
-            if (!appState.userProfile) {
-                appState.userProfile = { heightCm: 178, age: 25, anchorWeight: rollingAvg };
-            }
-            let anchor = Number(appState.userProfile.anchorWeight) || 78.5;
+            let anchor = Number(appState.userProfile.anchorWeight) || rollingAvg;
 
-            // Не меняем расчетную точку при колебаниях < 1.5 кг (например, 78.5 <-> 79.8 кг)
-            if (pool.length >= 2 && Math.abs(rollingAvg - anchor) >= 1.5) {
+            if (Math.abs(rollingAvg - anchor) >= 1.5) {
                 anchor = rollingAvg;
                 appState.userProfile.anchorWeight = anchor;
                 saveState();
@@ -1540,9 +1533,6 @@
             return anchor;
         }
 
-        // Сбалансированная модель рекомпозиции:
-        // При 78.5 кг (178 см, 25 лет): Белки 150г, Жиры 69г, Углеводы 300г (тренировка, 2421 ккал) / 225г (отдых, 2121 ккал).
-        // При изменении устойчивого веса работает мягкий демпфер (без резких скачков рациона).
         function calculateDynamicMacros(weightForCalc, mode) {
             const h = (appState.userProfile && Number(appState.userProfile.heightCm)) || 178;
             const age = (appState.userProfile && Number(appState.userProfile.age)) || 25;
@@ -1550,7 +1540,6 @@
 
             const refBmr = 10 * 78.5 + 6.25 * 178 - 5 * 25 + 5; // 1777.5 ккал
             const currentBmr = 10 * w + 6.25 * h - 5 * age + 5;
-            // Демпфированная разница BMR (50% чувствительности к изменению массы тела)
             const dampedBmrDelta = (currentBmr - refBmr) * 0.5;
 
             const protein = PROTEIN_DAILY_TARGET; // 150 г (600 ккал), минимум зачета 125 г
@@ -1564,7 +1553,7 @@
             const baseCarbs = isWorkout ? 300 : 225;
             const carbs = Math.max(150, Math.round(baseCarbs + dampedBmrDelta / 4));
 
-            // Итоговая калорийность полностью согласована с суммой БЖУ (при 78.5 кг: 2421 / 2121 ккал)
+            // Итоговая калорийность при 78.5 кг: 2421 ккал (тренировка) / 2121 ккал (отдых)
             const calories = protein * 4 + fat * 9 + carbs * 4;
 
             return { calories, protein, fat, carbs, isWorkout, anchorWeight: w };
@@ -1578,8 +1567,9 @@
             appState.manualQueueNext = newNext;
             const rec = getTodayRecord();
             rec.mode = newNext;
-            rec.modeLocked = true;
-            appState.workoutDay = newNext;
+            if (!appState.editingWorkoutId) {
+                appState.workoutDay = newNext;
+            }
             saveState();
             renderActiveTabOnly();
             showToast(`Очередь сдвинута: ${WORKOUT_PROGRAM[newNext].shortName}`);
@@ -1588,8 +1578,7 @@
         function setDayMode(mode) {
             const rec = getTodayRecord();
             rec.mode = mode;
-            rec.modeLocked = true;
-            if (mode !== 'rest') {
+            if (mode !== 'rest' && !appState.editingWorkoutId) {
                 appState.workoutDay = mode;
             }
             saveState();
@@ -2151,17 +2140,17 @@
             const isYesterday = (selectedFoodDayOffset === -1);
             const rec = getActiveFoodRecord();
             const effectiveMode = getEffectiveDayMode(activeDateKey);
+            const hasLogs = appState.weightLogs && appState.weightLogs.length > 0;
             const currentWeight = getCurrentUserWeight();
             const stableWeight = getStableAnchorWeight();
 
-            document.getElementById('headerWeightVal').textContent = currentWeight.toFixed(1);
+            document.getElementById('headerWeightVal').textContent = hasLogs ? currentWeight.toFixed(1) : '—';
 
             const todayBtn = document.getElementById('foodDayBtn-today');
             const yestBtn = document.getElementById('foodDayBtn-yesterday');
             const switcherBox = document.getElementById('foodDaySwitcherBox');
             const mainCalBox = document.getElementById('mainCalorieBox');
             const copyYestBtn = document.getElementById('copyYesterdayBtn');
-            const toggleDayModeBtn = document.getElementById('toggleActiveDayModeBtn');
 
             if (todayBtn && yestBtn) {
                 todayBtn.textContent = `Сегодня (${formatShortDate(getTodayKey())})`;
@@ -2173,17 +2162,12 @@
                     switcherBox.className = 'bg-bgMain p-1.5 rounded-xl border border-accentAmber/60 flex items-center justify-between gap-1.5';
                     mainCalBox.className = 'bg-bgMain p-3.5 rounded-xl border border-accentAmber/50';
                     if (copyYestBtn) copyYestBtn.classList.add('hidden');
-                    if (toggleDayModeBtn) {
-                        toggleDayModeBtn.classList.remove('hidden');
-                        toggleDayModeBtn.textContent = effectiveMode === 'rest' ? '🌙 Режим: Отдых ✎' : `🌙 Режим: ${effectiveMode.toUpperCase()} ✎`;
-                    }
                 } else {
                     todayBtn.className = 'tactical-btn flex-1 py-2 px-2 rounded-lg font-mono text-xs font-extrabold text-center bg-accentGreen text-black';
                     yestBtn.className = 'tactical-btn flex-1 py-2 px-2 rounded-lg font-mono text-xs font-bold text-center text-textMuted hover:text-white';
                     switcherBox.className = 'bg-bgMain p-1.5 rounded-xl border border-borderSubtle flex items-center justify-between gap-1.5';
                     mainCalBox.className = 'bg-bgMain p-3.5 rounded-xl border border-borderSubtle';
                     if (copyYestBtn) copyYestBtn.classList.remove('hidden');
-                    if (toggleDayModeBtn) toggleDayModeBtn.classList.add('hidden');
                 }
             }
 
@@ -2306,14 +2290,29 @@
         }
 
         // =========================================================================
-        // 4. ВКЛАДКА ТРЕНИРОВКА (ЧЕСТНАЯ ПРОГРЕССИЯ, ГРАВИТРОН ПО MAX ПОМОЩИ)
+        // 4. ВКЛАДКА ТРЕНИРОВКА (ИЗОЛЯЦИЯ СЕССИИ ПРАВКИ АРХИВА + ЧЕСТНАЯ ПРОГРЕССИЯ)
         // =========================================================================
+        function getCurrentSessionStore() {
+            return appState.editingWorkoutId ? appState.editingSessionSets : appState.activeSessionSets;
+        }
+
+        function getCurrentRirStore() {
+            return appState.editingWorkoutId ? appState.editingExerciseRir : appState.activeExerciseRir;
+        }
+
+        function getActiveBlockKey() {
+            return appState.editingWorkoutId ? (appState.editingWorkoutDay || appState.workoutDay) : appState.workoutDay;
+        }
+
         function selectWorkoutDay(dayKey) {
-            appState.workoutDay = dayKey;
-            const rec = getTodayRecord();
-            if (rec.mode === 'rest' && !appState.editingWorkoutId) {
-                rec.mode = dayKey;
-                rec.modeLocked = true;
+            if (appState.editingWorkoutId) {
+                appState.editingWorkoutDay = dayKey;
+            } else {
+                appState.workoutDay = dayKey;
+                const rec = getTodayRecord();
+                if (rec.mode === 'rest') {
+                    rec.mode = dayKey;
+                }
             }
             saveState();
             renderWorkoutTab();
@@ -2332,8 +2331,8 @@
         }
 
         function setExerciseRir(exId, rirVal) {
-            if (!appState.activeExerciseRir) appState.activeExerciseRir = {};
-            appState.activeExerciseRir[exId] = rirVal;
+            const store = getCurrentRirStore();
+            store[exId] = rirVal;
             saveState();
             renderWorkoutTab();
         }
@@ -2386,6 +2385,7 @@
 
             const lastWeight = Number(last.sets[last.sets.length - 1].weight) || 0;
             const lastTotalReps = last.sets.reduce((acc, s) => acc + (Number(s.reps) || 0), 0);
+            const lastAvgReps = lastTotalReps / last.sets.length;
             const allSetsCompleted = last.sets.length >= targetSetsCount;
             const allHitMax = allSetsCompleted && last.sets.every(s => (Number(s.reps) || 0) >= maxTargetReps);
             const allHitMin = allSetsCompleted && last.sets.every(s => (Number(s.reps) || 0) >= minTargetReps);
@@ -2423,21 +2423,25 @@
                 } else if (prev) {
                     const prevMaxAssist = Math.max(...prev.sets.map(s => Number(s.weight) || 0));
                     const prevTotalReps = prev.sets.reduce((acc, s) => acc + (Number(s.reps) || 0), 0);
+                    const prevAvgReps = prevTotalReps / prev.sets.length;
 
                     if (lastMaxAssist < prevMaxAssist && allHitMin) {
                         statusType = 'working_up';
                         statusText = `📈 Противовес успешно снижен до ${lastMaxAssist} кг в рамках рабочих повторов. Дожимай до ${targetSetsCount}×${maxTargetReps}.`;
                         dynamicWeightLabel = lastMaxAssist > 0 ? `Противовес ${lastMaxAssist} кг (новый рабочий)` : `Свой вес (новый уровень)`;
-                    } else if (lastMaxAssist === prevMaxAssist && lastTotalReps > prevTotalReps) {
+                    } else if (lastMaxAssist === prevMaxAssist && lastTotalReps > prevTotalReps && last.sets.length >= prev.sets.length && lastAvgReps >= prevAvgReps) {
                         const diff = lastTotalReps - prevTotalReps;
                         statusType = 'working_up';
                         statusText = `📈 Двойная прогрессия: +${diff} повт. к прошлому разу (${prevTotalReps} → ${lastTotalReps}) на противовесе ${lastMaxAssist} кг.`;
                         dynamicWeightLabel = lastMaxAssist > 0 ? `Противовес ${lastMaxAssist} кг (дожимаем повторы)` : `Свой вес (+повторы)`;
-                    } else if (lastMaxAssist >= prevMaxAssist && lastTotalReps <= prevTotalReps) {
+                    } else if (lastMaxAssist >= prevMaxAssist && lastTotalReps <= prevTotalReps && last.sets.length >= prev.sets.length) {
                         statusType = 'plateau';
                         const deloadAssist = +(Math.round(((lastMaxAssist + Math.max(2.5, lastMaxAssist * 0.1)) / 2.5)) * 2.5).toFixed(1);
                         statusText = `⚠️ ПЛАТО (2 трен. без роста): проверь восстановление или временно добавь противовес до ${deloadAssist} кг для разгрузки.`;
                         dynamicWeightLabel = `Противовес ${lastMaxAssist} кг (или разгрузка ${deloadAssist} кг)`;
+                    } else {
+                        statusType = 'working';
+                        statusText = `🎯 Рабочая фаза: держи противовес ${lastMaxAssist} кг и добавляй по 1 повтору до закрытия ${targetSetsCount}×${maxTargetReps}.`;
                     }
                 } else {
                     statusType = 'working';
@@ -2492,17 +2496,18 @@
             } else if (prev && !isPlank && !isActivation) {
                 const prevMaxW = Math.max(...prev.sets.map(s => Number(s.weight) || 0));
                 const prevTotalReps = prev.sets.reduce((acc, s) => acc + (Number(s.reps) || 0), 0);
+                const prevAvgReps = prevTotalReps / prev.sets.length;
 
                 if (lastMaxW > prevMaxW && allHitMin) {
                     statusType = 'working_up';
                     statusText = `📈 Рабочий вес повышен до ${lastMaxW} кг с удержанием рабочих повторов. Наращивай до ${targetSetsCount}×${maxTargetReps}.`;
                     dynamicWeightLabel = `${lastMaxW} кг (новый рабочий)`;
-                } else if (lastMaxW === prevMaxW && lastTotalReps > prevTotalReps) {
+                } else if (lastMaxW === prevMaxW && lastTotalReps > prevTotalReps && last.sets.length >= prev.sets.length && lastAvgReps >= prevAvgReps) {
                     const diff = lastTotalReps - prevTotalReps;
                     statusType = 'working_up';
                     statusText = `📈 Двойная прогрессия: +${diff} повт. к прошлому разу (${prevTotalReps} → ${lastTotalReps}). Дожимаем до ${targetSetsCount}×${maxTargetReps}.`;
                     dynamicWeightLabel = lastMaxW > 0 ? `${lastMaxW} кг (дожимаем повторы)` : 'Свой вес (+повторы)';
-                } else if (lastMaxW <= prevMaxW && lastTotalReps <= prevTotalReps) {
+                } else if (lastMaxW <= prevMaxW && lastTotalReps <= prevTotalReps && last.sets.length >= prev.sets.length) {
                     statusType = 'plateau';
                     const deloadW = Math.max(0, +(Math.round((lastMaxW * 0.9) / 2.5) * 2.5).toFixed(1));
                     statusText = `⚠️ ПЛАТО (2 трен. без роста на ${lastMaxW} кг): проверь сон/калории или сделай разгрузку (-10% веса).`;
@@ -2532,10 +2537,12 @@
         }
 
         function ensureSessionSetState(activeEx, historyInfo) {
-            const key = `${appState.workoutDay}_${activeEx.id}`;
+            const store = getCurrentSessionStore();
+            const blockKey = getActiveBlockKey();
+            const key = `${blockKey}_${activeEx.id}`;
             const defaultW = historyInfo.found ? historyInfo.recommendedDefaultWeight : activeEx.defaultWeight;
 
-            if (!appState.activeSessionSets[key]) {
+            if (!store[key]) {
                 const arr = [];
                 for (let s = 0; s < activeEx.sets; s++) {
                     const prevSet = (historyInfo.found && historyInfo.lastSets[s]) ? historyInfo.lastSets[s] : null;
@@ -2557,30 +2564,32 @@
                         done: false
                     });
                 }
-                appState.activeSessionSets[key] = arr;
-            } else if (appState.activeSessionSets[key].length < activeEx.sets) {
-                while (appState.activeSessionSets[key].length < activeEx.sets) {
-                    const sIdx = appState.activeSessionSets[key].length;
+                store[key] = arr;
+            } else if (store[key].length < activeEx.sets) {
+                while (store[key].length < activeEx.sets) {
+                    const sIdx = store[key].length;
                     const prevSet = (historyInfo.found && historyInfo.lastSets[sIdx]) ? historyInfo.lastSets[sIdx] : null;
-                    const lastExisting = appState.activeSessionSets[key][sIdx - 1];
-                    appState.activeSessionSets[key].push({
+                    const lastExisting = store[key][sIdx - 1];
+                    store[key].push({
                         weight: prevSet ? prevSet.weight : (lastExisting ? lastExisting.weight : defaultW),
                         reps: prevSet ? prevSet.reps : (lastExisting ? lastExisting.reps : activeEx.maxReps),
                         done: false
                     });
                 }
             }
-            return appState.activeSessionSets[key].slice(0, activeEx.sets);
+            return store[key].slice(0, activeEx.sets);
         }
 
         function prefillAllFromLastWorkout() {
-            const dayObj = WORKOUT_PROGRAM[appState.workoutDay];
+            const store = getCurrentSessionStore();
+            const blockKey = getActiveBlockKey();
+            const dayObj = WORKOUT_PROGRAM[blockKey];
             let updatedCount = 0;
             dayObj.exercises.forEach(rawEx => {
                 const ex = resolveActiveExerciseConfig(rawEx);
                 const hist = getExerciseHistoryInfo(ex);
                 if (hist.found) {
-                    const key = `${appState.workoutDay}_${ex.id}`;
+                    const key = `${blockKey}_${ex.id}`;
                     const arr = [];
                     for (let s = 0; s < ex.sets; s++) {
                         const prevSet = hist.lastSets[s] || hist.lastSets[hist.lastSets.length - 1];
@@ -2590,7 +2599,7 @@
                             done: false
                         });
                     }
-                    appState.activeSessionSets[key] = arr;
+                    store[key] = arr;
                     updatedCount++;
                 }
             });
@@ -2600,8 +2609,10 @@
         }
 
         function adjustSetField(exId, setIdx, field, delta) {
-            const key = `${appState.workoutDay}_${exId}`;
-            const setObj = appState.activeSessionSets[key][setIdx];
+            const store = getCurrentSessionStore();
+            const blockKey = getActiveBlockKey();
+            const key = `${blockKey}_${exId}`;
+            const setObj = store[key][setIdx];
             let val = parseDecimalInput(setObj[field]);
             val = Math.max(0, +(val + delta).toFixed(2));
             setObj[field] = val;
@@ -2612,16 +2623,20 @@
         }
 
         function updateSetInput(exId, setIdx, field, rawValue) {
-            const key = `${appState.workoutDay}_${exId}`;
-            const setObj = appState.activeSessionSets[key][setIdx];
+            const store = getCurrentSessionStore();
+            const blockKey = getActiveBlockKey();
+            const key = `${blockKey}_${exId}`;
+            const setObj = store[key][setIdx];
             setObj[field] = Math.max(0, parseDecimalInput(rawValue));
             saveState();
             updateWorkoutSummaryTotals();
         }
 
         function toggleSetComplete(exId, setIdx, restSeconds, exName) {
-            const key = `${appState.workoutDay}_${exId}`;
-            const setObj = appState.activeSessionSets[key][setIdx];
+            const store = getCurrentSessionStore();
+            const blockKey = getActiveBlockKey();
+            const key = `${blockKey}_${exId}`;
+            const setObj = store[key][setIdx];
             setObj.done = !setObj.done;
             saveState();
             renderWorkoutTab();
@@ -2633,13 +2648,15 @@
         }
 
         function updateWorkoutSummaryTotals() {
-            const dayObj = WORKOUT_PROGRAM[appState.workoutDay];
+            const store = getCurrentSessionStore();
+            const blockKey = getActiveBlockKey();
+            const dayObj = WORKOUT_PROGRAM[blockKey];
             let completedSets = 0;
 
             dayObj.exercises.forEach(rawEx => {
                 const ex = resolveActiveExerciseConfig(rawEx);
-                const key = `${appState.workoutDay}_${ex.id}`;
-                const sets = (appState.activeSessionSets[key] || []).slice(0, ex.sets);
+                const key = `${blockKey}_${ex.id}`;
+                const sets = (store[key] || []).slice(0, ex.sets);
                 sets.forEach(s => {
                     if (s.done) completedSets++;
                 });
@@ -2681,8 +2698,9 @@
 
         function renderWorkoutTab() {
             const rec = getTodayRecord();
+            const hasLogs = appState.weightLogs && appState.weightLogs.length > 0;
             const weight = getCurrentUserWeight();
-            document.getElementById('headerWeightVal').textContent = weight.toFixed(1);
+            document.getElementById('headerWeightVal').textContent = hasLogs ? weight.toFixed(1) : '—';
 
             const backupBanner = document.getElementById('backupReminderBanner');
             if ((appState.workoutsSinceLastBackup || 0) >= 1) {
@@ -2737,17 +2755,19 @@
                 finishBtn.textContent = '✓ Завершить и сохранить тренировку';
             }
 
+            const blockKey = getActiveBlockKey();
             ['d1', 'd2', 'd3'].forEach(d => {
                 const b = document.getElementById(`wTab-${d}`);
-                if (appState.workoutDay === d) {
+                if (blockKey === d) {
                     b.className = 'tactical-btn py-2.5 px-2 rounded-xl font-mono text-xs font-bold border text-center bg-accentGreen text-black border-accentGreen';
                 } else {
                     b.className = 'tactical-btn py-2.5 px-2 rounded-xl font-mono text-xs font-bold border text-center bg-bgMain text-textMuted border-borderSubtle hover:text-white';
                 }
             });
 
-            const dayObj = WORKOUT_PROGRAM[appState.workoutDay];
+            const dayObj = WORKOUT_PROGRAM[blockKey];
             const container = document.getElementById('exercisesContainer');
+            const rirStore = getCurrentRirStore();
             container.innerHTML = '';
 
             dayObj.exercises.forEach((rawEx, exIdx) => {
@@ -2873,8 +2893,8 @@
                     `;
                 }).join('');
 
-                const curRir = (appState.activeExerciseRir && appState.activeExerciseRir[ex.id] !== undefined)
-                    ? Number(appState.activeExerciseRir[ex.id])
+                const curRir = (rirStore && rirStore[ex.id] !== undefined)
+                    ? Number(rirStore[ex.id])
                     : 1;
                 const rirSelectorHTML = !ex.isPlank ? `
                     <div class="flex items-center justify-between bg-bgMain px-2.5 py-1.5 rounded-xl border border-borderSubtle gap-1.5">
@@ -2963,30 +2983,31 @@
             confirmResetSessionFlag = false;
             if (btn) btn.textContent = '↺ Сбросить текущую сессию (очистить галочки)';
 
+            if (appState.editingWorkoutId) {
+                cancelEditingWorkout();
+                return;
+            }
+
             const dayObj = WORKOUT_PROGRAM[appState.workoutDay];
             dayObj.exercises.forEach(rawEx => {
                 const ex = resolveActiveExerciseConfig(rawEx);
                 delete appState.activeSessionSets[`${appState.workoutDay}_${ex.id}`];
             });
-            appState.editingWorkoutId = null;
-            appState.editingWorkoutDate = null;
-            appState.savedActiveSessionBackup = null;
             saveState();
             renderWorkoutTab();
             showToast('Текущая сессия сброшена');
         }
 
+        // Изолированное открытие архивной тренировки на правку (не затирает activeSessionSets)
         function startEditWorkoutById(workoutId) {
             const target = appState.workoutHistory.find(w => w.id === workoutId);
             if (!target) return;
 
-            if (!appState.editingWorkoutId) {
-                appState.savedActiveSessionBackup = JSON.parse(JSON.stringify(appState.activeSessionSets));
-            }
-
             appState.editingWorkoutId = workoutId;
             appState.editingWorkoutDate = target.date || getTodayKey();
-            appState.workoutDay = target.dayId;
+            appState.editingWorkoutDay = target.dayId;
+            appState.editingSessionSets = {};
+            appState.editingExerciseRir = {};
 
             if (target.exercises && target.exercises['d2_ex1_lat']) appState.d2Ex1Variant = 'latpulldown';
             else if (target.exercises && target.exercises['d2_ex1']) appState.d2Ex1Variant = 'pullups';
@@ -3007,9 +3028,9 @@
                         arr.push({ weight: ex.defaultWeight, reps: ex.maxReps, done: false });
                     }
                 }
-                appState.activeSessionSets[`${target.dayId}_${ex.id}`] = arr;
+                appState.editingSessionSets[`${target.dayId}_${ex.id}`] = arr;
                 if (target.rirs && target.rirs[ex.id] !== undefined) {
-                    appState.activeExerciseRir[ex.id] = target.rirs[ex.id];
+                    appState.editingExerciseRir[ex.id] = target.rirs[ex.id];
                 }
             });
 
@@ -3021,33 +3042,35 @@
         function cancelEditingWorkout() {
             appState.editingWorkoutId = null;
             appState.editingWorkoutDate = null;
-            if (appState.savedActiveSessionBackup) {
-                appState.activeSessionSets = appState.savedActiveSessionBackup;
-                appState.savedActiveSessionBackup = null;
-            }
+            appState.editingWorkoutDay = null;
+            appState.editingSessionSets = {};
+            appState.editingExerciseRir = {};
             saveState();
             renderWorkoutTab();
             showToast('Редактирование отменено');
         }
 
         function finishAndSaveWorkout() {
-            const dayObj = WORKOUT_PROGRAM[appState.workoutDay];
+            const store = getCurrentSessionStore();
+            const rirStore = getCurrentRirStore();
+            const blockKey = getActiveBlockKey();
+            const dayObj = WORKOUT_PROGRAM[blockKey];
             const savedExercises = {};
             const savedRirs = {};
             let totalSetsDone = 0;
 
             dayObj.exercises.forEach(rawEx => {
                 const ex = resolveActiveExerciseConfig(rawEx);
-                const key = `${appState.workoutDay}_${ex.id}`;
-                const sets = (appState.activeSessionSets[key] || []).slice(0, ex.sets);
+                const key = `${blockKey}_${ex.id}`;
+                const sets = (store[key] || []).slice(0, ex.sets);
                 const doneSets = sets.filter(s => s.done);
                 if (doneSets.length > 0) {
                     savedExercises[ex.id] = doneSets.map(s => ({
                         weight: Number(s.weight),
                         reps: Number(s.reps)
                     }));
-                    savedRirs[ex.id] = (appState.activeExerciseRir && appState.activeExerciseRir[ex.id] !== undefined)
-                        ? Number(appState.activeExerciseRir[ex.id])
+                    savedRirs[ex.id] = (rirStore && rirStore[ex.id] !== undefined)
+                        ? Number(rirStore[ex.id])
                         : 1;
                     totalSetsDone += doneSets.length;
                 }
@@ -3065,7 +3088,7 @@
                     const dateInpEl = document.getElementById('editingWorkoutDateInput');
                     const newDateVal = (dateInpEl && dateInpEl.value) ? dateInpEl.value : (appState.editingWorkoutDate || oldDate);
                     appState.workoutHistory[idx].date = newDateVal;
-                    appState.workoutHistory[idx].dayId = appState.workoutDay;
+                    appState.workoutHistory[idx].dayId = blockKey;
                     appState.workoutHistory[idx].dayName = dayObj.name;
                     appState.workoutHistory[idx].setsDone = totalSetsDone;
                     appState.workoutHistory[idx].exercises = savedExercises;
@@ -3076,43 +3099,41 @@
                         const remainingOnOld = appState.workoutHistory.filter(w => w.date === oldDate);
                         if (remainingOnOld.length === 0) {
                             appState.dailyRecords[oldDate].mode = 'rest';
-                            appState.dailyRecords[oldDate].modeLocked = false;
                         }
                     }
                     const newDayRec = getRecordByDateKey(newDateVal);
-                    newDayRec.mode = appState.workoutDay;
-                    newDayRec.modeLocked = true;
+                    newDayRec.mode = blockKey;
                 }
                 appState.editingWorkoutId = null;
                 appState.editingWorkoutDate = null;
-                if (appState.savedActiveSessionBackup) {
-                    appState.activeSessionSets = appState.savedActiveSessionBackup;
-                    appState.savedActiveSessionBackup = null;
-                }
+                appState.editingWorkoutDay = null;
+                appState.editingSessionSets = {};
+                appState.editingExerciseRir = {};
                 showToast('Изменения и дата тренировки сохранены!');
             } else {
                 const todayIso = getTodayKey();
                 appState.workoutHistory.push({
                     id: Date.now(),
                     date: todayIso,
-                    dayId: appState.workoutDay,
+                    dayId: blockKey,
                     dayName: dayObj.name,
                     setsDone: totalSetsDone,
                     exercises: savedExercises,
                     rirs: savedRirs
                 });
                 const todayRec = getTodayRecord();
-                todayRec.mode = appState.workoutDay;
-                todayRec.modeLocked = true;
+                todayRec.mode = blockKey;
 
                 appState.manualQueueNext = null;
                 appState.workoutsSinceLastBackup = (appState.workoutsSinceLastBackup || 0) + 1;
 
                 dayObj.exercises.forEach(rawEx => {
                     const ex = resolveActiveExerciseConfig(rawEx);
-                    delete appState.activeSessionSets[`${appState.workoutDay}_${ex.id}`];
+                    delete appState.activeSessionSets[`${blockKey}_${ex.id}`];
                     appState.activeExerciseRir[ex.id] = 1;
                 });
+
+                appState.workoutDay = getNextRecommendedBlock();
                 showToast('Тренировка сохранена! Следующий блок и веса обновлены.');
             }
 
@@ -3149,7 +3170,6 @@
                 const stillHasWorkout = appState.workoutHistory.some(w => w.date === target.date);
                 if (!stillHasWorkout && target.date < getTodayKey()) {
                     appState.dailyRecords[target.date].mode = 'rest';
-                    appState.dailyRecords[target.date].modeLocked = false;
                 }
             }
 
@@ -3157,10 +3177,9 @@
             if (appState.editingWorkoutId === workoutId) {
                 appState.editingWorkoutId = null;
                 appState.editingWorkoutDate = null;
-                if (appState.savedActiveSessionBackup) {
-                    appState.activeSessionSets = appState.savedActiveSessionBackup;
-                    appState.savedActiveSessionBackup = null;
-                }
+                appState.editingWorkoutDay = null;
+                appState.editingSessionSets = {};
+                appState.editingExerciseRir = {};
             }
 
             saveState();
@@ -3260,7 +3279,7 @@
         }
 
         // =========================================================================
-        // 6. ПРОГРЕСС: КЛИКАБЕЛЬНЫЙ АРХИВ ДНЕЙ (ОТДЫХ/БЛОК), ГРАФИК СИЛЫ И ЖУРНАЛ
+        // 6. ПРОГРЕСС: ЧИСТАЯ СВОДКА ДНЕЙ (АВТО-ОТДЫХ), ГРАФИК СИЛЫ И ЖУРНАЛ
         // =========================================================================
         function logNewWeight() {
             const inp = document.getElementById('weightInput');
@@ -3285,15 +3304,17 @@
             showToast(`Вес ${val.toFixed(1)} кг (${formatShortDate(targetDate)}) записан!`);
         }
 
+        // Разрешено удалять все замеры веса вплоть до пустого массива []
         function deleteWeightEntry(idx) {
-            if (appState.weightLogs.length <= 1) {
-                showToast('Оставь хотя бы одну стартовую точку веса');
-                return;
-            }
+            if (!appState.weightLogs || idx < 0 || idx >= appState.weightLogs.length) return;
             appState.weightLogs.splice(idx, 1);
-            getStableAnchorWeight();
+            if (appState.weightLogs.length === 0 && appState.userProfile) {
+                appState.userProfile.anchorWeight = 78.5;
+            } else {
+                getStableAnchorWeight();
+            }
             saveState();
-            renderProgressTab();
+            renderActiveTabOnly();
             showToast('Замер веса удален');
         }
 
@@ -3495,7 +3516,7 @@
             const box = document.getElementById('weightChartBox');
             const recent = (logs || []).slice(-10);
             if (recent.length === 0) {
-                box.innerHTML = `<span class="text-xs font-mono text-textMuted">Нет данных</span>`;
+                box.innerHTML = `<span class="text-xs font-mono text-textMuted">Замеров веса пока нет</span>`;
                 return;
             }
 
@@ -3552,15 +3573,13 @@
                 const dayRec = appState.dailyRecords[iso];
                 const workoutsOnDay = appState.workoutHistory.filter(w => w.date === iso);
 
-                let modeCellHTML = '';
+                let modeLabel = 'Отдых';
                 if (workoutsOnDay.length > 0) {
                     const labels = [...new Set(workoutsOnDay.map(w => w.dayId.toUpperCase()))].join('+');
-                    modeCellHTML = `<span class="text-accentGreen font-bold">${escapeHtml(labels)} ✓</span>`;
+                    modeLabel = `<span class="text-accentGreen font-bold">${escapeHtml(labels)} ✓</span>`;
                 } else {
                     const effectiveMode = getEffectiveDayMode(iso);
-                    const dispText = effectiveMode === 'rest' ? 'Отдых' : effectiveMode.toUpperCase();
-                    const dispColor = effectiveMode === 'rest' ? 'text-textMuted hover:text-white' : 'text-accentAmber font-bold';
-                    modeCellHTML = `<button onclick="toggleArchiveDayMode('${iso}')" title="Нажми, чтобы переключить Отдых / Силовой" class="tactical-btn ${dispColor} bg-bgMain border border-borderSubtle px-2 py-0.5 rounded-lg text-[11px] font-mono">${escapeHtml(dispText)} <span class="opacity-60 text-[10px]">✎</span></button>`;
+                    modeLabel = effectiveMode === 'rest' ? 'Отдых' : escapeHtml(effectiveMode.toUpperCase());
                 }
 
                 let cal = 0, p = 0, f = 0, c = 0;
@@ -3593,7 +3612,7 @@
                 wkHTML += `
                     <tr class="border-b border-borderSubtle/60">
                         <td class="py-2 text-textMuted">${formatShortDate(iso)}</td>
-                        <td class="py-2 text-white">${modeCellHTML}</td>
+                        <td class="py-2 text-white">${modeLabel}</td>
                         <td class="py-2 text-white">${Math.round(cal)}</td>
                         <td class="py-2">${pBadge}</td>
                     </tr>
@@ -3613,8 +3632,9 @@
             }
 
             const logs = appState.weightLogs || [];
+            const hasLogs = logs.length > 0;
             const currentW = getCurrentUserWeight();
-            const startW = logs.length > 0 ? Number(logs[0].weight) : 79.6;
+            const startW = hasLogs ? Number(logs[0].weight) : 79.6;
 
             const d7 = new Date();
             d7.setDate(d7.getDate() - 7);
@@ -3624,24 +3644,31 @@
             const avg7 = poolForAvg.length > 0
                 ? poolForAvg.reduce((acc, item) => acc + Number(item.weight), 0) / poolForAvg.length
                 : currentW;
-            const delta = currentW - startW;
+            const delta = hasLogs ? (currentW - startW) : 0;
 
             const avgLabelEl = document.getElementById('statAvgWeightLabel');
             if (avgLabelEl) {
-                if (logsLast7Days.length <= 1) {
+                if (!hasLogs) {
+                    avgLabelEl.textContent = 'Средний (0 зам.)';
+                } else if (logsLast7Days.length <= 1) {
                     avgLabelEl.textContent = 'Средний (1 замер)';
                 } else {
                     avgLabelEl.textContent = `Средний (${logsLast7Days.length} зам.)`;
                 }
             }
 
-            document.getElementById('statCurrWeight').textContent = `${currentW.toFixed(1)} кг`;
-            document.getElementById('statAvgWeight').textContent = `${avg7.toFixed(1)} кг`;
+            document.getElementById('statCurrWeight').textContent = hasLogs ? `${currentW.toFixed(1)} кг` : '—';
+            document.getElementById('statAvgWeight').textContent = hasLogs ? `${avg7.toFixed(1)} кг` : '—';
 
             const deltaEl = document.getElementById('statDeltaWeight');
-            const sign = delta > 0 ? '+' : '';
-            deltaEl.textContent = `${sign}${delta.toFixed(1)} кг`;
-            deltaEl.className = `font-mono font-extrabold text-lg mt-0.5 block ${delta <= 0 ? 'text-accentGreen' : 'text-accentAmber'}`;
+            if (!hasLogs) {
+                deltaEl.textContent = '0.0 кг';
+                deltaEl.className = 'font-mono font-extrabold text-lg mt-0.5 block text-textMuted';
+            } else {
+                const sign = delta > 0 ? '+' : '';
+                deltaEl.textContent = `${sign}${delta.toFixed(1)} кг`;
+                deltaEl.className = `font-mono font-extrabold text-lg mt-0.5 block ${delta <= 0 ? 'text-accentGreen' : 'text-accentAmber'}`;
+            }
 
             renderWeightChartSVG(logs);
 
@@ -3654,15 +3681,19 @@
                 wList.classList.add('hidden');
             }
 
-            wList.innerHTML = logs.map((item, idx) => `
-                <div class="flex items-center justify-between bg-bgMain px-3 py-2 rounded-lg border border-borderSubtle text-xs font-mono">
-                    <span class="text-textMuted">${escapeHtml(item.date)}</span>
-                    <div class="flex items-center space-x-3">
-                        <span class="text-white font-bold">${Number(item.weight).toFixed(1)} кг</span>
-                        <button onclick="deleteWeightEntry(${idx})" title="Удалить замер" class="px-2 py-0.5 rounded bg-bgElevated text-textMuted hover:text-accentRed">Удалить ✕</button>
+            if (logs.length === 0) {
+                wList.innerHTML = `<div class="text-xs font-mono text-textMuted py-2 text-center">Замеров веса пока нет</div>`;
+            } else {
+                wList.innerHTML = logs.map((item, idx) => `
+                    <div class="flex items-center justify-between bg-bgMain px-3 py-2 rounded-lg border border-borderSubtle text-xs font-mono">
+                        <span class="text-textMuted">${escapeHtml(item.date)}</span>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-white font-bold">${Number(item.weight).toFixed(1)} кг</span>
+                            <button onclick="deleteWeightEntry(${idx})" title="Удалить замер" class="px-2 py-0.5 rounded bg-bgElevated text-textMuted hover:text-accentRed">Удалить ✕</button>
+                        </div>
                     </div>
-                </div>
-            `).reverse().join('');
+                `).reverse().join('');
+            }
 
             populateStrengthSelectOptions();
             renderStrengthProgressChart();
@@ -3744,7 +3775,7 @@
         }
 
         // =========================================================================
-        // 7. НАДЁЖНЫЙ БЭКАП С ГАРАНТИРОВАННЫМ ОТКАТОМ И ПОДДЕРЖКОЙ ПУСТЫХ ЗАМЕРОВ
+        // 7. ТРАНЗАКЦИОННЫЙ БЭКАП И ОТКАТ БЕЗ ПОТЕРИ СОСТОЯНИЯ ПРИ ОШИБКАХ ПАМЯТИ
         // =========================================================================
         function updateUndoRestoreButtonVisibility() {
             const btn = document.getElementById('undoRestoreBtn');
@@ -3807,7 +3838,12 @@
                 pruneOldDailyFoodRecords(45);
                 const exportPayload = {
                     ...appState,
-                    backupVersion: '6.2',
+                    editingWorkoutId: null,
+                    editingWorkoutDate: null,
+                    editingWorkoutDay: null,
+                    editingSessionSets: {},
+                    editingExerciseRir: {},
+                    backupVersion: '6.3',
                     exportedAt: new Date().toISOString()
                 };
                 const jsonStr = JSON.stringify(exportPayload, null, 2);
@@ -3837,7 +3873,15 @@
         async function copyBackupCodeToClipboard() {
             try {
                 pruneOldDailyFoodRecords(45);
-                const jsonStr = JSON.stringify(appState);
+                const cleanExport = {
+                    ...appState,
+                    editingWorkoutId: null,
+                    editingWorkoutDate: null,
+                    editingWorkoutDay: null,
+                    editingSessionSets: {},
+                    editingExerciseRir: {}
+                };
+                const jsonStr = JSON.stringify(cleanExport);
                 const encoded = 'TACTICAL_BACKUP_' + encodeUtf8Base64(jsonStr);
 
                 let copiedOk = false;
@@ -3867,7 +3911,6 @@
             }
         }
 
-        // Исправлено: разрешен пустой массив weightLogs: [] (валидная база без замеров веса проходит проверку)
         function validateAndSanitizeBackupPayload(parsed) {
             if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
                 return { ok: false, reason: 'Корневой объект базы поврежден' };
@@ -3886,9 +3929,23 @@
             if (!Array.isArray(parsed.workoutHistory)) {
                 return { ok: false, reason: 'Отсутствует массив тренировок (workoutHistory)' };
             }
-            for (const w of parsed.workoutHistory) {
+            for (let i = 0; i < parsed.workoutHistory.length; i++) {
+                const w = parsed.workoutHistory[i];
                 if (!w || typeof w !== 'object' || typeof w.date !== 'string' || !['d1', 'd2', 'd3'].includes(w.dayId) || !w.exercises || typeof w.exercises !== 'object') {
                     return { ok: false, reason: 'Повреждена структура записей тренировок (workoutHistory)' };
+                }
+                if (!w.id || isNaN(Number(w.id))) {
+                    w.id = Date.now() + i;
+                }
+                for (const exSets of Object.values(w.exercises)) {
+                    if (!Array.isArray(exSets)) {
+                        return { ok: false, reason: 'Некорректный формат подходов внутри тренировки' };
+                    }
+                    for (const s of exSets) {
+                        if (!s || isNaN(Number(s.weight)) || Number(s.weight) < 0 || isNaN(Number(s.reps)) || Number(s.reps) < 0) {
+                            return { ok: false, reason: 'Некорректные значения веса или повторов в тренировке' };
+                        }
+                    }
                 }
             }
 
@@ -3910,7 +3967,7 @@
             return { ok: true };
         }
 
-        // Исправлено: гарантированная запись точки отката в localStorage с проверкой ошибок перед перезаписью базы
+        // Транзакционное восстановление: сначала сохраняет в localStorage, и только при успехе меняет appState
         function applyValidatedBackupState(parsed) {
             const check = validateAndSanitizeBackupPayload(parsed);
             if (!check.ok) {
@@ -3944,24 +4001,29 @@
                 }
             }
 
-            const sanitizedWeightLogs = parsed.weightLogs.length > 0
-                ? parsed.weightLogs
-                : [{ date: getTodayKey(), weight: 78.5 }];
-
-            appState = {
+            // Сохраняем массив weightLogs как есть (даже если он пустой []), не создавая фиктивного взвешивания
+            const nextState = {
                 ...appState,
                 ...parsed,
-                weightLogs: sanitizedWeightLogs,
+                weightLogs: parsed.weightLogs,
                 workoutsSinceLastBackup: 0,
                 editingWorkoutId: null,
-                editingWorkoutDate: null
+                editingWorkoutDate: null,
+                editingWorkoutDay: null,
+                editingSessionSets: {},
+                editingExerciseRir: {}
             };
 
-            if (!saveState()) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+            } catch (writeErr) {
+                console.error('Ошибка записи новой базы в localStorage:', writeErr);
                 showToast('Ошибка: не удалось сохранить восстановленную базу в память браузера');
                 return false;
             }
 
+            appState = nextState;
+            flashAutoSaveIndicator();
             closeBackupModal();
             initApp();
             showToast('База данных успешно проверена и восстановлена!');
@@ -4014,6 +4076,7 @@
             }
         }
 
+        // Транзакционный откат: проверяет успешность записи в localStorage перед обновлением состояния
         function undoLastRestoreBackup() {
             const prevRaw = localStorage.getItem(PREV_BACKUP_STORAGE_KEY);
             if (!prevRaw) return;
@@ -4021,15 +4084,30 @@
             try {
                 const prev = JSON.parse(prevRaw);
                 const check = validateAndSanitizeBackupPayload(prev);
-                if (check.ok) {
-                    appState = { ...appState, ...prev };
-                    saveState();
-                    closeBackupModal();
-                    initApp();
-                    showToast('Предыдущая база данных возвращена!');
-                } else {
+                if (!check.ok) {
                     showToast('Резервная копия отката повреждена');
+                    return;
                 }
+                const restoredState = {
+                    ...appState,
+                    ...prev,
+                    editingWorkoutId: null,
+                    editingWorkoutDate: null,
+                    editingWorkoutDay: null,
+                    editingSessionSets: {},
+                    editingExerciseRir: {}
+                };
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(restoredState));
+                } catch (writeErr) {
+                    showToast('Ошибка: браузер не позволил записать откатываемую базу');
+                    return;
+                }
+                appState = restoredState;
+                flashAutoSaveIndicator();
+                closeBackupModal();
+                initApp();
+                showToast('Предыдущая база данных успешно возвращена!');
             } catch (e) {
                 showToast('Ошибка при откате базы');
             }
