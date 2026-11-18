@@ -7,7 +7,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>TACTICAL FIT // Дневник Рекомпозиции v6.1</title>
+    <title>TACTICAL FIT // Дневник Рекомпозиции v6.2</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230d0f12'/%3E%3Cpath d='M136 176v160M96 208v96M376 176v160M416 208v96M136 256h240' stroke='%2310b981' stroke-width='36' stroke-linecap='round'/%3E%3C/svg%3E">
     <script>
@@ -132,7 +132,7 @@
                 <div class="min-w-0">
                     <div class="flex items-center space-x-1.5">
                         <span class="font-mono font-extrabold text-sm tracking-wider uppercase text-white truncate">TACTICAL RECOMP</span>
-                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v6.1</span>
+                        <span class="text-[10px] font-mono bg-bgElevated text-accentGreen px-1.5 py-0.5 rounded border border-accentGreen/30 shrink-0">v6.2</span>
                     </div>
                     <div class="flex items-center space-x-1.5 mt-0.5">
                         <button onclick="openBackupModal()" id="autoSaveBadge" class="tactical-btn text-[10px] font-mono text-accentGreen bg-accentGreen/10 border border-accentGreen/30 px-2 py-0.5 rounded-full flex items-center shrink-0">
@@ -343,14 +343,14 @@
                         <span id="calHeaderTitle" class="text-xs font-mono uppercase text-textMuted">Калории за сегодня</span>
                         <div class="font-mono">
                             <span id="calCurrent" class="text-2xl font-extrabold text-white">0</span>
-                            <span class="text-sm text-textMuted">/ <span id="calTarget">2335</span> ккал</span>
+                            <span class="text-sm text-textMuted">/ <span id="calTarget">2421</span> ккал</span>
                         </div>
                     </div>
                     <div class="w-full h-3 bg-bgElevated rounded-full overflow-hidden">
                         <div id="calBar" class="h-full bg-accentGreen transition-all duration-300" style="width: 0%"></div>
                     </div>
                     <div class="flex justify-between items-center mt-1.5 text-xs font-mono">
-                        <span id="calStatusText" class="text-textMuted">Осталось: 2335 ккал</span>
+                        <span id="calStatusText" class="text-textMuted">Осталось: 2421 ккал</span>
                         <span id="calPercentText" class="text-accentGreen font-bold">0%</span>
                     </div>
                 </div>
@@ -358,7 +358,7 @@
                 <!-- Статус зачета белка от 125 г и остаток БЖУ до 150 г -->
                 <div class="bg-bgMain px-3.5 py-2.5 rounded-xl border border-borderSubtle flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs font-mono">
                     <span id="proteinPassBadge" class="text-accentAmber font-bold">До минимума белка (125г): ещё 125г</span>
-                    <span id="macroRemainHint" class="text-textMuted">До цели: Б:150г • Ж:69г • У:279г</span>
+                    <span id="macroRemainHint" class="text-textMuted">До цели: Б:150г • Ж:69г • У:300г</span>
                 </div>
 
                 <!-- Белки / Жиры / Углеводы -->
@@ -393,7 +393,7 @@
                             <span id="carbBadgeMode" class="text-[10px] text-accentAmber">Энергия</span>
                         </div>
                         <div class="font-mono font-bold text-base text-white mb-1.5">
-                            <span id="carbCurrent">0</span><span class="text-xs text-textMuted font-normal"> / <span id="carbTarget">279</span>г</span>
+                            <span id="carbCurrent">0</span><span class="text-xs text-textMuted font-normal"> / <span id="carbTarget">300</span>г</span>
                         </div>
                         <div class="w-full h-2 bg-bgElevated rounded-full overflow-hidden">
                             <div id="carbBar" class="h-full bg-sky-400 transition-all duration-300" style="width: 0%"></div>
@@ -1196,7 +1196,7 @@
             activeSessionSets: {},
             workoutHistory: [],
             weightLogs: [
-                { date: getTodayKey(), weight: 79.6 }
+                { date: getTodayKey(), weight: 78.5 }
             ],
             foodDatabase: JSON.parse(JSON.stringify(DEFAULT_FOOD_DB)),
             workoutsSinceLastBackup: 0,
@@ -1214,7 +1214,6 @@
             return 'd1';
         }
 
-        // Определяет честный фактический режим дня (исправляет ложный показ D3 в прошлые дни отдыха)
         function getEffectiveDayMode(dateKey) {
             const todayIso = getTodayKey();
             const workoutsOnDay = (appState.workoutHistory || []).filter(w => w.date === dateKey);
@@ -1225,7 +1224,6 @@
             if (!rec) {
                 return dateKey === todayIso ? getNextRecommendedBlock() : 'rest';
             }
-            // Если день уже в прошлом, тренировок в журнале за этот день нет и пользователь не фиксировал силовой режим вручную — это Отдых
             if (dateKey < todayIso && !rec.modeLocked) {
                 return 'rest';
             }
@@ -1271,7 +1269,6 @@
             showToast(selectedFoodDayOffset === -1 ? `Открыт вчерашний рацион (${formatShortDate(targetKey)})` : 'Открыт сегодняшний рацион');
         }
 
-        // Переключение режима дня (Отдых <-> Силовой) прямо из таблицы «Недельный архив»
         function toggleArchiveDayMode(dateKey) {
             const workoutsOnDay = (appState.workoutHistory || []).filter(w => w.date === dateKey);
             if (workoutsOnDay.length > 0) {
@@ -1367,7 +1364,8 @@
             }
             if (!Array.isArray(appState.workoutHistory)) appState.workoutHistory = [];
             if (!Array.isArray(appState.weightLogs) || appState.weightLogs.length === 0) {
-                appState.weightLogs = [{ date: getTodayKey(), weight: 79.6 }];
+                const fallbackW = (appState.userProfile && Number(appState.userProfile.anchorWeight)) || 78.5;
+                appState.weightLogs = [{ date: getTodayKey(), weight: fallbackW }];
             }
             if (!appState.exerciseNotes || typeof appState.exerciseNotes !== 'object') appState.exerciseNotes = {};
             if (!appState.activeExerciseRir || typeof appState.activeExerciseRir !== 'object') appState.activeExerciseRir = {};
@@ -1505,30 +1503,36 @@
         });
 
         // =========================================================================
-        // 3. ПИТАНИЕ: КБЖУ, ПОИСК ПО БУКВАМ, 6 КНОПОК + ЕЩЁ, РЕДАКТИРОВАНИЕ В БАЗЕ
+        // 3. ПИТАНИЕ: КАЛИБРОВКА КБЖУ (300/225 УГЛЕВОДОВ + ПЛАВНЫЙ ДЕМПФЕР ВЕСА)
         // =========================================================================
         function getCurrentUserWeight() {
-            if (!appState.weightLogs || appState.weightLogs.length === 0) return 78.5;
+            if (!appState.weightLogs || appState.weightLogs.length === 0) {
+                return (appState.userProfile && Number(appState.userProfile.anchorWeight)) || 78.5;
+            }
             return parseDecimalInput(appState.weightLogs[appState.weightLogs.length - 1].weight) || 78.5;
         }
 
+        // Устойчивый опорный вес: обновляется только при устойчивом сдвиге среднего >= 1.5 кг
         function getStableAnchorWeight() {
             const logs = appState.weightLogs || [];
-            if (logs.length === 0) return 78.5;
+            if (logs.length === 0) {
+                return (appState.userProfile && Number(appState.userProfile.anchorWeight)) || 78.5;
+            }
 
             const d7 = new Date();
             d7.setDate(d7.getDate() - 7);
             const cutoff7 = toDateKey(d7);
             const recent7 = logs.filter(l => l.date >= cutoff7);
-            const pool = recent7.length >= 2 ? recent7 : logs.slice(-3);
+            const pool = recent7.length >= 3 ? recent7 : logs.slice(-4);
             const rollingAvg = +(pool.reduce((acc, item) => acc + (parseDecimalInput(item.weight) || 78.5), 0) / pool.length).toFixed(1);
 
             if (!appState.userProfile) {
                 appState.userProfile = { heightCm: 178, age: 25, anchorWeight: rollingAvg };
             }
-            let anchor = Number(appState.userProfile.anchorWeight) || rollingAvg;
+            let anchor = Number(appState.userProfile.anchorWeight) || 78.5;
 
-            if (Math.abs(rollingAvg - anchor) >= 1.0) {
+            // Не меняем расчетную точку при колебаниях < 1.5 кг (например, 78.5 <-> 79.8 кг)
+            if (pool.length >= 2 && Math.abs(rollingAvg - anchor) >= 1.5) {
                 anchor = rollingAvg;
                 appState.userProfile.anchorWeight = anchor;
                 saveState();
@@ -1536,21 +1540,32 @@
             return anchor;
         }
 
+        // Сбалансированная модель рекомпозиции:
+        // При 78.5 кг (178 см, 25 лет): Белки 150г, Жиры 69г, Углеводы 300г (тренировка, 2421 ккал) / 225г (отдых, 2121 ккал).
+        // При изменении устойчивого веса работает мягкий демпфер (без резких скачков рациона).
         function calculateDynamicMacros(weightForCalc, mode) {
             const h = (appState.userProfile && Number(appState.userProfile.heightCm)) || 178;
             const age = (appState.userProfile && Number(appState.userProfile.age)) || 25;
             const w = Number(weightForCalc) || 78.5;
 
-            const bmr = 10 * w + 6.25 * h - 5 * age + 5;
+            const refBmr = 10 * 78.5 + 6.25 * 178 - 5 * 25 + 5; // 1777.5 ккал
+            const currentBmr = 10 * w + 6.25 * h - 5 * age + 5;
+            // Демпфированная разница BMR (50% чувствительности к изменению массы тела)
+            const dampedBmrDelta = (currentBmr - refBmr) * 0.5;
+
+            const protein = PROTEIN_DAILY_TARGET; // 150 г (600 ккал), минимум зачета 125 г
+            const weightDelta = w - 78.5;
+
+            // Жиры: при 78.5 кг ровно 69 г, плавный шаг 0.5 г на 1 кг веса в коридоре 55–80 г
+            const fat = Math.min(80, Math.max(55, Math.round(69 + weightDelta * 0.5)));
+
             const isWorkout = mode !== 'rest';
+            // Углеводы: при 78.5 кг ровно 300 г в силовой день и 225 г в день отдыха
+            const baseCarbs = isWorkout ? 300 : 225;
+            const carbs = Math.max(150, Math.round(baseCarbs + dampedBmrDelta / 4));
 
-            const calories = isWorkout
-                ? Math.round(bmr * 1.145 + 300)
-                : Math.round(bmr * 1.145);
-
-            const protein = PROTEIN_DAILY_TARGET; // 150 г (ориентир), зачет от 125 г
-            const fat = Math.min(80, Math.max(55, Math.round(w * 0.88)));
-            const carbs = Math.max(130, Math.round((calories - (protein * 4 + fat * 9)) / 4));
+            // Итоговая калорийность полностью согласована с суммой БЖУ (при 78.5 кг: 2421 / 2121 ккал)
+            const calories = protein * 4 + fat * 9 + carbs * 4;
 
             return { calories, protein, fat, carbs, isWorkout, anchorWeight: w };
         }
@@ -1581,7 +1596,6 @@
             renderActiveTabOnly();
         }
 
-        // Живой поиск по закрепленным и всем продуктам на главном экране питания
         function onPinnedSearchInput(val) {
             pinnedSearchQuery = String(val || '').trim();
             const clearBtn = document.getElementById('clearPinnedSearchBtn');
@@ -1613,7 +1627,6 @@
             const allDb = appState.foodDatabase || [];
             const q = pinnedSearchQuery.toLowerCase();
 
-            // Если введена буква/слово в поиск — ищем по всей базе продуктов
             if (q.length > 0) {
                 const matched = allDb.filter(item => String(item.name || '').toLowerCase().includes(q));
                 if (matched.length === 0) {
@@ -1632,7 +1645,6 @@
                 return;
             }
 
-            // Стандартный режим: показываем 6 закрепленных кнопок + кнопку «Ещё (N)»
             const pinnedItems = allDb.filter(f => f.pinned);
             if (pinnedItems.length === 0) {
                 pinnedBar.innerHTML = `<span class="text-xs font-mono text-textMuted">Нет закрепленных продуктов. Открой базу ниже и нажми ★</span>`;
@@ -1938,7 +1950,6 @@
             showToast('Продукт удален из базы');
         }
 
-        // Редактирование существующего шаблона продукта прямо в базе (кнопка ✎)
         function startEditFoodTemplate(foodId) {
             const item = appState.foodDatabase.find(f => f.id === foodId);
             if (!item) return;
@@ -2186,7 +2197,7 @@
 
             const targets = calculateDynamicMacros(stableWeight, effectiveMode);
             document.getElementById('macroFormulaCaption').textContent =
-                `178см • 25л • База ${stableWeight.toFixed(1)}кг • ${targets.isWorkout ? 'Силовой (+300 ккал)' : 'Отдых (дефицит)'}`;
+                `178см • 25л • База ${stableWeight.toFixed(1)}кг • ${targets.isWorkout ? 'Тренировка (300У)' : 'Отдых (225У)'}`;
 
             let curCal = 0, curP = 0, curF = 0, curC = 0;
             rec.foods.forEach(item => {
@@ -2239,7 +2250,7 @@
             const remP = formatMacroVal(Math.max(0, targets.protein - curP));
             const remF = formatMacroVal(Math.max(0, targets.fat - curF));
             const remC = formatMacroVal(Math.max(0, targets.carbs - curC));
-            document.getElementById('macroRemainHint').textContent = `До цели (150Б): Б:${remP}г • Ж:${remF}г • У:${remC}г`;
+            document.getElementById('macroRemainHint').textContent = `До цели: Б:${remP}г • Ж:${remF}г • У:${remC}г`;
 
             renderPinnedFoodsSection();
 
@@ -3061,7 +3072,6 @@
                     appState.workoutHistory[idx].rirs = savedRirs;
                     appState.workoutHistory.sort((a, b) => a.date.localeCompare(b.date) || (a.id - b.id));
 
-                    // Если тренировку перенесли со старой даты на другую, освобождаем старую дату под Отдых
                     if (oldDate !== newDateVal && appState.dailyRecords[oldDate]) {
                         const remainingOnOld = appState.workoutHistory.filter(w => w.date === oldDate);
                         if (remainingOnOld.length === 0) {
@@ -3483,7 +3493,7 @@
 
         function renderWeightChartSVG(logs) {
             const box = document.getElementById('weightChartBox');
-            const recent = logs.slice(-10);
+            const recent = (logs || []).slice(-10);
             if (recent.length === 0) {
                 box.innerHTML = `<span class="text-xs font-mono text-textMuted">Нет данных</span>`;
                 return;
@@ -3602,7 +3612,7 @@
                 avgMacrosEl.textContent = 'Накопи хотя бы 1 полный день питания';
             }
 
-            const logs = appState.weightLogs;
+            const logs = appState.weightLogs || [];
             const currentW = getCurrentUserWeight();
             const startW = logs.length > 0 ? Number(logs[0].weight) : 79.6;
 
@@ -3611,7 +3621,9 @@
             const cutoff7Key = toDateKey(d7);
             const logsLast7Days = logs.filter(l => l.date >= cutoff7Key);
             const poolForAvg = logsLast7Days.length > 0 ? logsLast7Days : logs.slice(-7);
-            const avg7 = poolForAvg.reduce((acc, item) => acc + Number(item.weight), 0) / poolForAvg.length;
+            const avg7 = poolForAvg.length > 0
+                ? poolForAvg.reduce((acc, item) => acc + Number(item.weight), 0) / poolForAvg.length
+                : currentW;
             const delta = currentW - startW;
 
             const avgLabelEl = document.getElementById('statAvgWeightLabel');
@@ -3732,7 +3744,7 @@
         }
 
         // =========================================================================
-        // 7. НАДЁЖНЫЙ БЭКАП (ФАЙЛ .JSON + КОД) С ГЛУБОКОЙ ВАЛИДАЦИЕЙ И ОТКАТОМ
+        // 7. НАДЁЖНЫЙ БЭКАП С ГАРАНТИРОВАННЫМ ОТКАТОМ И ПОДДЕРЖКОЙ ПУСТЫХ ЗАМЕРОВ
         // =========================================================================
         function updateUndoRestoreButtonVisibility() {
             const btn = document.getElementById('undoRestoreBtn');
@@ -3795,7 +3807,7 @@
                 pruneOldDailyFoodRecords(45);
                 const exportPayload = {
                     ...appState,
-                    backupVersion: '6.1',
+                    backupVersion: '6.2',
                     exportedAt: new Date().toISOString()
                 };
                 const jsonStr = JSON.stringify(exportPayload, null, 2);
@@ -3855,13 +3867,14 @@
             }
         }
 
+        // Исправлено: разрешен пустой массив weightLogs: [] (валидная база без замеров веса проходит проверку)
         function validateAndSanitizeBackupPayload(parsed) {
             if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
                 return { ok: false, reason: 'Корневой объект базы поврежден' };
             }
 
-            if (!Array.isArray(parsed.weightLogs) || parsed.weightLogs.length === 0) {
-                return { ok: false, reason: 'Отсутствует или пуст массив замеров веса (weightLogs)' };
+            if (!Array.isArray(parsed.weightLogs)) {
+                return { ok: false, reason: 'Отсутствует массив замеров веса (weightLogs)' };
             }
             for (const item of parsed.weightLogs) {
                 const w = Number(item && item.weight);
@@ -3897,6 +3910,7 @@
             return { ok: true };
         }
 
+        // Исправлено: гарантированная запись точки отката в localStorage с проверкой ошибок перед перезаписью базы
         function applyValidatedBackupState(parsed) {
             const check = validateAndSanitizeBackupPayload(parsed);
             if (!check.ok) {
@@ -3910,18 +3924,44 @@
                 return false;
             }
 
+            pruneOldDailyFoodRecords(45);
+            const currentSnapshot = JSON.stringify(appState);
+
             try {
-                localStorage.setItem(PREV_BACKUP_STORAGE_KEY, JSON.stringify(appState));
-            } catch (e) {}
+                localStorage.setItem(PREV_BACKUP_STORAGE_KEY, currentSnapshot);
+                const verifySaved = localStorage.getItem(PREV_BACKUP_STORAGE_KEY);
+                if (!verifySaved) {
+                    throw new Error('Верификация записи отката не прошла');
+                }
+            } catch (storageErr) {
+                console.error('Не удалось сохранить точку отката:', storageErr);
+                const forceProceed = confirm(
+                    '⚠️ ВНИМАНИЕ: Память браузера переполнена или заблокирована — сохранить страховочную копию для кнопки «Откат» НЕ УДАЛОСЬ.\n\nНажми «Отмена», чтобы сначала скачать .JSON файл текущей базы (рекомендуется), или «ОК», чтобы продолжить восстановление без возможности отката.'
+                );
+                if (!forceProceed) {
+                    showToast('Восстановление отменено для защиты текущей базы');
+                    return false;
+                }
+            }
+
+            const sanitizedWeightLogs = parsed.weightLogs.length > 0
+                ? parsed.weightLogs
+                : [{ date: getTodayKey(), weight: 78.5 }];
 
             appState = {
                 ...appState,
                 ...parsed,
+                weightLogs: sanitizedWeightLogs,
                 workoutsSinceLastBackup: 0,
                 editingWorkoutId: null,
                 editingWorkoutDate: null
             };
-            saveState();
+
+            if (!saveState()) {
+                showToast('Ошибка: не удалось сохранить восстановленную базу в память браузера');
+                return false;
+            }
+
             closeBackupModal();
             initApp();
             showToast('База данных успешно проверена и восстановлена!');
